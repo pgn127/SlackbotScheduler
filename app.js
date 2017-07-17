@@ -20,8 +20,8 @@ var RTM_EVENTS = Slack.RTM_EVENTS;
 var token;
 
 
-var CLIENT_ID = '214011705701.213228166656';
-var CLIENT_SECRET = '9ff7b831fa7cc74064e897f5da9563db';
+var CLIENT_ID = process.env.CLIENT_SECRET
+var CLIENT_SECRET = process.env.CLIENT_ID
 const PORT=4390;
 
 // Start our server

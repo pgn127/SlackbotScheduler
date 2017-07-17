@@ -87,14 +87,6 @@ rtm.on(RTM_EVENTS.REACTION_REMOVED, function handleRtmReactionRemoved(reaction) 
   console.log('Reaction removed:', reaction);
 });
 
-<<<<<<< HEAD
-curl 'https://api.api.ai/api/query?v=20150910&
-query=remind%20me%20to%20do%20the%20dishes%20tomorrow&
-lang=en&
-sessionId=b72bd408-bcf1-4366-8bb6-9224142420b0&
-timezone=
- -H 'Authorization:Bearer f3b4569a54774d98be21567b952ebebd'
-=======
 
 function processMessage(message, rtm) {
   var messageText = message.text;
@@ -103,4 +95,3 @@ function processMessage(message, rtm) {
     // getAndSendCurrentWeather(locationName, query, message.channel, rtm);
   });
 }
->>>>>>> master
