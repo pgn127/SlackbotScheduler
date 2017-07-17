@@ -30,7 +30,6 @@ var RtmClient = require('@slack/client').RtmClient;
 var RTM_EVENTS = require('@slack/client').RTM_EVENTS;
 
 var token = process.env.SLACK_API_TOKEN;
-console.log(token);
 
 var rtm = new RtmClient(token);
 rtm.start();
@@ -60,6 +59,7 @@ function processMessage(message, rtm) {
       timezone: timeZone,
     }
   }).then((response) => {
+    console.log(response)
     if(response.result.actionIncomplete) {
       //need to prompt the user for more information
       // TODO: send the user response.result.fulfillment.speech
