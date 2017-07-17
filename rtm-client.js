@@ -63,6 +63,7 @@ function processMessage(message, rtm) {
       //need to prompt the user for more information
       // TODO: send the user response.result.fulfillment.speech
       console.log(response.data.result.fulfillment.speech)
+      rtm.sendMessage(response.data.result.fulfillment.speech, message.channel)
     } else {
       // TODO: send the user a confirmation with response.result.fulfillment.speech
     }
