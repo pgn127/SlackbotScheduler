@@ -47,32 +47,32 @@ app.get('/oauth', function(req, res) {
         // If it's there...
 
         // We'll do a GET call to Slack's `oauth.access` endpoint, passing our app's client ID, client secret, and the code we just got as query parameters.
-        request('https://slack.com/api/oauth.access?client_id=' + CLIENT_ID + '&client_secret=' + CLIENT_SECRET + '&code=' + req.query.code,
-            function(error, response, body) {
-              var responseJson = JSON.parse(body);
-              if(responseJson.ok) {
-                // var botAccessToken = responseJson['bot']['bot_access_token'];
-                // var botUserId = responseJson['bot']['bot_user_id'];
-                // var teamId = responseJson['team_id'];
-                // connectToTeam(botAccessToken);
+        request({
+            url: 'https://slack.com/api/oauth.access', //URL to hit
+            qs: {code: req.query.code, client_id: process.env.CLIENT_ID, client_secret: process.env.CLIENT_SECRET}, //Query string data
+            method: 'GET', //Specify the method
+
+        }, function (error, response, body) {
+            if (error) {
+                console.log(error);
+            } else {
                 res.json(body);
-              } else {
-                console.error('could not exchange token ' + responseJson);
-              }
+
             }
-          );
+        })
     }
 });
 
 
 
-function processMessage(message, rtm) {
-  var locationName = message.text;
-  var query = (isNaN(locationName) ? 'q=' + locationName : 'zip=' + locationName) + '&units=imperial&APPID=' + WEATHER_API_KEY;
-  rtm.sendMessage('I\'ll get you the current weather for "' + locationName + '"', message.channel, function() {
-    // getAndSendCurrentWeather(locationName, query, message.channel, rtm);
-  });
-}
+
+// function processMessage(message, rtm) {
+//   var locationName = message.text;
+//   var query = (isNaN(locationName) ? 'q=' + locationName : 'zip=' + locationName) + '&units=imperial&APPID=' + WEATHER_API_KEY;
+//   rtm.sendMessage('I\'ll get you the current weather for "' + locationName + '"', message.channel, function() {
+//     // getAndSendCurrentWeather(locationName, query, message.channel, rtm);
+//   });
+// }
 
 // Route the endpoint that our slash command will point to and send back a simple response to indicate that ngrok is working
 app.post('/command', function(req, res) {
