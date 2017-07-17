@@ -1,5 +1,5 @@
 
-import axios from 'axios'
+const axios = require('axios')
 
 const timeZone = "2017-07-17T14:26:36-0700";
 const identifier = "20150910";
@@ -54,9 +54,18 @@ rtm.start();
 
 rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
   processMessage(message, rtm);
-  console.log('Message:', message);
-  //MAKE GET REQUEST TO THE API.AI SERVER
-  //prase the message so it is the correct format for the get request
+});
+
+rtm.on(RTM_EVENTS.REACTION_ADDED, function handleRtmReactionAdded(reaction) {
+  console.log('Reaction added:', reaction);
+});
+
+rtm.on(RTM_EVENTS.REACTION_REMOVED, function handleRtmReactionRemoved(reaction) {
+  console.log('Reaction removed:', reaction);
+});
+
+
+function processMessage(message, rtm) {
   axios.get('https://api.api.ai/api/query?v=' + identifier, {
     headers: {
       Authorization: "Bearer" + process.env.API_ACCESS_TOKEN
@@ -77,21 +86,7 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
   })
 
 
-});
-
-rtm.on(RTM_EVENTS.REACTION_ADDED, function handleRtmReactionAdded(reaction) {
-  console.log('Reaction added:', reaction);
-});
-
-rtm.on(RTM_EVENTS.REACTION_REMOVED, function handleRtmReactionRemoved(reaction) {
-  console.log('Reaction removed:', reaction);
-});
-
-
-function processMessage(message, rtm) {
-  var messageText = message.text;
-  //var query = (isNaN(locationName) ? 'q=' + locationName : 'zip=' + locationName) + '&units=imperial&APPID=' + WEATHER_API_KEY;
-  rtm.sendMessage(messageText, message.channel, function() {
-    // getAndSendCurrentWeather(locationName, query, message.channel, rtm);
-  });
+  // rtm.sendMessage(messageText, message.channel, function() {
+  //   // getAndSendCurrentWeather(locationName, query, message.channel, rtm);
+  // });
 }
