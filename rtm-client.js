@@ -16,16 +16,18 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
   console.log('Message:', message);
   //MAKE GET REQUEST TO THE API.AI SERVER
   //prase the message so it is the correct format for the get request
-  const parsedString = message.text.replace(" ", "%20");
   axios.get('https://api.api.ai/api/query?v=' + identifier, {
+    headers: {
+      Authorization: "Bearer" + process.env.API_ACCESS_TOKEN
+    },
     params: {
-      query: parsedString,
+      query: message.text,
       lang: en,
       sessionId: message.user,
       timezone: timeZone,
-      headers: {Authorization: "Bearer" + process.env.API_ACCESS_TOKEN}
-
     }
+  }).then((response) => {
+
   })
 
 
