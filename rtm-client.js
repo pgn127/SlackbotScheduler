@@ -72,7 +72,7 @@ function processMessage(message, rtm) {
     },
     params: {
       query: message.text,
-      lang: en,
+      lang: "en",
       sessionId: message.user,
       timezone: timeZone,
     }
@@ -83,8 +83,9 @@ function processMessage(message, rtm) {
     } else {
       // TODO: send the user a confirmation with response.result.fulfillment.speech
     }
+  }).catch((error) => {
+    console.log(error)
   })
-
 
   // rtm.sendMessage(messageText, message.channel, function() {
   //   // getAndSendCurrentWeather(locationName, query, message.channel, rtm);
