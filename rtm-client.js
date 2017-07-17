@@ -27,7 +27,12 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
       timezone: timeZone,
     }
   }).then((response) => {
-
+    if(response.result.actionIncomplete) {
+      //need to prompt the user for more information
+      // TODO: send the user response.result.fulfillment.speech
+    } else {
+      // TODO: send the user a confirmation with response.result.fulfillment.speech
+    }
   })
 
 
