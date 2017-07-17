@@ -4,15 +4,56 @@ import axios from 'axios'
 const timeZone = "2017-07-17T14:26:36-0700";
 const identifier = "20150910";
 
+var messageButtons = {
+            "text": "Would you like to play a game?",
+            "attachments": [
+                {
+                    "text": "Choose a game to play",
+                    "fallback": "You are unable to choose a game",
+                    "callback_id": "wopr_game",
+                    "color": "#3AA3E3",
+                    "attachment_type": "default",
+                    "actions": [
+                        {
+                            "name": "game",
+                            "text": "Chess",
+                            "type": "button",
+                            "value": "chess"
+                        },
+                        {
+                            "name": "game",
+                            "text": "Falken's Maze",
+                            "type": "button",
+                            "value": "maze"
+                        },
+                        {
+                            "name": "game",
+                            "text": "Thermonuclear War",
+                            "style": "danger",
+                            "type": "button",
+                            "value": "war",
+                            "confirm": {
+                                "title": "Are you sure?",
+                                "text": "Wouldn't you prefer a good game of chess?",
+                                "ok_text": "Yes",
+                                "dismiss_text": "No"
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+
 var RtmClient = require('@slack/client').RtmClient;
 var RTM_EVENTS = require('@slack/client').RTM_EVENTS;
 
-var token = process.env.SLACK_API_TOKEN || '';
+var token = process.env.SLACK_API_TOKEN || 'xoxb-213948372850-8BZYcWtZJvHWTzfZhpTsjGbl';
 
-var rtm = new RtmClient(token, { logLevel: 'debug' });
+var rtm = new RtmClient(token);
 rtm.start();
 
 rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
+  processMessage(message, rtm);
   console.log('Message:', message);
   //MAKE GET REQUEST TO THE API.AI SERVER
   //prase the message so it is the correct format for the get request
@@ -46,9 +87,20 @@ rtm.on(RTM_EVENTS.REACTION_REMOVED, function handleRtmReactionRemoved(reaction) 
   console.log('Reaction removed:', reaction);
 });
 
+<<<<<<< HEAD
 curl 'https://api.api.ai/api/query?v=20150910&
 query=remind%20me%20to%20do%20the%20dishes%20tomorrow&
 lang=en&
 sessionId=b72bd408-bcf1-4366-8bb6-9224142420b0&
 timezone=
  -H 'Authorization:Bearer f3b4569a54774d98be21567b952ebebd'
+=======
+
+function processMessage(message, rtm) {
+  var messageText = message.text;
+  //var query = (isNaN(locationName) ? 'q=' + locationName : 'zip=' + locationName) + '&units=imperial&APPID=' + WEATHER_API_KEY;
+  rtm.sendMessage(messageText, message.channel, function() {
+    // getAndSendCurrentWeather(locationName, query, message.channel, rtm);
+  });
+}
+>>>>>>> master
