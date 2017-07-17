@@ -48,7 +48,7 @@ rtm.on(RTM_EVENTS.REACTION_REMOVED, function handleRtmReactionRemoved(reaction) 
 
 
 function processMessage(message, rtm) {
-  axios.get('https://api.api.ai/api/query?v=' + identifier, {
+  axios.get('https://api.api.ai/api/query?v=20150910', {
     headers: {
       Authorization: "Bearer" + process.env.API_ACCESS_TOKEN
     },
@@ -59,10 +59,10 @@ function processMessage(message, rtm) {
       timezone: timeZone,
     }
   }).then((response) => {
-    console.log(response)
-    if(response.result.actionIncomplete) {
+    if(response.data.result.actionIncomplete) {
       //need to prompt the user for more information
       // TODO: send the user response.result.fulfillment.speech
+      console.log(response.data.result.fulfillment.speech)
     } else {
       // TODO: send the user a confirmation with response.result.fulfillment.speech
     }
