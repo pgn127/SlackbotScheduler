@@ -70,7 +70,7 @@ rtm.start();
 
 
 function processMessage(message, rtm) {
-    console.log('entered process message');
+    // console.log('entered process message');
     axios.get('https://api.api.ai/api/query', {
         params: {
             v: identifier,
@@ -84,14 +84,13 @@ function processMessage(message, rtm) {
         }
     })
     .then(function({data}) {
-        // console.log(data.result);
+        console.log('data.result', data.result);
         if(data.result.actionIncomplete) {
             rtm.sendMessage(data.result.fulfillment.speech, message.channel)
         } else if(Object.keys(data.result.parameters).length !== 0){
             web.chat.postMessage(message.channel, `Creating reminder for ${data.result.parameters.subject} on ${data.result.parameters.date}`, messageButtons);
         }
         else {
-            // console.log('is complete', data.result.parameters);
             rtm.sendMessage(data.result.fulfillment.speech, message.channel)
         }
     })
