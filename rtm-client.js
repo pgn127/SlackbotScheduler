@@ -48,6 +48,7 @@ console.log(token);
 var notPending = true;
 var rtm = new RtmClient(token);
 var web = new WebClient(token);
+<<<<<<< HEAD
 rtm.start();
 
 rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
