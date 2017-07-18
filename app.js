@@ -7,6 +7,7 @@ var mongoose = require('mongoose');
 var models = require('./models');
 var {User} = require('./models');
 var slackID;
+var expiry_date
 
 mongoose.connect(process.env.MONGODB_URI);
 mongoose.Promise = global.Promise;
@@ -29,23 +30,23 @@ var CLIENT_ID = process.env.CLIENT_ID;
 var CLIENT_SECRET = process.env.CLIENT_SECRET;
 const PORT=3000;
 
-  var oauth2Client;
-  var url;
+var oauth2Client;
+var url;
 
 // Start our server
 app.listen(PORT, function () {
-    //Callback triggered when server is successfully listening. Hurray!
-    console.log("Example app listening on port " + PORT);
+  //Callback triggered when server is successfully listening. Hurray!
+  console.log("Example app listening on port " + PORT);
 });
 
 app.get('/oauth', function(req, res){
-   oauth2Client = new OAuth2(
+  oauth2Client = new OAuth2(
     process.env.GOOGLE_CLIENT_ID,
     process.env.GOOGLE_CLIENT_SECRET,
     process.env.DOMAIN + '/connect/callback'
   )
 
-   url = oauth2Client.generateAuthUrl({
+  url = oauth2Client.generateAuthUrl({
     access_type: 'offline',
     prompt: 'consent',
     scope: [
@@ -67,7 +68,7 @@ app.get('/connect/callback', function(req, res) {
     const access_token = tokens.access_token;
     const auth_id = JSON.parse(decodeURIComponent(req.query.state));
     const token_type = tokens.token_type;
-    const expiry_date = tokens.expiry_date;
+    expiry_date = tokens.expiry_date;
     var newUser = new User({
       slackID: slackID,
       refresh_token: refresh_token,
@@ -82,31 +83,50 @@ app.get('/connect/callback', function(req, res) {
     res.send("Your account was successfuly authenticated")
     // TODO: Put all of these into the database with the corresponding user;
     res.status(200)
-  // Now tokens contains an access_token and an optional refresh_token. Save them.
-  if (!err) {
-    oauth2Client.setCredentials(tokens);
-  }
-});
+    // Now tokens contains an access_token and an optional refresh_token. Save them.
+    if (!err) {
+      oauth2Client.setCredentials(tokens);
+    }
+  });
 })
 
 // This route handles GET requests to our root ngrok address and responds with the same "Ngrok is working message" we used before
 app.get('/', function(req, res) {
-    res.send('Ngrok is working! Path Hit: ' + req.url);
+  res.send('Ngrok is working! Path Hit: ' + req.url);
 });
 
 // Route the endpoint that our slash command will point to and send back a simple response to indicate that ngrok is working
 app.post('/command', function(req, res) {
-    res.send('Your ngrok tunnel is up and running!');
+  res.send('Your ngrok tunnel is up and running!');
 });
 
 app.post('/slack/interactive', function(req,res){
-    var payload = JSON.parse(req.body.payload);
-    //if user clicks confirm button
-    if(payload.actions[0].value === 'true') {
-        res.send('Created reminder');
-        // TODO: create a calendar event here
-    } else{
-        console.log('cancel was clicked');
-        res.send('Cancelled');
+  var payload = JSON.parse(req.body.payload);
+  //if user clicks confirm button
+  if(payload.actions[0].value === 'true') {
+    res.send('Created reminder');
+    // TODO: create a calendar event here
+    if(Date.now() > expiry_date) {
+      oauth2Client.refreshAccessToken(function(err, tokens) {
+        User.findOne({slackID: slackID}).exec(function(err, user){
+          if(err){
+            console.log(err)
+          } else {
+            user.refresh_token = tokens.refresh_token;
+            user.access_token = tokens.access_token;
+            user.expiry_date = tokens.expiry_date;
+            user.auth_id = JSON.parse(decodeURIComponent(req.query.state));
+            user.token_type = tokens.token_type;
+
+            user.save();
+
+          }
+
+        })
+      });
     }
+  } else{
+    console.log('cancel was clicked');
+    res.send('Cancelled');
+  }
 })
