@@ -158,5 +158,4 @@ var calendar = google.calendar('v3');
       console.log('event created')
     }
   })
-
 }
