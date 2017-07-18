@@ -16,19 +16,6 @@ const PORT='3001';
 
 
 
-<<<<<<< HEAD
-var CLIENT_ID = process.env.CLIENT_SECRET
-var CLIENT_SECRET = process.env.CLIENT_ID
-const PORT=4390;
-
-// Start our server
-app.listen(PORT, function () {
-    //Callback triggered when server is successfully listening. Hurray!
-    console.log("Example app listening on port " + PORT);
-});
-
-=======
->>>>>>> master
 
 // This route handles GET requests to our root ngrok address and responds with the same "Ngrok is working message" we used before
 app.get('/', function(req, res) {

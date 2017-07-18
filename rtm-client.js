@@ -25,7 +25,6 @@ var messageButtons = {
                 }
 
 
-
 var RtmClient = require('@slack/client').RtmClient;
 var RTM_EVENTS = require('@slack/client').RTM_EVENTS;
 
@@ -48,11 +47,12 @@ rtm.on(RTM_EVENTS.REACTION_REMOVED, function handleRtmReactionRemoved(reaction) 
 
 
 function processMessage(message, rtm) {
-  axios.get('https://api.api.ai/api/query?v=20150910', {
+  axios.get('https://api.api.ai/api/query', {
     headers: {
       Authorization: "Bearer" + process.env.API_ACCESS_TOKEN
     },
     params: {
+      v: 20150910,
       query: message.text,
       lang: "en",
       sessionId: message.user,
@@ -60,9 +60,6 @@ function processMessage(message, rtm) {
     }
   }).then((response) => {
     if(response.data.result.actionIncomplete) {
-      //need to prompt the user for more information
-      // TODO: send the user response.result.fulfillment.speech
-      console.log(response.data.result.fulfillment.speech)
       rtm.sendMessage(response.data.result.fulfillment.speech, message.channel)
     } else {
       // TODO: send the user a confirmation with response.result.fulfillment.speech
@@ -70,8 +67,4 @@ function processMessage(message, rtm) {
   }).catch((error) => {
     console.log(error)
   })
-
-  // rtm.sendMessage(messageText, message.channel, function() {
-  //   // getAndSendCurrentWeather(locationName, query, message.channel, rtm);
-  // });
 }
