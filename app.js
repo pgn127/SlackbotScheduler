@@ -1,9 +1,7 @@
 
 // var fs = require('fs');
-var mongoose = require('mongoose');
 var logger = require('morgan');
 var google = require('googleapis');
-var {User} = require('./models')
 var OAuth2 = google.auth.OAuth2;
 var mongoose = require('mongoose');
 var models = require('./models');
@@ -120,7 +118,9 @@ app.post('/slack/interactive', function(req,res){
         })
       });
     }
+
     res.send('Reminder Confirmed')
+
   } else{
     res.send('Cancelled');
   }

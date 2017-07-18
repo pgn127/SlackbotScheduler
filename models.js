@@ -11,6 +11,7 @@ var userSchema = new Schema({
   expiry_date: Number
 })
 
+
 var User = mongoose.model('User', userSchema);
 
 module.exports = {
