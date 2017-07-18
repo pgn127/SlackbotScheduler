@@ -1,7 +1,12 @@
+var mongoose = require('mongoose');
+var models = require('./models');
+var {User} = require('./models');
+
 
 var axios = require('axios');
 const timeZone = "2017-07-17T14:26:36-0700";
 const identifier = 20150910;
+
 
 var messageButtons = {
           "attachments": [
@@ -52,7 +57,7 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
     if(err){console.log(err)
     } else {
       if(!user){
-        res.send('localhost:3000/oauth');
+        rtm.sendMessage('Please visit the following link to activate your account ' + process.env.DOMAIN + '/oauth', message.channel);
       } else {
         // TODO: store the tokens
         // TODO: do the calendar stuff here
