@@ -21,24 +21,8 @@ var CLIENT_ID = process.env.CLIENT_ID;
 var CLIENT_SECRET = process.env.CLIENT_SECRET;
 const PORT=3000;
 
-//generate the oauth url
-const oauth2Client = new OAuth2(
-  process.env.GOOGLE_CLIENT_ID,
-  process.env.GOOGLE_CLIENT_SECRET,
-  process.env.DOMAIN + '/connect/callback'
-)
-
-const url = oauth2Client.generateAuthUrl({
-  access_type: 'offline',
-  prompt: 'consent',
-  scope: [
-    'https://www.googleapis.com/auth/userinfo.profile',
-    'https://www.googleapis.com/auth/calendar'
-  ],
-  state: encoreURIComponent(JSON.stringify({
-    auth_id: req.query.auth_id
-  }))
-});
+  var oauth2Client;
+  var url;
 
 // Start our server
 app.listen(PORT, function () {
@@ -47,7 +31,36 @@ app.listen(PORT, function () {
 });
 
 app.get('/oauth', function(req, res){
+   oauth2Client = new OAuth2(
+    process.env.GOOGLE_CLIENT_ID,
+    process.env.GOOGLE_CLIENT_SECRET,
+    process.env.DOMAIN + '/connect/callback'
+  )
+
+   url = oauth2Client.generateAuthUrl({
+    access_type: 'offline',
+    prompt: 'consent',
+    scope: [
+      'https://www.googleapis.com/auth/userinfo.profile',
+      'https://www.googleapis.com/auth/calendar'
+    ],
+    state: encodeURIComponent(JSON.stringify({
+      auth_id: req.query.auth_id
+    }))
+  });
+  console.log('made it here')
   res.redirect(url);
+})
+
+app.get('/connect/callback', function(req, res) {
+  console.log("Made it here")
+  const code = req.query.code;
+  oauth2Client.getToken(code, function (err, tokens) {
+  // Now tokens contains an access_token and an optional refresh_token. Save them.
+  if (!err) {
+    oauth2Client.setCredentials(tokens);
+  }
+});
 })
 
 // This route handles GET requests to our root ngrok address and responds with the same "Ngrok is working message" we used before
@@ -70,28 +83,3 @@ app.post('/slack/interactive', function(req,res){
         res.send('Cancelled');
     }
 })
-
-// app.use((req, res, next) => {
-//   var err = new Error('Not Found');
-//   err.status = 404;
-//   next(err);
-// });
-//
-//
-// // error handler
-// app.use((err, req, res, next) => {
-//   // set locals, only providing error in development
-//   res.locals.message = err.message;
-//   res.locals.error = req.app.get('env') === 'development' ? err : {};
-//
-//   // render the error page
-//   res.status(err.status || 500);
-//   res.render('error');
-// });
-// export default app;
-
-// Start our server
-// app.listen(PORT, function () {
-//     //Callback triggered when server is successfully listening. Hurray!
-//     console.log("Example app listening on port " + PORT);
-// });
