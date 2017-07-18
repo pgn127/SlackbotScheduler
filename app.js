@@ -6,8 +6,10 @@ var OAuth2 = google.auth.OAuth2;
 var mongoose = require('mongoose');
 var models = require('./models');
 var {User} = require('./models');
+var googleAuth = require('google-auth-library');
+var fs = require('fs');
 var slackID;
-var expiry_date
+var expiry_date;
 var refresh_token;
 var access_token;
 var auth_id;
@@ -124,6 +126,9 @@ app.post('/slack/interactive', function(req,res){
       if(err) {
         res.send("An error occured")
       } else {
+        var newEvent = createCalendarReminder(user.date, user.subject);
+        var calendar = google.calendar('v3');
+        calendar.events.insert(newEvent);
         res.send("Reminder Made")
       }
     })
@@ -137,3 +142,16 @@ app.listen(PORT, function () {
     //Callback triggered when server is successfully listening. Hurray!
     console.log("Example app listening on port " + PORT);
 });
+
+function createCalendarReminder(date, subject){
+  var event = {
+    'summary': subject,
+    'start': {
+      'date': date,
+    },
+    'end': {
+      'dateTime': date
+    }
+  };
+  return event;
+}
