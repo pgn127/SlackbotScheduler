@@ -49,25 +49,22 @@ mongoose.connect(process.env.MONGODB_URI);
 //   date: threedaysfuture
 // })
 mongoose.Promise = global.Promise;
-reminderTest();
-function reminderTest(){
-  var reminders = findReminders();
-  reminders.forEach(function(reminder){
-    var dm = rtm.dataStore.getDMByUserId(reminder.userID);
-    rtm.sendMessage("UPCOMING REMINDER: " + reminder.subject + ' on ' + new Date(reminder.date), dm.id);
-  })
-}
+findReminders();
 
 function findReminders(){
   var now = Date.now();
   var tomorrow = new Date(new Date().getTime() + 24 * 60 * 60 * 1000).getTime();
   Reminder.find({}).where('date').gt(now).lt(tomorrow).exec(function(err,reminders){
     if (err){
-      // res.status(400).json({error:err});
-      return [];
+      console.log('error ', err);
     }else {
       console.log(reminders);
-      return reminders;
+      if (reminders){
+        reminders.forEach(function(reminder){
+          var dm = rtm.dataStore.getDMByUserId(reminder.userID);
+          rtm.sendMessage("UPCOMING REMINDER: " + reminder.subject + ' on ' + new Date(reminder.date), dm.id);
+        })
+      }
     }
   })
 }
