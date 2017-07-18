@@ -68,6 +68,7 @@ app.get('/connect/callback', function(req, res) {
     const token_type = tokens.token_type;
     const expiry_date = tokens.expiry_date;
     console.log(tokens);
+    res.send("Your account was successfuly authenticated")
     // TODO: Put all of these into the database with the corresponding user;
     res.status(200)
   // Now tokens contains an access_token and an optional refresh_token. Save them.

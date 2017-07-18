@@ -57,7 +57,7 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
     if(err){console.log(err)
     } else {
       if(!user){
-        rtm.sendMessage('Please visit the following link to activate your account ' + process.env.DOMAIN + '/oauth', message.channel);
+        rtm.sendMessage('Please visit the following link to activate your account ' + process.env.DOMAIN + '/oauth?auth_id='+userId, message.channel);
       } else {
         // TODO: store the tokens
         // TODO: do the calendar stuff here
