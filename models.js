@@ -11,7 +11,16 @@ var userSchema = new Schema({
   expiry_date: Number
 })
 
-var User = mongoose.model('User', userSchema);
+var reminderSchema = new Schema({
+  userID: String,
+  subject: String,
+  access_token: String,
+  date: Number,
+})
 
+var User = mongoose.model('User', userSchema);
+var Reminder = mongoose.model('Reminder', reminderSchema)
 module.exports = {
-  User: User };
+  User: User,
+  Reminder: Reminder,
+};

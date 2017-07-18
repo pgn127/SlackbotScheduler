@@ -6,6 +6,7 @@ var OAuth2 = google.auth.OAuth2;
 var mongoose = require('mongoose');
 var models = require('./models');
 var {User} = require('./models');
+var {Reminder} = require('./models');
 var slackID;
 var expiry_date
 
@@ -105,7 +106,7 @@ app.post('/interactive', function(req,res){
   var payload = JSON.parse(req.body.payload);
   //if user clicks confirm button
   if (payload.actions[0].value === 'false'){
-    res.send('Cancelled :x:')
+    res.send('Cancelled :x:');
   }else if(payload.actions[0].value === 'true') {
     // TODO: create a calendar event here
     if(Date.now() > expiry_date) {
@@ -133,9 +134,5 @@ app.post('/interactive', function(req,res){
         })
       });
     }
-  } else{
-    console.log('cancel was clicked');
-    res.send('Cancelled');
   }
->>>>>>> 5c2c6217daa02b6d51e54f14003e7fa9a339c2cd
 })

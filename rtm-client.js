@@ -1,12 +1,13 @@
 var mongoose = require('mongoose');
 var models = require('./models');
 var {User} = require('./models');
+var {Reminder} = require('./models');
 var slackID;
 
 
 /**
- * Example for creating and working with the Slack RTM API.
- */
+* Example for creating and working with the Slack RTM API.
+*/
 
 /* eslint no-console:0 */
 
@@ -16,29 +17,29 @@ const identifier = 20150910;
 
 
 var messageButtons = {
-          "attachments": [
-              {
-                  "fallback": "You are unable to choose a game",
-                  "callback_id": "wopr_game",
-                  "color": "#3AA3E3",
-                  "attachment_type": "default",
-                  "actions": [
-                      {
-                          "name": "yes",
-                          "text": "Yes",
-                          "type": "button",
-                          "value": "true"
-                      },
-                      {
-                          "name": "no",
-                          "text": "No",
-                          "type": "button",
-                          "value": "false"
-                      }
-                  ]
-              }
-          ]
-      }
+  "attachments": [
+    {
+      "fallback": "You are unable to choose a game",
+      "callback_id": "wopr_game",
+      "color": "#3AA3E3",
+      "attachment_type": "default",
+      "actions": [
+        {
+          "name": "yes",
+          "text": "Yes",
+          "type": "button",
+          "value": "true"
+        },
+        {
+          "name": "no",
+          "text": "No",
+          "type": "button",
+          "value": "false"
+        }
+      ]
+    }
+  ]
+}
 
 var {RtmClient, WebClient, CLIENT_EVENTS, RTM_EVENTS} = require('@slack/client');
 //same as var RtmClient = require('@slack/client').RtmClient
@@ -57,7 +58,14 @@ rtm.start();
 rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
   var dm = rtm.dataStore.getDMByUserId(message.user); //gets the channel ID for the specific conversation between one user and bot
   const userId = message.user;
-
+  if(message.subtype && message.subtype === 'message_changed') {
+    awaitingResponse = false;
+    return;
+  }
+  if( !dm || dm.id !== message.channel || message.type !== 'message') {
+    console.log('Message was not sent to DM. Ignoring.');
+    return;
+  }
   User.findOne({slackID: userId}).exec(function(err, user){
     if(err){console.log(err)
     } else {
@@ -66,14 +74,14 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
         return;
       } else {
         //IF THE USER HAS RESPONDED TO THE PREVIOUS INTERACTIVE MESSAGE, set awaitingResponse tp false again
-        if(message.subtype && message.subtype === 'message_changed') {
-            awaitingResponse = false;
-            return;
-        }
-        if( !dm || dm.id !== message.channel || message.type !== 'message') {
-            console.log('Message was not sent to DM. Ignoring.');
-            return;
-        }
+        // if(message.subtype && message.subtype === 'message_changed') {
+        //     awaitingResponse = false;
+        //     return;
+        // }
+        // if( !dm || dm.id !== message.channel || message.type !== 'message') {
+        //     console.log('Message was not sent to DM. Ignoring.');
+        //     return;
+        // }
         processMessage(message, rtm);
       }
     }
@@ -116,34 +124,48 @@ function processMessage(message, rtm) {
         `Creating reminder for ${data.result.parameters.subject} on ${data.result.parameters.date}`,
         {
           "attachments": [
-              {
-                  "fallback": "You are unable to choose a game",
-                  "callback_id": "wopr_game",
-                  "color": "#3AA3E3",
-                  "attachment_type": "default",
-                  "actions": [
-                      {
-                          "name": "yes",
-                          "text": "Yes",
-                          "type": "button",
-                          "value": "true"
-                      },
-                      {
-                          "name": "no",
-                          "text": "No",
-                          "type": "button",
-                          "value": "false"
-                      }
-                  ]
-              }
+            {
+              "fallback": "You are unable to choose a game",
+              "callback_id": "wopr_game",
+              "color": "#3AA3E3",
+              "attachment_type": "default",
+              "actions": [
+                {
+                  "name": "yes",
+                  "text": "Yes",
+                  "type": "button",
+                  "value": "true"
+                },
+                {
+                  "name": "no",
+                  "text": "No",
+                  "type": "button",
+                  "value": "false"
+                }
+              ]
+            }
           ]
-      })
-    }else{
-      console.log('last ',data.result);
-      rtm.sendMessage(data.result.fulfillment.speech, message.channel)
-    }
-  })
-  .catch(function(err){
-    console.log('error');
-  })
-}
+        })
+      }else{
+        console.log('last ',data.result);
+        rtm.sendMessage(data.result.fulfillment.speech, message.channel)
+      }
+    })
+    .catch(function(err){
+      console.log('error');
+    })
+  }
+
+  function findReminders(){
+    var now = Date.now();
+    var tomorrow = new Date(new Date().getTime() + 24 * 60 * 60 * 1000).getTime();
+    Reminder.find({}).where('date').gt(now).lt(tomorrow).exec(function(err,reminders){
+      if (err){
+        // res.status(400).json({error:err});
+        return [];
+      }else {
+        console.log(reminders);
+        return reminders;
+      }
+    })
+  }
