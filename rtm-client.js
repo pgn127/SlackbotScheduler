@@ -1,7 +1,7 @@
 var mongoose = require('mongoose');
 var models = require('./models');
 var {User} = require('./models');
-var slackID;
+
 
 var axios = require('axios');
 const timeZone = "2017-07-17T14:26:36-0700";
@@ -46,13 +46,21 @@ let channel;
 var awaitingResponse = false;
 // The client will emit an RTM.AUTHENTICATED event on successful connection, with the `rtm.start` payload
 rtm.on(CLIENT_EVENTS.RTM.AUTHENTICATED, (rtmStartData) => {
-  console.log(`Logged in as ${rtmStartData.self.name} of team ${rtmStartData.team.name}, but not yet connected to a channel`);
+  // console.log(`Logged in as ${rtmStartData.self.name} of team ${rtmStartData.team.name}, but not yet connected to a channel`);
 });
 
 rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
   var dm = rtm.dataStore.getDMByUserId(message.user); //gets the channel ID for the specific conversation between one user and bot
   slackID = message.user;
-  console.log("this is message", message);
+
+  if(message.subtype && message.subtype === 'message_changed') {
+      awaitingResponse = false;
+      return;
+  }
+  if( !dm || dm.id !== message.channel || message.type !== 'message') {
+      console.log('MESSAGE WAS NOT SENT TOA  DM SO INGORING IT');
+      return;
+  }
   User.findOne({slackID: slackID}).exec(function(err, user){
     if(err){console.log(err)
     } else {
@@ -60,14 +68,7 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
         rtm.sendMessage('Please visit the following link to activate your account ' + process.env.DOMAIN + '/oauth?auth_id='+slackID, message.channel);
       } else {
         //IF THE USER HAS RESPONDED TO THE PREVIOUS INTERACTIVE MESSAGE, set awaitingResponse tp false again
-        if(message.subtype && message.subtype === 'message_changed') {
-            awaitingResponse = false;
-            return;
-        }
-        if( !dm || dm.id !== message.channel || message.type !== 'message') {
-            console.log('MESSAGE WAS NOT SENT TOA  DM SO INGORING IT');
-            return;
-        }
+
         processMessage(message, rtm);
       }
     }
@@ -100,7 +101,7 @@ function processMessage(message, rtm) {
         }
     })
     .then(function({data}) {
-        console.log('data.result', data.result);
+        // console.log('data.result', data.result);
         if(awaitingResponse) {
             rtm.sendMessage('Please accept or decline the previous reminder', message.channel);
         }
