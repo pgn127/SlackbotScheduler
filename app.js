@@ -101,8 +101,8 @@ app.post('/slack/interactive', function(req,res){
     // res.send('Created reminder');
     // TODO: create a calendar event here
 
-    // if(Date.now() > expiry_date) {
-    //   oauth2Client.refreshAccessToken(function(err, tokens) {
+    if(Date.now() > expiry_date) {
+      oauth2Client.refreshAccessToken(function(err, tokens) {
         User.findOne({slackID: slackID}).exec(function(err, user){
           if(err){
             console.log(err)
@@ -124,8 +124,9 @@ app.post('/slack/interactive', function(req,res){
           }
 
         })
-    //   });
-    // }
+      });
+    }
+    res.send('Reminder Confirmed')
   } else{
     res.send('Cancelled');
   }
