@@ -11,11 +11,14 @@ var userSchema = new Schema({
   expiry_date: Number
 })
 
-//userID is the slackid of the user
+
 var reminderSchema = new Schema({
-  userID: String,
+  userID: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+  },
   subject: String,
-  access_token: String,
+  channelID: String,
   date: Number
 })
 

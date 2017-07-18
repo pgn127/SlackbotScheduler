@@ -98,19 +98,7 @@ app.post('/slack/interactive', function(req,res){
   console.log('payload date', payload.original_message.attachments[0].fields[0]);
   //if user clicks confirm button
   if(payload.actions[0].value === 'true') {
-      //retrieve the remidner date from the fields in payload from interactive message
-      var reminderSubject = payload.original_message.attachments[0].fields[0].value;
-      var reminderDate = Date.parse(payload.original_message.attachments[0].fields[1].value);
-      console.log('reminder date', typeof payload.original_message.attachments[0].fields[1].value, payload.original_message.attachments[0].fields[1].value);
 
-      var newReminder = new Reminder({
-          userID: payload.user.id,
-          subject: reminderSubject,
-          access_token: payload.token,
-          date: reminderDate
-      })
-      newReminder.save()
-      .then(() => {
           if(Date.now() > expiry_date) {
             oauth2Client.refreshAccessToken(function(err, tokens) {
               User.findOne({slackID: slackID}).exec(function(err, user){
@@ -123,14 +111,44 @@ app.post('/slack/interactive', function(req,res){
                   user.auth_id = JSON.parse(decodeURIComponent(req.query.state));
                   user.token_type = tokens.token_type;
                   console.log("made it to this point in time before crashing")
-                  user.save();
+                  user.save()
+                  .then((user) => {
+                      var reminderSubject = payload.original_message.attachments[0].fields[0].value;
+                      var reminderDate = Date.parse(payload.original_message.attachments[0].fields[1].value);
+                      console.log('reminder date', typeof payload.original_message.attachments[0].fields[1].value, payload.original_message.attachments[0].fields[1].value);
+
+                      var newReminder = new Reminder({
+                          userID: user._id,
+                          channelID: payload.channel_id,
+                          subject: reminderSubject,
+                          date: reminderDate
+                      })
+                      newReminder.save();
+                  })
                 }
               })
             });
-          }
+        } else {
+            User.findOne({slackID: slackID}).exec(function(err, user){
+              if(err){
+                console.log(err)
+              } else {
+                var reminderSubject = payload.original_message.attachments[0].fields[0].value;
+                var reminderDate = Date.parse(payload.original_message.attachments[0].fields[1].value);
+                console.log('reminder date', typeof payload.original_message.attachments[0].fields[1].value, payload.original_message.attachments[0].fields[1].value);
+
+                var newReminder = new Reminder({
+                    userID: user._id,
+                    channelID: payload.channel_id,
+                    subject: reminderSubject,
+                    date: reminderDate
+                    })
+                newReminder.save();
+
+              }
+            })
+        }
           res.send('Reminder Confirmed')
-      })
-      .catch((err) => console.log('error with saving reminder somewhere ', err))
 
   } else{
     res.send('Cancelled');
