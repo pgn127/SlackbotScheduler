@@ -14,8 +14,6 @@ var refresh_token;
 var access_token;
 var auth_id;
 var token_type;
-
-var oauth2Client;
 var url;
 
 mongoose.connect(process.env.MONGODB_URI);
@@ -66,6 +64,11 @@ app.get('/oauth', function(req, res){
 
 app.get('/connect/callback', function(req, res) {
   const code = req.query.code;
+  oauth2Client = new OAuth2(
+    process.env.GOOGLE_CLIENT_ID,
+    process.env.GOOGLE_CLIENT_SECRET,
+    process.env.DOMAIN + '/connect/callback'
+  )
   oauth2Client.getToken(code, function (err, tokens) {
     refresh_token = tokens.refresh_token;
     access_token = tokens.access_token;
@@ -73,6 +76,7 @@ app.get('/connect/callback', function(req, res) {
     token_type = tokens.token_type;
     expiry_date = tokens.expiry_date;
     var newUser = new User({
+      token: tokens,
       slackID: slackID,
       refresh_token: refresh_token,
       access_token: access_token,
@@ -82,13 +86,8 @@ app.get('/connect/callback', function(req, res) {
       date: '',
       subject: ''
     });
-
     newUser.save();
-
     res.status(200).send("Your account was successfuly authenticated")
-    if (!err) {
-      oauth2Client.setCredentials(tokens);
-    }
   });
 })
 
@@ -106,8 +105,13 @@ app.post('/slack/interactive', function(req,res){
   var payload = JSON.parse(req.body.payload);
   //if user clicks confirm button
   if(payload.actions[0].value === 'true') {
-    console.log('We made it into here')
+    slackID = payload.user.id;
     if(Date.now() > expiry_date) {
+      oauth2Client = new OAuth2(
+        process.env.GOOGLE_CLIENT_ID,
+        process.env.GOOGLE_CLIENT_SECRET,
+        process.env.DOMAIN + '/connect/callback'
+      )
       oauth2Client.refreshAccessToken(function(err, tokens) {
         User.findOne({slackID: slackID}).exec(function(err, user){
           if(err){
@@ -128,8 +132,7 @@ app.post('/slack/interactive', function(req,res){
       if(err) {
         res.send("An error occured")
       } else {
-        console.log(user)
-        createCalendarReminder(user.date, user.subject);
+        createCalendarReminder(user.date., user.subject, );
         res.send("Reminder Made")
       }
     })
@@ -144,7 +147,7 @@ app.listen(PORT, function () {
     console.log("Example app listening on port " + PORT);
 });
 
-function createCalendarReminder(date, subject){
+function createCalendarReminder(date, subject, tokens){
   var event = {
     'summary': subject,
     'start': {
@@ -154,6 +157,15 @@ function createCalendarReminder(date, subject){
       'dateTime': date
     }
   };
+
+  oauth2Client = new OAuth2(
+    process.env.GOOGLE_CLIENT_ID,
+    process.env.GOOGLE_CLIENT_SECRET,
+    process.env.DOMAIN + '/connect/callback'
+  )
+  console.log("The token is:" ,tokens)
+  oauth2Client.setCredentials(tokens);
+
 var calendar = google.calendar('v3');
   calendar.events.insert({
     auth: oauth2Client,
@@ -161,14 +173,11 @@ var calendar = google.calendar('v3');
     resource: event,
   }, function(err, event) {
     if(err){
-      console.log("There was an error adding the calendar");
+      console.log("There was an error adding the calendar", err);
       return
     }else {
       console.log('event created')
     }
   })
-
-
-
 
 }

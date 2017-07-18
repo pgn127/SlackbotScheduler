@@ -11,6 +11,7 @@ var userSchema = new Schema({
   expiry_date: Number,
   subject: String,
   date: Date,
+  token: Object,
 })
 
 

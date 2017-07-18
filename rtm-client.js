@@ -2,7 +2,6 @@ var mongoose = require('mongoose');
 var models = require('./models');
 var {User} = require('./models');
 
-
 var axios = require('axios');
 var {User} = require('./models')
 const timeZone = "2017-07-17T14:26:36-0700";
