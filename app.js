@@ -111,7 +111,7 @@ app.post('/slack/interactive', function(req,res){
             })
           });
         }
-        createCalendarReminder(user.date, user.subject, user.token);
+        createCalendarReminder(user.date.toISOString().substring(0, 10), user.subject, user.token);
         res.send("Reminder Made")
       }
     })
@@ -126,13 +126,14 @@ app.listen(PORT, function () {
 });
 
 function createCalendarReminder(date, subject, tokens){
+
   var event = {
     'summary': subject,
     'start': {
       'date': date,
     },
     'end': {
-      'dateTime': date
+      'date': date
     }
   };
 
@@ -141,7 +142,7 @@ function createCalendarReminder(date, subject, tokens){
     process.env.GOOGLE_CLIENT_SECRET,
     process.env.DOMAIN + '/connect/callback'
   )
-  // console.log("The token is:" ,tokens)
+
   oauth2Client.setCredentials(tokens);
 
 var calendar = google.calendar('v3');
