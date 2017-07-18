@@ -85,6 +85,7 @@ app.post('/slack/interactive', function(req,res){
     //if user clicks confirm button
     if(payload.actions[0].value === 'true') {
         res.send('Created reminder');
+        // TODO: create a calendar event here
     } else{
         console.log('cancel was clicked');
         res.send('Cancelled');
