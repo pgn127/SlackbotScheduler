@@ -53,6 +53,7 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
       console.log('MESSAGE WAS NOT SENT TOA  DM SO INGORING IT');
       return;
   }
+ 
 
   axios.get('https://api.api.ai/api/query', {
       params: {
@@ -103,9 +104,11 @@ function processMessage(message, rtm) {
       timezone: timeZone,
     }
   }).then((response) => {
-    if(response.result.actionIncomplete) {
+    if(response.data.result.actionIncomplete) {
       //need to prompt the user for more information
       // TODO: send the user response.result.fulfillment.speech
+      console.log(response.data.result.fulfillment.speech)
+      rtm.sendMessage(response.data.result.fulfillment.speech, message.channel)
     } else {
       // TODO: send the user a confirmation with response.result.fulfillment.speech
     }

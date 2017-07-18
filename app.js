@@ -1,21 +1,20 @@
-var fs = require('fs');
-var logger = require('morgan');
-var google = require('googleapis');
-var googleAuth = require('google-auth-library');
+// var fs = require('fs');
+// var logger = require('morgan');
+// var google = require('googleapis');
+// var googleAuth = require('google-auth-library');
 var express = require('express');
-var request = require('request');
-var client = require('./rtm-client.js')
+// var request = require('request');
+require('./rtm-client');
 var app = express();
 var bodyParser = require('body-parser');
-//var index = require('./routes/index.js');
-app.use(logger('dev'));
+
+// app.use(logger('dev'));
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 // var app = express();
 
 var {RtmClient, WebClient, CLIENT_EVENTS, RTM_EVENTS} = require('@slack/client');
 
-var token;
 
 //
 var CLIENT_ID = process.env.CLIENT_ID;
@@ -103,3 +102,9 @@ app.post('/slack/interactive', function(req,res){
 //   res.render('error');
 // });
 // export default app;
+
+// Start our server
+app.listen(PORT, function () {
+    //Callback triggered when server is successfully listening. Hurray!
+    console.log("Example app listening on port " + PORT);
+});
