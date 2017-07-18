@@ -9,18 +9,20 @@ var token = process.env.SLACK_API_TOKEN || '';
 
 var rtm = new RtmClient(token);
 var web = new WebClient(token);
-sendReminder();
+findReminders();
 
 
-function sendReminder(){
-  var reminders = findReminders();
-  reminders.forEach(function(reminder) {
-      var dmChannel = rtm.dataStore.getDMByUserId(reminder.userID);
-      var date = new Date(reminder.date);
-      rtm.sendMessage(`Reminder: ${date} for ${reminder.subject}`, dmChannel.id);
-  })
-
-}
+// function sendReminder(){
+//   var reminders = findReminders();
+//   if(reminders && reminders.length > 0) {
+//       reminders.forEach(function(reminder) {
+//           var dmChannel = rtm.dataStore.getDMByUserId(reminder.userID);
+//           var date = new Date(reminder.date);
+//           rtm.sendMessage(`Reminder: ${date} for ${reminder.subject}`, dmChannel.id);
+//       })
+//   }
+//
+// }
 
 function findReminders(){
   var now = Date.now();
@@ -28,10 +30,15 @@ function findReminders(){
   Reminder.find({}).where('date').gt(now).lt(tomorrow).exec(function(err,reminders){
     if (err){
       // res.status(400).json({error:err});
-      return [];
+      console.log('error', err);
     }else {
-      console.log(reminders);
-      return reminders;
+        if(reminders){
+            reminders.forEach(function(reminder) {
+                var dmChannel = rtm.dataStore.getDMByUserId(reminder.userID);
+                var date = new Date(reminder.date);
+                rtm.sendMessage(`Reminder: ${date} for ${reminder.subject}`, dmChannel.id);
+            })
+        }
     }
   })
 }
