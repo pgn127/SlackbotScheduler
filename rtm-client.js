@@ -2,12 +2,11 @@ var mongoose = require('mongoose');
 var models = require('./models');
 var {User} = require('./models');
 
-
 var axios = require('axios');
 var {User} = require('./models')
 const timeZone = "2017-07-17T14:26:36-0700";
 const identifier = 20150910;
-
+var slackID;
 
 var messageButtons = {
           "attachments": [
@@ -111,6 +110,18 @@ function processMessage(message, rtm) {
             rtm.sendMessage(data.result.fulfillment.speech, message.channel)
         } else if(Object.keys(data.result.parameters).length !== 0){
             awaitingResponse = true;
+            User.findOne({slackID: slackID}).exec(function(err, user) {
+              if(err) {
+                console.log("there was an error finding the user");
+              }else {
+                console.log(data.result.parameters.date)
+                user.date = data.result.parameters.date;
+                user.subject = data.result.parameters.subject;
+                user.save(function(err) {
+                  if(err) console.log("There was an error updating the user")
+                })
+              }
+            })
             web.chat.postMessage(message.channel, `Creating reminder for ${data.result.parameters.subject} on ${data.result.parameters.date}`, messageButtons);
 
         }
