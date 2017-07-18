@@ -94,13 +94,10 @@ app.post('/command', function(req, res) {
 });
 
 app.post('/slack/interactive', function(req,res){
-    console.log('POSTING TO SLACK INTERAVCTIVE');
   var payload = JSON.parse(req.body.payload);
   //if user clicks confirm button
   if(payload.actions[0].value === 'true') {
-    // res.send('Created reminder');
-    // TODO: create a calendar event here
-
+    console.log('We made it into here')
     if(Date.now() > expiry_date) {
       oauth2Client.refreshAccessToken(function(err, tokens) {
         User.findOne({slackID: slackID}).exec(function(err, user){
@@ -112,17 +109,9 @@ app.post('/slack/interactive', function(req,res){
             user.expiry_date = tokens.expiry_date;
             user.auth_id = JSON.parse(decodeURIComponent(req.query.state));
             user.token_type = tokens.token_type;
-
-            user.save( function(err){
-                if(err){
-                    res.status(400).json({error: err});
-                } else {
-                    res.status(200).send('Created reminder');
-                }
-            });
-
+            console.log("made it to this point in time before crashing")
+            user.save();
           }
-
         })
       });
     }
