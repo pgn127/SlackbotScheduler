@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 var Schema = mongoose.Schema;
 
 var userSchema = new Schema({
-  userID: String,
+  slackID: String,
   refresh_token: String,
   access_token: String,
   auth_id: String,

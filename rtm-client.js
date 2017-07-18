@@ -30,6 +30,7 @@ var messageButtons = {
 
 var {RtmClient, WebClient, CLIENT_EVENTS, RTM_EVENTS} = require('@slack/client');
 //same as var RtmClient = require('@slack/client').RtmClient
+
 var token = process.env.SLACK_API_TOKEN || '';
 
 var rtm = new RtmClient(token);
@@ -45,6 +46,20 @@ rtm.on(CLIENT_EVENTS.RTM.AUTHENTICATED, (rtmStartData) => {
 
 rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
   var dm = rtm.dataStore.getDMByUserId(message.user); //gets the channel ID for the specific conversation between one user and bot
+  const userId = message.user;
+
+  User.findOne({slackID: userId}).exec(function(err, user){
+    if(err){console.log(err)
+    } else {
+      if(!user){
+        res.send('localhost:3000/oauth');
+      } else {
+        // TODO: store the tokens
+        // TODO: do the calendar stuff here
+      }
+    }
+  })
+
 
   //IF THE USER HAS RESPONDED TO THE PREVIOUS INTERACTIVE MESSAGE, set awaitingResponse tp false again
   if(message.subtype && message.subtype === 'message_changed') {
