@@ -127,12 +127,12 @@ app.post('/slack/interactive', function(req,res){
             });
           }
           res.send('Reminder Confirmed')
-        } else{
-          res.send('Cancelled');
-        }
       })
-      .catch((err) => console.log(err))
+      .catch((err) => console.log('error with saving reminder somewhere ', err))
 
+  } else{
+    res.send('Cancelled');
+  }
 })
 
 // app.use((req, res, next) => {
