@@ -1,5 +1,6 @@
 
 var axios = require('axios');
+var {User} = require('./models')
 const timeZone = "2017-07-17T14:26:36-0700";
 const identifier = 20150910;
 
@@ -45,7 +46,30 @@ rtm.on(CLIENT_EVENTS.RTM.AUTHENTICATED, (rtmStartData) => {
 
 rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
   var dm = rtm.dataStore.getDMByUserId(message.user); //gets the channel ID for the specific conversation between one user and bot
+  console.log(message);
+  User.findOne({slackId:message.user}, function(err, user){
+      if (err){
+         console.log('error', err);
+     }else if (!user){
+          console.log('new user to be added');
 
+          rtm.sendMessage('Please go to this link to idk http://e0228a4d.ngrok.io/oauth?auth_id='+message.user, message.channel);
+        //   axios.get('/oauth', {
+        //       params: {
+        //           v: identifier,
+        //           lang: 'en',
+        //           timezone: timeZone,
+        //           query: message.text,
+        //           sessionId: message.user
+        //       },
+        //       headers: {
+        //           Authorization: `Bearer ${process.env.API_ACCESS_TOKEN}`
+        //       }
+        //   })
+      } else {
+          console.log('user has been foudn with that slack id');
+      }
+  })
   //IF THE USER HAS RESPONDED TO THE PREVIOUS INTERACTIVE MESSAGE, set awaitingResponse tp false again
   if(message.subtype && message.subtype === 'message_changed') {
       awaitingResponse = false;

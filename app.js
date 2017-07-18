@@ -1,7 +1,9 @@
 
 // var fs = require('fs');
+var mongoose = require('mongoose');
 var logger = require('morgan');
 var google = require('googleapis');
+var {User} = require('./models')
 var OAuth2 = google.auth.OAuth2;
 // var googleAuth = require('google-auth-library');
 var express = require('express');
@@ -21,49 +23,72 @@ var CLIENT_ID = process.env.CLIENT_ID;
 var CLIENT_SECRET = process.env.CLIENT_SECRET;
 const PORT=3000;
 
-  var oauth2Client;
-  var url;
+var oauth2Client;
+var url;
 
 // Start our server
 
 app.get('/oauth', function(req, res){
-   oauth2Client = new OAuth2(
-    process.env.GOOGLE_CLIENT_ID,
-    process.env.GOOGLE_CLIENT_SECRET,
-    process.env.DOMAIN + '/connect/callback'
-  )
+    oauth2Client = new OAuth2(
+        process.env.GOOGLE_CLIENT_ID,
+        process.env.GOOGLE_CLIENT_SECRET,
+        process.env.DOMAIN + '/connect/callback'
+    )
 
-   url = oauth2Client.generateAuthUrl({
-    access_type: 'offline',
-    prompt: 'consent',
-    scope: [
-      'https://www.googleapis.com/auth/userinfo.profile',
-      'https://www.googleapis.com/auth/calendar'
-    ],
-    state: encodeURIComponent(JSON.stringify({
-      auth_id: req.query.auth_id
-    }))
-  });
-  console.log('made it here')
-  res.redirect(url);
+    url = oauth2Client.generateAuthUrl({
+        access_type: 'offline',
+        prompt: 'consent',
+        scope: [
+            'https://www.googleapis.com/auth/userinfo.profile',
+            'https://www.googleapis.com/auth/calendar'
+        ],
+        state: encodeURIComponent(JSON.stringify({
+            auth_id: req.query.auth_id
+        }))
+    });
+    console.log('made it here')
+    res.redirect(url);
 })
 
 app.get('/connect/callback', function(req, res) {
-  const code = req.query.code;
-  oauth2Client.getToken(code, function (err, tokens) {
-    const refresh_token = tokens.refresh_token;
-    const access_token = tokens.access_token;
-    const auth_id = JSON.parse(decodeURIComponent(req.query.state));
-    const token_type = tokens.token_type;
-    const expiry_date = tokens.expiry_date;
-    console.log(tokens);
-    // TODO: Put all of these into the database with the corresponding user;
-    res.status(200)
-  // Now tokens contains an access_token and an optional refresh_token. Save them.
-  if (!err) {
-    oauth2Client.setCredentials(tokens);
-  }
-});
+    const code = req.query.code;
+    console.log('code is', code);
+    oauth2Client.getToken(code, function (err, tokens) {
+        const refresh_token = tokens.refresh_token;
+        const access_token = tokens.access_token;
+        const auth_id = JSON.parse(decodeURIComponent(req.query.state));
+        const token_type = tokens.token_type;
+        const expiry_date = tokens.expiry_date;
+        console.log(tokens);
+        User.findOne({slackId: req.query.code}, function(err,user){
+            if (err){
+                console.log('user find one');
+                res.status(400).json({error:err});
+            }else{
+                if(user) {
+                    user.refreshToken = refresh_token;
+                    user.accessToken = access_token;
+                    user.authId = auth_id;
+                    user.tokenType = token_type;
+                    user.expiryDate = expiry_date;
+                    user.slackId = user.slackId;
+                    // user.slackName = user.slackName;
+                    user.save(function(err){
+                        if (err){
+                            res.status(400).json({error:err});
+                        }else{
+                            oauth2Client.setCredentials(tokens);
+                        }
+                    })
+                }
+            }
+        })
+        res.status(200)
+        // Now tokens contains an access_token and an optional refresh_token. Save them.
+        if (!err) {
+            oauth2Client.setCredentials(tokens);
+        }
+    });
 })
 
 // This route handles GET requests to our root ngrok address and responds with the same "Ngrok is working message" we used before

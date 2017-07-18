@@ -6,14 +6,28 @@ mongoose.connect(connect);
 
 
 var userSchema = mongoose.Schema({
-  slackId: {
-    type: String,
-    required: true
-  },
-  slackName: {
-    type: String,
-    required: true
-  }
+    slackId: {
+        type: String,
+        required: true
+    },
+    slackName: {
+        type: String
+    },
+    refreshToken: {
+        type: String
+    },
+    accessToken: {
+        type: String
+    },
+    authId: {
+        type: String
+    },
+    tokenType: {
+        type: String
+    },
+    expiryDate: {
+        type: String
+    }
 });
 
 var User = mongoose.model('User', userSchema);
