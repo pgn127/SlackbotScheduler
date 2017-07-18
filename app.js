@@ -68,7 +68,6 @@ app.get('/connect/callback', function(req, res) {
     const auth_id = JSON.parse(decodeURIComponent(req.query.state));
     const token_type = tokens.token_type;
     const expiry_date = tokens.expiry_date;
-    console.log(auth_id);
     var newUser = new User({
       slackID: slackID,
       refresh_token: refresh_token,
