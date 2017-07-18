@@ -3,11 +3,10 @@
 var mongoose = require('mongoose');
 var logger = require('morgan');
 var google = require('googleapis');
-var {User} = require('./models')
+var {User, Reminder} = require('./models')
 var OAuth2 = google.auth.OAuth2;
 var mongoose = require('mongoose');
 var models = require('./models');
-var {User} = require('./models');
 var slackID;
 var expiry_date
 

@@ -1,10 +1,9 @@
 var mongoose = require('mongoose');
 var models = require('./models');
-var {User} = require('./models');
+var {User, Reminder} = require('./models');
 var slackID;
 
 var axios = require('axios');
-var {User} = require('./models')
 const timeZone = "2017-07-17T14:26:36-0700";
 const identifier = 20150910;
 
@@ -53,6 +52,7 @@ rtm.on(CLIENT_EVENTS.RTM.AUTHENTICATED, (rtmStartData) => {
 rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
   var dm = rtm.dataStore.getDMByUserId(message.user); //gets the channel ID for the specific conversation between one user and bot
   const userId = message.user;
+  //IF THE USER HAS RESPONDED TO THE PREVIOUS INTERACTIVE MESSAGE, set awaitingResponse tp false again
   if(message.subtype && message.subtype === 'message_changed') {
       awaitingResponse = false;
       return;
@@ -68,15 +68,8 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
       if(!user){
         rtm.sendMessage('Please visit the following link to activate your account ' + process.env.DOMAIN + '/oauth?auth_id='+userId, message.channel);
       } else {
-        //IF THE USER HAS RESPONDED TO THE PREVIOUS INTERACTIVE MESSAGE, set awaitingResponse tp false again
-        // if(message.subtype && message.subtype === 'message_changed') {
-        //     awaitingResponse = false;
-        //     return;
-        // }
-        // if( !dm || dm.id !== message.channel || message.type !== 'message') {
-        //     console.log('MESSAGE WAS NOT SENT TOA  DM SO INGORING IT');
-        //     return;
-        // }
+
+
         processMessage(message, rtm);
       }
     }
@@ -131,4 +124,19 @@ function processMessage(message, rtm) {
   // rtm.sendMessage(messageText, message.channel, function() {
   //   // getAndSendCurrentWeather(locationName, query, message.channel, rtm);
   // });
+}
+
+
+function findReminders(){
+  var now = Date.now();
+  var tomorrow = new Date(new Date().getTime() + 24 * 60 * 60 * 1000).getTime();
+  Reminder.find({}).where('date').gt(now).lt(tomorrow).exec(function(err,reminders){
+    if (err){
+      // res.status(400).json({error:err});
+      return [];
+    }else {
+      console.log(reminders);
+      return reminders;
+    }
+  })
 }
