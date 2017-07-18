@@ -32,9 +32,6 @@ var CLIENT_ID = process.env.CLIENT_ID;
 var CLIENT_SECRET = process.env.CLIENT_SECRET;
 const PORT=3000;
 
-
-
-
 app.get('/oauth', function(req, res){
   oauth2Client = new OAuth2(
     process.env.GOOGLE_CLIENT_ID,
