@@ -66,7 +66,12 @@ app.post('/command', function(req, res) {
 });
 
 app.post('/interactive', function(req,res){
-
+  var payload = JSON.parse(req.body.payload);
+  if (payload.actions[0].value === 'true'){
+    res.send('Created reminder :white_check_mark:')
+  }else if (payload.actions[0].value === 'false'){
+    res.send('Cancelled :x:')
+  }
 })
 
 // app.use((req, res, next) => {
