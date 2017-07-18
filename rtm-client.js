@@ -1,36 +1,43 @@
 
+
 /**
  * Example for creating and working with the Slack RTM API.
  */
 
 /* eslint no-console:0 */
-var axios = require('axios');
-var messageButtons = {
-    "attachments": [
-        {
-            "text": `Create a reminder for `,
-            "fallback": "You are unable to choose a game",
-            "callback_id": "wopr_game",
-            "color": "#3AA3E3",
-            "attachment_type": "default",
-            "actions": [
-                {
-                    "name": "yes",
-                    "text": "Yes",
-                    "type": "button",
-                    "value": "true"
-                },
-                {
-                    "name": "no",
-                    "text": "No",
-                    "type": "button",
-                    "value": "false"
-                }
-            ]
-        }
-    ]
-}
 
+var axios = require('axios');
+const timeZone = "2017-07-17T14:26:36-0700";
+const identifier = 20150910;
+
+var messageButtons = {
+          "attachments": [
+              {
+                  "fallback": "You are unable to choose a game",
+                  "callback_id": "wopr_game",
+                  "color": "#3AA3E3",
+                  "attachment_type": "default",
+                  "actions": [
+                      {
+                          "name": "yes",
+                          "text": "Yes",
+                          "type": "button",
+                          "value": "true"
+                      },
+                      {
+                          "name": "no",
+                          "text": "No",
+                          "type": "button",
+                          "value": "false"
+                      }
+                  ]
+              }
+          ]
+      }
+
+var {RtmClient, WebClient, CLIENT_EVENTS, RTM_EVENTS} = require('@slack/client');
+//same as var RtmClient = require('@slack/client').RtmClient
+var token = process.env.SLACK_API_TOKEN || '';
 
 var { RtmClient, WebClient, CLIENT_EVENTS, RTM_EVENTS } = require('@slack/client');
 // var RtmClient = require('@slack/client').RtmClient;
@@ -69,6 +76,8 @@ rtm.on(RTM_EVENTS.REACTION_ADDED, function handleRtmReactionAdded(reaction) {
 rtm.on(RTM_EVENTS.REACTION_REMOVED, function handleRtmReactionRemoved(reaction) {
   console.log('Reaction removed:', reaction);
 });
+
+rtm.start();
 
 
 function processMessage(message, rtm) {
