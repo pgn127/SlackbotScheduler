@@ -3,9 +3,9 @@
 var logger = require('morgan');
 var google = require('googleapis');
 var OAuth2 = google.auth.OAuth2;
-import mongoose from 'mongoose';
-import models from './models';
-import {User} from './models';
+var mongoose = require('mongoose');
+var models = require('./models');
+var {User} = require('./models');
 
 mongoose.connect(process.env.MONGODB_URI);
 mongoose.Promise = global.Promise;
