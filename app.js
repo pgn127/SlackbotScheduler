@@ -104,6 +104,8 @@ app.post('/interactive', function(req,res){
   //if user clicks confirm button
   if(payload.actions[0].value === 'true') {
     console.log('We made it into here')
+    console.log(payload.original_message.attachments[0]);
+    console.log(payload.original_message.attachments[0].fields);
     var reminderDate = Date.parse(payload.original_message.attachments[0].fields[0].value);
     var reminderSubject = payload.original_message.attachments[0].fields[1].value;
     var newReminder = new Reminder({
