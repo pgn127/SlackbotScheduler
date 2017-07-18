@@ -129,6 +129,16 @@ function processMessage(message, rtm) {
               "callback_id": "wopr_game",
               "color": "#3AA3E3",
               "attachment_type": "default",
+              "fields" : [
+                {
+                  "title": "subject",
+                  "value": data.result.parameters.subject,
+                },
+                {
+                  "title": "date",
+                  "value": data.result.parameters.date,
+                },
+              ]
               "actions": [
                 {
                   "name": "yes",
