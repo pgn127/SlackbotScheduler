@@ -35,10 +35,6 @@ var oauth2Client;
 var url;
 
 // Start our server
-app.listen(PORT, function () {
-  //Callback triggered when server is successfully listening. Hurray!
-  console.log("Example app listening on port " + PORT);
-});
 
 app.get('/oauth', function(req, res){
   oauth2Client = new OAuth2(
@@ -136,3 +132,4 @@ app.post('/interactive', function(req,res){
     }
   }
 })
+app.listen(process.env.PORT || 3000);
