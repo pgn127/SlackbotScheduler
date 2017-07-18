@@ -13,6 +13,7 @@ var userSchema = new Schema({
   date: Date,
 })
 
+
 var User = mongoose.model('User', userSchema);
 
 module.exports = {
