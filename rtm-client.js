@@ -121,7 +121,7 @@ function processMessage(message, rtm) {
       //console.log('inside ',data.result);
       notPending = false;
       web.chat.postMessage(message.channel,
-        `Creating reminder for ${data.result.parameters.subject} on ${data.result.parameters.date}`,
+        `Please confirm your reminder: `,
         {
           "attachments": [
             {
@@ -132,11 +132,11 @@ function processMessage(message, rtm) {
               "fields" : [
                 {
                   "title": "subject",
-                  "value": data.result.parameters.subject,
+                  "value": `${data.result.parameters.subject}`,
                 },
                 {
                   "title": "date",
-                  "value": data.result.parameters.date,
+                  "value": `${data.result.parameters.date}`,
                 },
               ],
               "actions": [
