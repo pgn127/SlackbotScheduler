@@ -104,12 +104,14 @@ app.post('/interactive', function(req,res){
   //if user clicks confirm button
   if(payload.actions[0].value === 'true') {
     console.log('We made it into here')
-    if(Date.now() > expiry_date) {
-      oauth2Client.refreshAccessToken(function(err, tokens) {
-        User.findOne({slackID: slackID}).exec(function(err, user){
-          if(err){
-            console.log(err)
-          } else {
+    User.findOne({slackID: slackID}).exec(function(err, user){
+      if(err){
+        console.log(err)
+      } else{
+        var reminderSubject = payload.original_message.attachments[0].fields[0].value;
+        var reminderDate = Date.parse(payload.original_message.attachments[0].fields[1].value);
+        if(Date.now() > expiry_date) {
+          oauth2Client.refreshAccessToken(function(err, tokens) {
             user.refresh_token = tokens.refresh_token;
             user.access_token = tokens.access_token;
             user.expiry_date = tokens.expiry_date;
@@ -118,10 +120,8 @@ app.post('/interactive', function(req,res){
             console.log("made it to this point in time before crashing")
             user.save()
             .then((user)=>{
-              var reminderSubject = payload.original_message.attachments[0].fields[0].value;
-              var reminderDate = Date.parse(payload.original_message.attachments[0].fields[1].value);
               var newReminder = new Reminder({
-                userID: payload.user.id,
+                userID: user._id,
                 channelID: payload.channel.id,
                 subject: reminderSubject,
                 date: reminderDate,
@@ -134,12 +134,56 @@ app.post('/interactive', function(req,res){
                 }
               })
             })
-          }
-        })
-      });
-    }
+          })
+        }else{
+          var newReminder = new Reminder({
+            userID: user._id,
+            channelID: payload.channel.id,
+            subject: reminderSubject,
+            date: reminderDate,
+          })
+          newReminder.save(function(err){
+            if (err){
+              res.status(400).json({error:err});
+            }else{
+              res.send('Reminder Confirmed')
+            }
+          })
+        }
+      }
+    })
   } else{
     res.send('Cancelled');
   }
 })
+
+// oauth2Client.refreshAccessToken(function(err, tokens) {
+//
+//     else {
+//       user.refresh_token = tokens.refresh_token;
+//       user.access_token = tokens.access_token;
+//       user.expiry_date = tokens.expiry_date;
+//       user.auth_id = JSON.parse(decodeURIComponent(req.query.state));
+//       user.token_type = tokens.token_type;
+//       console.log("made it to this point in time before crashing")
+//       user.save()
+//       .then((user)=>{
+//         var reminderSubject = payload.original_message.attachments[0].fields[0].value;
+//         var reminderDate = Date.parse(payload.original_message.attachments[0].fields[1].value);
+//         var newReminder = new Reminder({
+//           userID: payload.user.id,
+//           channelID: payload.channel.id,
+//           subject: reminderSubject,
+//           date: reminderDate,
+//         })
+//         newReminder.save(function(err){
+//           if (err){
+//             res.status(400).json({error:err});
+//           }else{
+//             res.send('Reminder Confirmed')
+//           }
+//         })
+//       })
+//     }
+//   })
 app.listen(process.env.PORT || 3000);
