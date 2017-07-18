@@ -80,7 +80,6 @@ app.post('/command', function(req, res) {
     res.send('Your ngrok tunnel is up and running!');
 });
 
-<<<<<<< HEAD
 app.post('/interactive', function(req,res){
   console.log('ehgnjek');
   var payload = JSON.parse(req.body.payload);
@@ -89,16 +88,5 @@ app.post('/interactive', function(req,res){
   }else if (payload.actions[0].value === 'false'){
     res.send('Cancelled :x:')
   }
-=======
-app.post('/slack/interactive', function(req,res){
-    var payload = JSON.parse(req.body.payload);
-    //if user clicks confirm button
-    if(payload.actions[0].value === 'true') {
-        res.send('Created reminder');
-        // TODO: create a calendar event here
-    } else{
-        console.log('cancel was clicked');
-        res.send('Cancelled');
-    }
->>>>>>> 02a87297b107207de3a945ef6b465801d9eb189e
+
 })
