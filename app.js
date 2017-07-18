@@ -94,6 +94,7 @@ app.post('/command', function(req, res) {
 });
 
 app.post('/slack/interactive', function(req,res){
+    console.log('POSTING TO SLACK INTERAVCTIVE');
   var payload = JSON.parse(req.body.payload);
   //if user clicks confirm button
   if(payload.actions[0].value === 'true') {
