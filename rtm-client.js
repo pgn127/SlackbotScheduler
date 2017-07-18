@@ -4,6 +4,7 @@ var {User} = require('./models');
 
 
 var axios = require('axios');
+var {User} = require('./models')
 const timeZone = "2017-07-17T14:26:36-0700";
 const identifier = 20150910;
 
@@ -61,14 +62,15 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
       console.log('MESSAGE WAS NOT SENT TOA  DM SO INGORING IT');
       return;
   }
+
   User.findOne({slackID: slackID}).exec(function(err, user){
+
     if(err){console.log(err)
     } else {
       if(!user){
         rtm.sendMessage('Please visit the following link to activate your account ' + process.env.DOMAIN + '/oauth?auth_id='+slackID, message.channel);
       } else {
         //IF THE USER HAS RESPONDED TO THE PREVIOUS INTERACTIVE MESSAGE, set awaitingResponse tp false again
-
         processMessage(message, rtm);
       }
     }
