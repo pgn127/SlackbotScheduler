@@ -9,20 +9,8 @@ var token = process.env.SLACK_API_TOKEN || '';
 
 var rtm = new RtmClient(token);
 var web = new WebClient(token);
+rtm.start();
 findReminders();
-
-
-// function sendReminder(){
-//   var reminders = findReminders();
-//   if(reminders && reminders.length > 0) {
-//       reminders.forEach(function(reminder) {
-//           var dmChannel = rtm.dataStore.getDMByUserId(reminder.userID);
-//           var date = new Date(reminder.date);
-//           rtm.sendMessage(`Reminder: ${date} for ${reminder.subject}`, dmChannel.id);
-//       })
-//   }
-//
-// }
 
 function findReminders(){
   var now = Date.now();

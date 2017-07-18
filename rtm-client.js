@@ -121,7 +121,7 @@ function processMessage(message, rtm) {
         } else if(Object.keys(data.result.parameters).length !== 0){
             awaitingResponse = true;
             // var reminderDate = Date.parse(data.result.parameters.date.toString());
-            web.chat.postMessage(message.channel, `Would you like me to create a reminder for ${data.result.parameters.subject} on ${data.result.parameters.date}`, {
+            web.chat.postMessage(message.channel, `Would you like me to create a reminder for ` , {
                       "attachments": [
                           {
                               "fields": [
