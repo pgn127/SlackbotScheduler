@@ -110,6 +110,7 @@ function processMessage(message, rtm) {
             rtm.sendMessage(data.result.fulfillment.speech, message.channel)
         } else if(Object.keys(data.result.parameters).length !== 0){
             awaitingResponse = true;
+            // var reminderDate = Date.parse(data.result.parameters.date.toString());
             web.chat.postMessage(message.channel, `Creating reminder for ${data.result.parameters.subject} on ${data.result.parameters.date}`, messageButtons);
 
         }
