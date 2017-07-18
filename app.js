@@ -6,6 +6,7 @@ var OAuth2 = google.auth.OAuth2;
 var mongoose = require('mongoose');
 var models = require('./models');
 var {User} = require('./models');
+var slackID;
 
 mongoose.connect(process.env.MONGODB_URI);
 mongoose.Promise = global.Promise;
@@ -55,7 +56,7 @@ app.get('/oauth', function(req, res){
       auth_id: req.query.auth_id
     }))
   });
-  console.log('made it here')
+  slackID = req.query.auth_id
   res.redirect(url);
 })
 
@@ -68,6 +69,20 @@ app.get('/connect/callback', function(req, res) {
     const token_type = tokens.token_type;
     const expiry_date = tokens.expiry_date;
     console.log(tokens);
+
+    var newUser = new User({
+      slackID: slackID,
+      refresh_token: refresh_token,
+      access_token: access_token,
+      auth_id: auth_id,
+      token_type: token_type,
+      expiry_date: expiry_date
+    });
+
+    newUser.save(function(err) {
+      console.log('there was an error saving the new user')
+    })
+
     res.send("Your account was successfuly authenticated")
     // TODO: Put all of these into the database with the corresponding user;
     res.status(200)

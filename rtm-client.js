@@ -1,7 +1,7 @@
 var mongoose = require('mongoose');
 var models = require('./models');
 var {User} = require('./models');
-
+var slackID;
 
 var axios = require('axios');
 const timeZone = "2017-07-17T14:26:36-0700";
@@ -59,23 +59,19 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
       if(!user){
         rtm.sendMessage('Please visit the following link to activate your account ' + process.env.DOMAIN + '/oauth?auth_id='+userId, message.channel);
       } else {
-        // TODO: store the tokens
-        // TODO: do the calendar stuff here
+        //IF THE USER HAS RESPONDED TO THE PREVIOUS INTERACTIVE MESSAGE, set awaitingResponse tp false again
+        if(message.subtype && message.subtype === 'message_changed') {
+            awaitingResponse = false;
+            return;
+        }
+        if( !dm || dm.id !== message.channel || message.type !== 'message') {
+            console.log('MESSAGE WAS NOT SENT TOA  DM SO INGORING IT');
+            return;
+        }
+        processMessage(message, rtm);
       }
     }
   })
-
-
-  //IF THE USER HAS RESPONDED TO THE PREVIOUS INTERACTIVE MESSAGE, set awaitingResponse tp false again
-  if(message.subtype && message.subtype === 'message_changed') {
-      awaitingResponse = false;
-      return;
-  }
-  if( !dm || dm.id !== message.channel || message.type !== 'message') {
-      console.log('MESSAGE WAS NOT SENT TOA  DM SO INGORING IT');
-      return;
-  }
-  processMessage(message, rtm);
 });
 
 rtm.on(RTM_EVENTS.REACTION_ADDED, function handleRtmReactionAdded(reaction) {
