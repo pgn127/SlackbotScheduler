@@ -1,5 +1,5 @@
 // var fs = require('fs');
-// var logger = require('morgan');
+var logger = require('morgan');
 // var google = require('googleapis');
 // var googleAuth = require('google-auth-library');
 var express = require('express');
@@ -8,24 +8,22 @@ require('./rtm-client');
 var app = express();
 var bodyParser = require('body-parser');
 
-// app.use(logger('dev'));
+app.use(logger('dev'));
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 // var app = express();
 
 var {RtmClient, WebClient, CLIENT_EVENTS, RTM_EVENTS} = require('@slack/client');
 
-
-//
 var CLIENT_ID = process.env.CLIENT_ID;
 var CLIENT_SECRET = process.env.CLIENT_SECRET;
 const PORT=3000;
 
 // Start our server
-// app.listen(PORT, function () {
-//     //Callback triggered when server is successfully listening. Hurray!
-//     console.log("Example app listening on port " + PORT);
-// });
+app.listen(PORT, function () {
+    //Callback triggered when server is successfully listening. Hurray!
+    console.log("Example app listening on port " + PORT);
+});
 
 
 // This route handles GET requests to our root ngrok address and responds with the same "Ngrok is working message" we used before
@@ -104,7 +102,7 @@ app.post('/slack/interactive', function(req,res){
 // export default app;
 
 // Start our server
-app.listen(PORT, function () {
-    //Callback triggered when server is successfully listening. Hurray!
-    console.log("Example app listening on port " + PORT);
-});
+// app.listen(PORT, function () {
+//     //Callback triggered when server is successfully listening. Hurray!
+//     console.log("Example app listening on port " + PORT);
+// });

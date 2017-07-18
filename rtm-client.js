@@ -1,5 +1,7 @@
+
+var axios = require('axios');
 const timeZone = "2017-07-17T14:26:36-0700";
-const identifier = "20150910";
+const identifier = 20150910;
 
 var messageButtons = {
           "attachments": [
@@ -45,7 +47,7 @@ rtm.on(CLIENT_EVENTS.RTM.AUTHENTICATED, (rtmStartData) => {
 // });
 
 
-var axios = require('axios');
+
 rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
   //need to determine who this message was sent to
   var dm = rtm.dataStore.getDMByUserId(message.user); //gets the channel ID for the specific conversation between one user and bot
@@ -53,11 +55,7 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
       console.log('MESSAGE WAS NOT SENT TOA  DM SO INGORING IT');
       return;
   }
-
   processMessage(message, rtm);
-
-
-
 });
 
 rtm.on(RTM_EVENTS.REACTION_ADDED, function handleRtmReactionAdded(reaction) {
@@ -72,6 +70,7 @@ rtm.start();
 
 
 function processMessage(message, rtm) {
+    console.log('entered process message');
     axios.get('https://api.api.ai/api/query', {
         params: {
             v: identifier,
@@ -85,16 +84,19 @@ function processMessage(message, rtm) {
         }
     })
     .then(function({data}) {
-        console.log(data.result);
+        // console.log(data.result);
         if(data.result.actionIncomplete) {
             rtm.sendMessage(data.result.fulfillment.speech, message.channel)
-        } else {
-            console.log('is complete', data.result.parameters);
+        } else if(Object.keys(data.result.parameters).length !== 0){
             web.chat.postMessage(message.channel, `Creating reminder for ${data.result.parameters.subject} on ${data.result.parameters.date}`, messageButtons);
+        }
+        else {
+            // console.log('is complete', data.result.parameters);
+            rtm.sendMessage(data.result.fulfillment.speech, message.channel)
         }
     })
     .catch(function(err){
-        console.log(err);
+        console.log('error in procesmessage', err);
     })
 
   // rtm.sendMessage(messageText, message.channel, function() {
