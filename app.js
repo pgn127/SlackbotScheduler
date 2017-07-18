@@ -3,6 +3,13 @@
 var logger = require('morgan');
 var google = require('googleapis');
 var OAuth2 = google.auth.OAuth2;
+import mongoose from 'mongoose';
+import models from './models';
+import {User} from './models';
+
+mongoose.connect(process.env.MONGODB_URI);
+mongoose.Promise = global.Promise;
+
 // var googleAuth = require('google-auth-library');
 var express = require('express');
 // var request = require('request');
