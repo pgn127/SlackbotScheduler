@@ -101,35 +101,28 @@ app.post('/command', function(req, res) {
 app.post('/interactive', function(req,res){
   var payload = JSON.parse(req.body.payload);
   //if user clicks confirm button
-  if (payload.actions[0].value === 'false'){
-    res.status(200).send('Cancelled :x:');
-  }else if(payload.actions[0].value === 'true') {
-    res.status(200).send('Created reminder :white_check_mark:');
-    // if(Date.now() > expiry_date) {
-    //   oauth2Client.refreshAccessToken(function(err, tokens) {
-    //     User.findOne({slackID: slackID}).exec(function(err, user){
-    //       if(err){
-    //         console.log(err)
-    //       } else {
-    //         user.refresh_token = tokens.refresh_token;
-    //         user.access_token = tokens.access_token;
-    //         user.expiry_date = tokens.expiry_date;
-    //         user.auth_id = JSON.parse(decodeURIComponent(req.query.state));
-    //         user.token_type = tokens.token_type;
-    //
-    //         user.save(function(err){
-    //           if (err){
-    //             res.status(400).json({error:err});
-    //           }else{
-    //             res.status(200).send('Created reminder :white_check_mark:');
-    //           }
-    //         });
-    //
-    //       }
-    //
-    //     })
-    //   });
-    // }
+  if(payload.actions[0].value === 'true') {
+    console.log('We made it into here')
+    if(Date.now() > expiry_date) {
+      oauth2Client.refreshAccessToken(function(err, tokens) {
+        User.findOne({slackID: slackID}).exec(function(err, user){
+          if(err){
+            console.log(err)
+          } else {
+            user.refresh_token = tokens.refresh_token;
+            user.access_token = tokens.access_token;
+            user.expiry_date = tokens.expiry_date;
+            user.auth_id = JSON.parse(decodeURIComponent(req.query.state));
+            user.token_type = tokens.token_type;
+            console.log("made it to this point in time before crashing")
+            user.save();
+          }
+        })
+      });
+    }
+    res.send('Reminder Confirmed')
+  } else{
+    res.send('Cancelled');
   }
 })
 app.listen(process.env.PORT || 3000);
