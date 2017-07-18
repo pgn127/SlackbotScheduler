@@ -8,6 +8,10 @@ var models = require('./models');
 var {User} = require('./models');
 var slackID;
 var expiry_date
+var refresh_token;
+var access_token;
+var auth_id;
+var token_type;
 
 mongoose.connect(process.env.MONGODB_URI);
 mongoose.Promise = global.Promise;
@@ -64,10 +68,10 @@ app.get('/oauth', function(req, res){
 app.get('/connect/callback', function(req, res) {
   const code = req.query.code;
   oauth2Client.getToken(code, function (err, tokens) {
-    const refresh_token = tokens.refresh_token;
-    const access_token = tokens.access_token;
-    const auth_id = JSON.parse(decodeURIComponent(req.query.state));
-    const token_type = tokens.token_type;
+    refresh_token = tokens.refresh_token;
+    access_token = tokens.access_token;
+    auth_id = JSON.parse(decodeURIComponent(req.query.state));
+    token_type = tokens.token_type;
     expiry_date = tokens.expiry_date;
     var newUser = new User({
       slackID: slackID,
@@ -103,30 +107,40 @@ app.post('/command', function(req, res) {
 app.post('/slack/interactive', function(req,res){
   var payload = JSON.parse(req.body.payload);
   //if user clicks confirm button
-  if(payload.actions[0].value === 'true') {
-    res.send('Created reminder');
-    // TODO: create a calendar event here
-    if(Date.now() > expiry_date) {
-      oauth2Client.refreshAccessToken(function(err, tokens) {
-        User.findOne({slackID: slackID}).exec(function(err, user){
-          if(err){
-            console.log(err)
-          } else {
-            user.refresh_token = tokens.refresh_token;
-            user.access_token = tokens.access_token;
-            user.expiry_date = tokens.expiry_date;
-            user.auth_id = JSON.parse(decodeURIComponent(req.query.state));
-            user.token_type = tokens.token_type;
+  res.send('Created reminder');
+  if(Date.now() > expiry_date) {
+    oauth2Client.refreshAccessToken(function(err, tokens) {
+      User.findOne({slackID: slackID}).exec(function(err, user){
+        if(err){
+          console.log(err)
+        } else {
+          user.refresh_token = tokens.refresh_token;
+          user.access_token = tokens.access_token;
+          user.expiry_date = tokens.expiry_date;
+          user.auth_id = JSON.parse(decodeURIComponent(req.query.state));
+          user.token_type = tokens.token_type;
+          user.save();
+        }
 
-            user.save();
-
-          }
-
-        })
-      });
-    }
-  } else{
-    console.log('cancel was clicked');
-    res.send('Cancelled');
+      })
+    });
   }
+
+  User.findOne({slackID: slackID}).exec(function(err, user) {
+    if(err) {
+      console.log('An error occured');
+    } else{
+      if(!user) {
+        console.log("we couldnt find the user");
+      }else{
+
+      }
+    }
+  })
+
+
+} else{
+  console.log('cancel was clicked');
+  res.send('Cancelled');
+}
 })
