@@ -106,14 +106,15 @@ app.post('/interactive', function(req,res){
     console.log('We made it into here')
     console.log(payload.original_message.attachments[0]);
     console.log(payload.original_message.attachments[0].fields);
-    var reminderDate = Date.parse(payload.original_message.attachments[0].fields[0].value);
+    var reminderSubject = payload.original_message.attachments[0].fields[0].value;
+    var reminderDate = Date.parse(payload.original_message.attachments[0].fields[1].value);
     console.log(reminderDate);
-    var reminderSubject = payload.original_message.attachments[0].fields[1].value;
+
     var newReminder = new Reminder({
       userID: payload.user.id,
       subject: reminderSubject,
       access_token: payload.token,
-      date: parseInt(reminderDate),
+      date: reminderDate,
     })
     newReminder.save()
     .then(()=>{
