@@ -2,7 +2,7 @@ var mongoose = require('mongoose');
 var models = require('./models');
 var {User, Reminder} = require('./models');
 var slackID;
-
+var _ = require('underscore')
 var axios = require('axios');
 const timeZone = "2017-07-17T14:26:36-0700";
 const identifier = 20150910;
