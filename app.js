@@ -53,9 +53,16 @@ app.get('/oauth', function(req, res){
 })
 
 app.get('/connect/callback', function(req, res) {
-  console.log("Made it here")
   const code = req.query.code;
   oauth2Client.getToken(code, function (err, tokens) {
+    const refresh_token = tokens.refresh_token;
+    const access_token = tokens.access_token;
+    const auth_id = JSON.parse(decodeURIComponent(req.query.state));
+    const token_type = tokens.token_type;
+    const expiry_date = tokens.expiry_date;
+    console.log(tokens);
+    // TODO: Put all of these into the database with the corresponding user;
+    res.status(200)
   // Now tokens contains an access_token and an optional refresh_token. Save them.
   if (!err) {
     oauth2Client.setCredentials(tokens);
