@@ -169,7 +169,7 @@ function processMessage(message, rtm) {
   function findReminders(){
     var now = Date.now();
     var tomorrow = new Date(new Date().getTime() + 24 * 60 * 60 * 1000).getTime();
-    Reminder.find({}).where('date').gt(now).lt(tomorrow).exec(function(err,reminders){
+    Reminder.find({}).where('date').gt(now).lt(tomorrow).populate('userID').exec(function(err,reminders){
       if (err){
         // res.status(400).json({error:err});
         return [];

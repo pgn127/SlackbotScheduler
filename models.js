@@ -12,9 +12,12 @@ var userSchema = new Schema({
 })
 
 var reminderSchema = new Schema({
-  userID: String,
+  userID: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  },
+  channelID: String,
   subject: String,
-  access_token: String,
   date: Number,
 })
 

@@ -61,8 +61,7 @@ function findReminders(){
       console.log(reminders);
       if (reminders){
         reminders.forEach(function(reminder){
-          var dm = rtm.dataStore.getDMByUserId(reminder.userID);
-          rtm.sendMessage("UPCOMING REMINDER: " + reminder.subject + ' on ' + new Date(reminder.date), dm.id);
+          rtm.sendMessage("UPCOMING REMINDER: " + reminder.subject + ' on ' + new Date(reminder.date), reminder.channelID);
         })
       }
     }

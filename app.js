@@ -104,38 +104,35 @@ app.post('/interactive', function(req,res){
   //if user clicks confirm button
   if(payload.actions[0].value === 'true') {
     console.log('We made it into here')
-    console.log(payload.original_message.attachments[0]);
-    console.log(payload.original_message.attachments[0].fields);
-    var reminderSubject = payload.original_message.attachments[0].fields[0].value;
-    var reminderDate = Date.parse(payload.original_message.attachments[0].fields[1].value);
-    console.log(reminderDate);
+    if(Date.now() > expiry_date) {
+      oauth2Client.refreshAccessToken(function(err, tokens) {
+        User.findOne({slackID: slackID}).exec(function(err, user){
+          if(err){
+            console.log(err)
+          } else {
+            user.refresh_token = tokens.refresh_token;
+            user.access_token = tokens.access_token;
+            user.expiry_date = tokens.expiry_date;
+            user.auth_id = JSON.parse(decodeURIComponent(req.query.state));
+            user.token_type = tokens.token_type;
+            console.log("made it to this point in time before crashing")
+            user.save()
+            .then((user)=>{
+              var reminderSubject = payload.original_message.attachments[0].fields[0].value;
+              var reminderDate = Date.parse(payload.original_message.attachments[0].fields[1].value);
+              var newReminder = new Reminder({
+                userID: payload.user.id,
+                channelID: payload.channel.id,
+                subject: reminderSubject,
+                date: reminderDate,
+              })
+              newReminder.save()
+            })
+          }
+        })
+      });
+    }
 
-    var newReminder = new Reminder({
-      userID: payload.user.id,
-      subject: reminderSubject,
-      access_token: payload.token,
-      date: reminderDate,
-    })
-    newReminder.save()
-    .then(()=>{
-      if(Date.now() > expiry_date) {
-        oauth2Client.refreshAccessToken(function(err, tokens) {
-          User.findOne({slackID: slackID}).exec(function(err, user){
-            if(err){
-              console.log(err)
-            } else {
-              user.refresh_token = tokens.refresh_token;
-              user.access_token = tokens.access_token;
-              user.expiry_date = tokens.expiry_date;
-              user.auth_id = JSON.parse(decodeURIComponent(req.query.state));
-              user.token_type = tokens.token_type;
-              console.log("made it to this point in time before crashing")
-              user.save();
-            }
-          })
-        });
-      }
-    })
     .then(()=>res.send('Reminder Confirmed'))
   } else{
     res.send('Cancelled');
