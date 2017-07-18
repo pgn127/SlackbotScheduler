@@ -9,12 +9,8 @@ var {User} = require('./models');
 var googleAuth = require('google-auth-library');
 var fs = require('fs');
 var slackID;
-var expiry_date;
-var refresh_token;
-var access_token;
-var auth_id;
-var token_type;
 var url;
+var globalToken;
 
 mongoose.connect(process.env.MONGODB_URI);
 mongoose.Promise = global.Promise;
@@ -70,19 +66,12 @@ app.get('/connect/callback', function(req, res) {
     process.env.DOMAIN + '/connect/callback'
   )
   oauth2Client.getToken(code, function (err, tokens) {
-    refresh_token = tokens.refresh_token;
-    access_token = tokens.access_token;
-    auth_id = JSON.parse(decodeURIComponent(req.query.state));
-    token_type = tokens.token_type;
-    expiry_date = tokens.expiry_date;
+    let auth_id = JSON.parse(decodeURIComponent(req.query.state));
+    globalToken = tokens;
     var newUser = new User({
       token: tokens,
       slackID: slackID,
-      refresh_token: refresh_token,
-      access_token: access_token,
       auth_id: auth_id.auth_id,
-      token_type: token_type,
-      expiry_date: expiry_date,
       date: '',
       subject: ''
     });
@@ -106,7 +95,7 @@ app.post('/slack/interactive', function(req,res){
   //if user clicks confirm button
   if(payload.actions[0].value === 'true') {
     slackID = payload.user.id;
-    if(Date.now() > expiry_date) {
+    if(Date.now() > globalToken.expiry_date) {
       oauth2Client = new OAuth2(
         process.env.GOOGLE_CLIENT_ID,
         process.env.GOOGLE_CLIENT_SECRET,
@@ -117,12 +106,7 @@ app.post('/slack/interactive', function(req,res){
           if(err){
             console.log(err)
           } else {
-            user.refresh_token = tokens.refresh_token;
-            user.access_token = tokens.access_token;
-            user.expiry_date = tokens.expiry_date;
-            user.auth_id = JSON.parse(decodeURIComponent(req.query.state));
-            user.token_type = tokens.token_type;
-            console.log("made it to this point in time before crashing")
+            user.token = tokens;
             user.save();
           }
         })
@@ -132,11 +116,10 @@ app.post('/slack/interactive', function(req,res){
       if(err) {
         res.send("An error occured")
       } else {
-        createCalendarReminder(user.date., user.subject, );
+        createCalendarReminder(user.date, user.subject, user.token);
         res.send("Reminder Made")
       }
     })
-
   } else{
     res.send('Cancelled');
   }
