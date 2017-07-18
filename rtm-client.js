@@ -11,6 +11,16 @@ const identifier = 20150910;
 var messageButtons = {
           "attachments": [
               {
+                  "fields": [
+                      {
+                          "title": "Subject",
+                          "value": `${data.result.parameters.subject}`
+                      },
+                      {
+                          "title": "Date",
+                          "value": `${data.result.parameters.date}`
+                      }
+                  ],
                   "fallback": "You are unable to choose a game",
                   "callback_id": "wopr_game",
                   "color": "#3AA3E3",
@@ -111,7 +121,40 @@ function processMessage(message, rtm) {
         } else if(Object.keys(data.result.parameters).length !== 0){
             awaitingResponse = true;
             // var reminderDate = Date.parse(data.result.parameters.date.toString());
-            web.chat.postMessage(message.channel, `Creating reminder for ${data.result.parameters.subject} on ${data.result.parameters.date}`, messageButtons);
+            web.chat.postMessage(message.channel, `Would you like me to create a reminder for ${data.result.parameters.subject} on ${data.result.parameters.date}`, {
+                      "attachments": [
+                          {
+                              "fields": [
+                                  {
+                                      "title": "Subject",
+                                      "value": `${data.result.parameters.subject}`
+                                  },
+                                  {
+                                      "title": "Date",
+                                      "value": `${data.result.parameters.date}`
+                                  }
+                              ],
+                              "fallback": "You are unable to choose a game",
+                              "callback_id": "wopr_game",
+                              "color": "#3AA3E3",
+                              "attachment_type": "default",
+                              "actions": [
+                                  {
+                                      "name": "yes",
+                                      "text": "Yes",
+                                      "type": "button",
+                                      "value": "true"
+                                  },
+                                  {
+                                      "name": "no",
+                                      "text": "No",
+                                      "type": "button",
+                                      "value": "false"
+                                  }
+                              ]
+                          }
+                      ]
+                  });
 
         }
         else {

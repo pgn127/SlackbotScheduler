@@ -98,29 +98,41 @@ app.post('/slack/interactive', function(req,res){
   console.log(payload);
   //if user clicks confirm button
   if(payload.actions[0].value === 'true') {
-    //   var reminderDate = Date.parse(data.result.parameters.date.toString());
-    console.log('We made it into here')
-    if(Date.now() > expiry_date) {
-      oauth2Client.refreshAccessToken(function(err, tokens) {
-        User.findOne({slackID: slackID}).exec(function(err, user){
-          if(err){
-            console.log(err)
-          } else {
-            user.refresh_token = tokens.refresh_token;
-            user.access_token = tokens.access_token;
-            user.expiry_date = tokens.expiry_date;
-            user.auth_id = JSON.parse(decodeURIComponent(req.query.state));
-            user.token_type = tokens.token_type;
-            console.log("made it to this point in time before crashing")
-            user.save();
+      //retrieve the remidner date from the fields in payload from interactive message
+      var reminderDate = Date.parse(payload.original_message.attachments.fields[0].value);
+      var reminderSubject = payload.original_message.attachments.fields[1].value;
+      var newReminder = new Reminder({
+          userID: payload.user.id,
+          subject: reminderSubject,
+          access_token: payload.token,
+          date: reminderDate
+      })
+      newReminder.save()
+      .then(() => {
+          if(Date.now() > expiry_date) {
+            oauth2Client.refreshAccessToken(function(err, tokens) {
+              User.findOne({slackID: slackID}).exec(function(err, user){
+                if(err){
+                  console.log(err)
+                } else {
+                  user.refresh_token = tokens.refresh_token;
+                  user.access_token = tokens.access_token;
+                  user.expiry_date = tokens.expiry_date;
+                  user.auth_id = JSON.parse(decodeURIComponent(req.query.state));
+                  user.token_type = tokens.token_type;
+                  console.log("made it to this point in time before crashing")
+                  user.save();
+                }
+              })
+            });
           }
-        })
-      });
-    }
-    res.send('Reminder Confirmed')
-  } else{
-    res.send('Cancelled');
-  }
+          res.send('Reminder Confirmed')
+        } else{
+          res.send('Cancelled');
+        }
+      })
+      .catch((err) => console.log(err))
+
 })
 
 // app.use((req, res, next) => {
