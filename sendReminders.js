@@ -4,13 +4,13 @@ mongoose.connect(process.env.MONGODB_URI);
 var _ = require('underscore')
 
 var {RtmClient, WebClient, CLIENT_EVENTS, RTM_EVENTS} = require('@slack/client');
-//same as var RtmClient = require('@slack/client').RtmClient
+// same as var RtmClient = require('@slack/client').RtmClient
 
 var token = process.env.SLACK_API_TOKEN || '';
 
-// var rtm = new RtmClient(token);
-// var web = new WebClient(token);
-// rtm.start();
+var rtm = new RtmClient(token);
+var web = new WebClient(token);
+rtm.start();
 findReminders();
 
 function findReminders(){
@@ -24,22 +24,24 @@ function findReminders(){
         if(reminders){
             //group the reminders by user id
             var groupedReminders = _.groupBy(reminders, function(reminder) {
-                console.log('REMINDER IN GROUPEDREMINDER IS', reminder);
+                // console.log('REMINDER IN GROUPEDREMINDER IS', reminder);
                 return reminder.userID._id
             });
 
             Object.keys(groupedReminders).forEach(function(user) {
                 var userReminders = groupedReminders[user];
                 var reminderString = "";
-                console.log('user reminders for ', user, 'are ', userReminders);
+                var channel;
+                // console.log('user reminders for ', user, 'are ', userReminders);
                 userReminders.forEach(function(reminder) {
+                    channel = reminder.channelID;
                     // var dmChannel = rtm.dataStore.getDMByUserId(reminder.userID.slackID);
                     var date = new Date(reminder.date);
                     var str = `Reminder: ${date} for ${reminder.subject} \n`;
                     reminderString+= str;
                 })
-                console.log('sending remidner string to user ', reminderString);
-                // rtm.sendMessage(reminderString, reminder.channelID);
+                // console.log('sending remidner string to user ', reminderString);
+                rtm.sendMessage(reminderString, channel);
             })
 
         }
