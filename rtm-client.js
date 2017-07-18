@@ -1,8 +1,13 @@
+var mongoose = require('mongoose');
+var models = require('./models');
+var {User} = require('./models');
+var slackID;
 
 var axios = require('axios');
 var {User} = require('./models')
 const timeZone = "2017-07-17T14:26:36-0700";
 const identifier = 20150910;
+
 
 var messageButtons = {
           "attachments": [
@@ -31,6 +36,7 @@ var messageButtons = {
 
 var {RtmClient, WebClient, CLIENT_EVENTS, RTM_EVENTS} = require('@slack/client');
 //same as var RtmClient = require('@slack/client').RtmClient
+
 var token = process.env.SLACK_API_TOKEN || '';
 
 var rtm = new RtmClient(token);
@@ -46,7 +52,7 @@ rtm.on(CLIENT_EVENTS.RTM.AUTHENTICATED, (rtmStartData) => {
 
 rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
   var dm = rtm.dataStore.getDMByUserId(message.user); //gets the channel ID for the specific conversation between one user and bot
-  // console.log(message);
+  const userId = message.user;
   if(message.subtype && message.subtype === 'message_changed') {
       awaitingResponse = false;
       return;
@@ -55,58 +61,26 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
       console.log('MESSAGE WAS NOT SENT TOA  DM SO INGORING IT');
       return;
   }
-  const userId = message.user;
 
-  User.findOne({slackId: userId}).exec(function(err, user){
-      if(err){console.log(err)
+  User.findOne({slackID: userId}).exec(function(err, user){
+    if(err){console.log(err)
+    } else {
+      if(!user){
+        rtm.sendMessage('Please visit the following link to activate your account ' + process.env.DOMAIN + '/oauth?auth_id='+userId, message.channel);
       } else {
-          console.log('user is', userId);
-          if(!user){
-              rtm.sendMessage('Please visit the following link to activate your account ' + process.env.DOMAIN+'/oauth?auth_id='+userId, message.channel);
-              return;
-          } else {
-              //IF THE USER HAS RESPONDED TO THE PREVIOUS INTERACTIVE MESSAGE, set awaitingResponse tp false again
-            //   if(message.subtype && message.subtype === 'message_changed') {
-            //       awaitingResponse = false;
-            //       return;
-            //   }
-            //   if( !dm || dm.id !== message.channel || message.type !== 'message') {
-            //       console.log('MESSAGE WAS NOT SENT TOA  DM SO INGORING IT');
-            //       return;
-            //   }
-              processMessage(message, rtm);
-          }
+        //IF THE USER HAS RESPONDED TO THE PREVIOUS INTERACTIVE MESSAGE, set awaitingResponse tp false again
+        // if(message.subtype && message.subtype === 'message_changed') {
+        //     awaitingResponse = false;
+        //     return;
+        // }
+        // if( !dm || dm.id !== message.channel || message.type !== 'message') {
+        //     console.log('MESSAGE WAS NOT SENT TOA  DM SO INGORING IT');
+        //     return;
+        // }
+        processMessage(message, rtm);
       }
+    }
   })
-
-  // User.findOne({slackId:message.user}, function(err, user){
-  //     if (err){
-  //        console.log('error', err);
-  //    }else if (!user){
-  //        //if the user does not exist in database at all
-  //
-  //         rtm.sendMessage('Please go to this link to idk http://e0228a4d.ngrok.io/oauth?auth_id='+message.user, message.channel);
-  //
-  //   } else if(user){
-  //         if(user.refreshToken && user.authId && user.accessToken && user.tokenType && user.expiryDate){
-  //             console.log('user already has google profile in mongodb');
-  //         } else {
-  //             rtm.sendMessage('Please go to this link to idk http://e0228a4d.ngrok.io/oauth?auth_id='+message.user, message.channel);
-  //         }
-  //   } else{
-  //       console.log('idk what else there is');
-  //   }
-  // })
-  //IF THE USER HAS RESPONDED TO THE PREVIOUS INTERACTIVE MESSAGE, set awaitingResponse tp false again
-  // if(message.subtype && message.subtype === 'message_changed') {
-  //     awaitingResponse = false;
-  //     return;
-  // }
-  // if( !dm || dm.id !== message.channel || message.type !== 'message') {
-  //     console.log('MESSAGE WAS NOT SENT TOA  DM SO INGORING IT');
-  //     return;
-  // }
-  // processMessage(message, rtm);
 });
 
 rtm.on(RTM_EVENTS.REACTION_ADDED, function handleRtmReactionAdded(reaction) {
