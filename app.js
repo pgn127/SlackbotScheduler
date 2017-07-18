@@ -20,10 +20,6 @@ var CLIENT_SECRET = process.env.CLIENT_SECRET;
 const PORT=3000;
 
 // Start our server
-app.listen(PORT, function () {
-    //Callback triggered when server is successfully listening. Hurray!
-    console.log("Example app listening on port " + PORT);
-});
 
 
 // This route handles GET requests to our root ngrok address and responds with the same "Ngrok is working message" we used before
@@ -101,8 +97,7 @@ app.post('/slack/interactive', function(req,res){
 // });
 // export default app;
 
-// Start our server
-// app.listen(PORT, function () {
-//     //Callback triggered when server is successfully listening. Hurray!
-//     console.log("Example app listening on port " + PORT);
-// });
+app.listen(PORT, function () {
+    //Callback triggered when server is successfully listening. Hurray!
+    console.log("Example app listening on port " + PORT);
+});
