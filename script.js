@@ -9,9 +9,9 @@ var slackID;
 var {RtmClient, WebClient, CLIENT_EVENTS, RTM_EVENTS} = require('@slack/client');
 var token = process.env.SLACK_API_TOKEN || '';
 
-//var rtm = new RtmClient(token);
-//var web = new WebClient(token);
-//rtm.start();
+var rtm = new RtmClient(token);
+var web = new WebClient(token);
+rtm.start();
 
 mongoose.connect(process.env.MONGODB_URI);
 
@@ -50,7 +50,7 @@ mongoose.connect(process.env.MONGODB_URI);
 //   date: threedaysfuture
 // })
 mongoose.Promise = global.Promise;
-findReminders();
+rtm.on(RTM_EVENTS.HELLO, findReminders());
 
 // function findReminders(){
 //   var now = Date.now();

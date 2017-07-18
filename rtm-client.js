@@ -4,13 +4,6 @@ var {User} = require('./models');
 var {Reminder} = require('./models');
 var slackID;
 
-
-/**
-* Example for creating and working with the Slack RTM API.
-*/
-
-/* eslint no-console:0 */
-
 var axios = require('axios');
 const timeZone = "2017-07-17T14:26:36-0700";
 const identifier = 20150910;
@@ -42,12 +35,9 @@ var messageButtons = {
 }
 
 var {RtmClient, WebClient, CLIENT_EVENTS, RTM_EVENTS} = require('@slack/client');
-//same as var RtmClient = require('@slack/client').RtmClient
 
 var token = process.env.SLACK_API_TOKEN || '';
 
-// var RtmClient = require('@slack/client').RtmClient;
-// var RTM_EVENTS = require('@slack/client').RTM_EVENTS;
 
 console.log(token);
 var notPending = true;
@@ -73,15 +63,6 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
         rtm.sendMessage('Please visit the following link to activate your account ' + process.env.DOMAIN + '/oauth?auth_id='+userId, message.channel);
         return;
       } else {
-        //IF THE USER HAS RESPONDED TO THE PREVIOUS INTERACTIVE MESSAGE, set awaitingResponse tp false again
-        // if(message.subtype && message.subtype === 'message_changed') {
-        //     awaitingResponse = false;
-        //     return;
-        // }
-        // if( !dm || dm.id !== message.channel || message.type !== 'message') {
-        //     console.log('Message was not sent to DM. Ignoring.');
-        //     return;
-        // }
         processMessage(message, rtm);
       }
     }

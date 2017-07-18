@@ -157,33 +157,4 @@ app.post('/interactive', function(req,res){
   }
 })
 
-// oauth2Client.refreshAccessToken(function(err, tokens) {
-//
-//     else {
-//       user.refresh_token = tokens.refresh_token;
-//       user.access_token = tokens.access_token;
-//       user.expiry_date = tokens.expiry_date;
-//       user.auth_id = JSON.parse(decodeURIComponent(req.query.state));
-//       user.token_type = tokens.token_type;
-//       console.log("made it to this point in time before crashing")
-//       user.save()
-//       .then((user)=>{
-//         var reminderSubject = payload.original_message.attachments[0].fields[0].value;
-//         var reminderDate = Date.parse(payload.original_message.attachments[0].fields[1].value);
-//         var newReminder = new Reminder({
-//           userID: payload.user.id,
-//           channelID: payload.channel.id,
-//           subject: reminderSubject,
-//           date: reminderDate,
-//         })
-//         newReminder.save(function(err){
-//           if (err){
-//             res.status(400).json({error:err});
-//           }else{
-//             res.send('Reminder Confirmed')
-//           }
-//         })
-//       })
-//     }
-//   })
 app.listen(process.env.PORT || 3000);
