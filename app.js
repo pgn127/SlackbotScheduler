@@ -140,7 +140,4 @@ app.post('/slack/interactive', function(req,res){
 // });
 // export default app;
 
-app.listen(PORT, function () {
-    //Callback triggered when server is successfully listening. Hurray!
-    console.log("Example app listening on port " + PORT);
-});
+app.listen(process.env.PORT || 3000);
