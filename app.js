@@ -126,14 +126,18 @@ app.post('/interactive', function(req,res){
                 subject: reminderSubject,
                 date: reminderDate,
               })
-              newReminder.save()
+              newReminder.save(function(err){
+                if (err){
+                  res.status(400).json({error:err});
+                }else{
+                  res.send('Reminder Confirmed')
+                }
+              })
             })
           }
         })
       });
     }
-
-    .then(()=>res.send('Reminder Confirmed'))
   } else{
     res.send('Cancelled');
   }
