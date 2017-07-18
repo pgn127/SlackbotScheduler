@@ -19,7 +19,7 @@ var {RtmClient, WebClient, CLIENT_EVENTS, RTM_EVENTS} = require('@slack/client')
 
 var CLIENT_ID = process.env.CLIENT_ID;
 var CLIENT_SECRET = process.env.CLIENT_SECRET;
-const PORT=3000;
+const PORT=3001;
 
   var oauth2Client;
   var url;
@@ -74,6 +74,7 @@ app.post('/command', function(req, res) {
 });
 
 app.post('/interactive', function(req,res){
+  console.log('ehgnjek');
   var payload = JSON.parse(req.body.payload);
   if (payload.actions[0].value === 'true'){
     res.send('Created reminder :white_check_mark:')
