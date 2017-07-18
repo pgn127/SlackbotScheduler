@@ -1,61 +1,83 @@
-
-/**
- * Example for creating and working with the Slack RTM API.
- */
-
-/* eslint no-console:0 */
+const timeZone = "2017-07-17T14:26:36-0700";
+const identifier = "20150910";
 
 var messageButtons = {
-            "text": "Would you like to play a game?",
-            "attachments": [
-                {
-                    "text": "Choose a game to play",
-                    "fallback": "You are unable to choose a game",
-                    "callback_id": "wopr_game",
-                    "color": "#3AA3E3",
-                    "attachment_type": "default",
-                    "actions": [
-                        {
-                            "name": "game",
-                            "text": "Chess",
-                            "type": "button",
-                            "value": "chess"
-                        },
-                        {
-                            "name": "game",
-                            "text": "Falken's Maze",
-                            "type": "button",
-                            "value": "maze"
-                        },
-                        {
-                            "name": "game",
-                            "text": "Thermonuclear War",
-                            "style": "danger",
-                            "type": "button",
-                            "value": "war",
-                            "confirm": {
-                                "title": "Are you sure?",
-                                "text": "Wouldn't you prefer a good game of chess?",
-                                "ok_text": "Yes",
-                                "dismiss_text": "No"
-                            }
-                        }
-                    ]
-                }
-            ]
-        }
+          "attachments": [
+              {
+                  "fallback": "You are unable to choose a game",
+                  "callback_id": "wopr_game",
+                  "color": "#3AA3E3",
+                  "attachment_type": "default",
+                  "actions": [
+                      {
+                          "name": "yes",
+                          "text": "Yes",
+                          "type": "button",
+                          "value": "true"
+                      },
+                      {
+                          "name": "no",
+                          "text": "No",
+                          "type": "button",
+                          "value": "false"
+                      }
+                  ]
+              }
+          ]
+      }
 
-var RtmClient = require('@slack/client').RtmClient;
-var RTM_EVENTS = require('@slack/client').RTM_EVENTS;
-
-var token = process.env.SLACK_API_TOKEN || 'xoxb-213948372850-8BZYcWtZJvHWTzfZhpTsjGbl';
+var {RtmClient, WebClient, CLIENT_EVENTS, RTM_EVENTS} = require('@slack/client');
+//same as var RtmClient = require('@slack/client').RtmClient
+var token = process.env.SLACK_API_TOKEN || '';
 
 var rtm = new RtmClient(token);
-rtm.start();
+var web = new WebClient(token);
+let channel;
 
+// The client will emit an RTM.AUTHENTICATED event on successful connection, with the `rtm.start` payload
+rtm.on(CLIENT_EVENTS.RTM.AUTHENTICATED, (rtmStartData) => {
+  console.log(`Logged in as ${rtmStartData.self.name} of team ${rtmStartData.team.name}, but not yet connected to a channel`);
+});
+
+// you need to wait for the client to fully connect before you can send messages
+// rtm.on(CLIENT_EVENTS.RTM.RTM_CONNECTION_OPENED, function () {
+//   rtm.sendMessage("Hello!", channel);
+// });
+
+
+var axios = require('axios');
 rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
-  processMessage(message, rtm);
-  console.log('Message:', message);
+  //need to determine who this message was sent to
+  var dm = rtm.dataStore.getDMByUserId(message.user); //gets the channel ID for the specific conversation between one user and bot
+  if( !dm || dm.id !== message.channel || message.type !== 'message') {
+      console.log('MESSAGE WAS NOT SENT TOA  DM SO INGORING IT');
+      return;
+  }
+
+  axios.get('https://api.api.ai/api/query', {
+      params: {
+          v: identifier,
+          lang: 'en',
+          timezone: timeZone,
+          query: message.text,
+          sessionId: message.user
+      },
+      headers: {
+          Authorization: `Bearer ${process.env.API_ACCESS_TOKEN}`
+      }
+  })
+  .then(function({data}) {
+      console.log(data.result);
+      if(data.result.actionIncomplete) {
+          rtm.sendMessage(data.result.fulfillment.speech, message.channel)
+      } else {
+          console.log('is complete', data.result.parameters);
+          web.chat.postMessage(message.channel, `Creating reminder for ${data.result.parameters.subject} on ${data.result.parameters.date}`, messageButtons);
+      }
+  })
+  .catch(function(err){
+      console.log(err);
+  })
 });
 
 rtm.on(RTM_EVENTS.REACTION_ADDED, function handleRtmReactionAdded(reaction) {
@@ -66,11 +88,32 @@ rtm.on(RTM_EVENTS.REACTION_REMOVED, function handleRtmReactionRemoved(reaction) 
   console.log('Reaction removed:', reaction);
 });
 
+rtm.start();
+
 
 function processMessage(message, rtm) {
-  var messageText = message.text;
-  //var query = (isNaN(locationName) ? 'q=' + locationName : 'zip=' + locationName) + '&units=imperial&APPID=' + WEATHER_API_KEY;
-  rtm.sendMessage(messageText, message.channel, function() {
-    // getAndSendCurrentWeather(locationName, query, message.channel, rtm);
-  });
+  axios.get('https://api.api.ai/api/query?v=' + identifier, {
+    headers: {
+      Authorization: "Bearer" + process.env.API_ACCESS_TOKEN
+    },
+    params: {
+      query: message.text,
+      lang: "en",
+      sessionId: message.user,
+      timezone: timeZone,
+    }
+  }).then((response) => {
+    if(response.result.actionIncomplete) {
+      //need to prompt the user for more information
+      // TODO: send the user response.result.fulfillment.speech
+    } else {
+      // TODO: send the user a confirmation with response.result.fulfillment.speech
+    }
+  }).catch((error) => {
+    console.log(error)
+  })
+
+  // rtm.sendMessage(messageText, message.channel, function() {
+  //   // getAndSendCurrentWeather(locationName, query, message.channel, rtm);
+  // });
 }
