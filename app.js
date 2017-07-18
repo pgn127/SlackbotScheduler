@@ -128,9 +128,8 @@ app.post('/slack/interactive', function(req,res){
       if(err) {
         res.send("An error occured")
       } else {
-        var newEvent = createCalendarReminder(user.date, user.subject);
-        var calendar = google.calendar('v3');
-        calendar.events.insert(newEvent);
+        createCalendarReminder(user.date, user.subject, );
+
         res.send("Reminder Made")
       }
     })
@@ -155,5 +154,12 @@ function createCalendarReminder(date, subject){
       'dateTime': date
     }
   };
-  return event;
+var calendar = google.calendar('v3');
+  calendar.events.insert({
+
+  })
+
+
+
+
 }
