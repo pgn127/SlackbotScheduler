@@ -53,9 +53,16 @@ app.get('/oauth', function(req, res){
 })
 
 app.get('/connect/callback', function(req, res) {
-  console.log("Made it here")
   const code = req.query.code;
   oauth2Client.getToken(code, function (err, tokens) {
+    const refresh_token = tokens.refresh_token;
+    const access_token = tokens.access_token;
+    const auth_id = JSON.parse(decodeURIComponent(req.query.state));
+    const token_type = tokens.token_type;
+    const expiry_date = tokens.expiry_date;
+    console.log(tokens);
+    // TODO: Put all of these into the database with the corresponding user;
+    res.status(200)
   // Now tokens contains an access_token and an optional refresh_token. Save them.
   if (!err) {
     oauth2Client.setCredentials(tokens);
@@ -73,6 +80,7 @@ app.post('/command', function(req, res) {
     res.send('Your ngrok tunnel is up and running!');
 });
 
+<<<<<<< HEAD
 app.post('/interactive', function(req,res){
   console.log('ehgnjek');
   var payload = JSON.parse(req.body.payload);
@@ -81,4 +89,16 @@ app.post('/interactive', function(req,res){
   }else if (payload.actions[0].value === 'false'){
     res.send('Cancelled :x:')
   }
+=======
+app.post('/slack/interactive', function(req,res){
+    var payload = JSON.parse(req.body.payload);
+    //if user clicks confirm button
+    if(payload.actions[0].value === 'true') {
+        res.send('Created reminder');
+        // TODO: create a calendar event here
+    } else{
+        console.log('cancel was clicked');
+        res.send('Cancelled');
+    }
+>>>>>>> 02a87297b107207de3a945ef6b465801d9eb189e
 })
