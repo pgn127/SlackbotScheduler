@@ -11,9 +11,10 @@ var token = process.env.SLACK_API_TOKEN || '';
 var rtm = new RtmClient(token);
 var web = new WebClient(token);
 rtm.start();
-findReminders();
 
-function findReminders(){
+findReminders(rtm);
+
+function findReminders(rtm){
   var now = Date.now();
   var tomorrow = new Date(new Date().getTime() + 24 * 60 * 60 * 1000).getTime();
   Reminder.find({}).where('date').gt(now).lt(tomorrow).populate('userID').exec(function(err,reminders){
