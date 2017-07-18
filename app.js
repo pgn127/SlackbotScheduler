@@ -104,8 +104,8 @@ app.post('/interactive', function(req,res){
   //if user clicks confirm button
   if(payload.actions[0].value === 'true') {
     console.log('We made it into here')
-    User.findOne({slackID: slackID}).exec(function(err, user){
-      if(err){
+    User.findOne({slackID: payload.user.id}).exec(function(err, user){
+      if(err || !user){
         console.log(err)
       } else{
         var reminderSubject = payload.original_message.attachments[0].fields[0].value;
