@@ -51,13 +51,13 @@ rtm.on(CLIENT_EVENTS.RTM.AUTHENTICATED, (rtmStartData) => {
 
 rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
   var dm = rtm.dataStore.getDMByUserId(message.user); //gets the channel ID for the specific conversation between one user and bot
-  const userId = message.user;
-
-  User.findOne({slackID: userId}).exec(function(err, user){
+  slackID = message.user;
+  console.log("this is message", message);
+  User.findOne({slackID: slackID}).exec(function(err, user){
     if(err){console.log(err)
     } else {
       if(!user){
-        rtm.sendMessage('Please visit the following link to activate your account ' + process.env.DOMAIN + '/oauth?auth_id='+userId, message.channel);
+        rtm.sendMessage('Please visit the following link to activate your account ' + process.env.DOMAIN + '/oauth?auth_id='+slackID, message.channel);
       } else {
         //IF THE USER HAS RESPONDED TO THE PREVIOUS INTERACTIVE MESSAGE, set awaitingResponse tp false again
         if(message.subtype && message.subtype === 'message_changed') {
