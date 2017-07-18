@@ -68,20 +68,17 @@ app.get('/connect/callback', function(req, res) {
     const auth_id = JSON.parse(decodeURIComponent(req.query.state));
     const token_type = tokens.token_type;
     const expiry_date = tokens.expiry_date;
-    console.log(tokens);
-
+    console.log(auth_id);
     var newUser = new User({
       slackID: slackID,
       refresh_token: refresh_token,
       access_token: access_token,
-      auth_id: auth_id,
+      auth_id: auth_id.auth_id,
       token_type: token_type,
       expiry_date: expiry_date
     });
 
-    newUser.save(function(err) {
-      console.log('there was an error saving the new user')
-    })
+    newUser.save();
 
     res.send("Your account was successfuly authenticated")
     // TODO: Put all of these into the database with the corresponding user;
