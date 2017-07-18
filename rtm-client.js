@@ -52,7 +52,7 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
     if(err){console.log(err)
     } else {
       if(!user){
-        res.send('clicc on this link to allow bot access to your calendar: ', 'localhost:3000/oauth' + ${userId});
+        res.send('localhost:3000/oauth');
       } else {
         // TODO: store the tokens
         // TODO: do the calendar stuff here
