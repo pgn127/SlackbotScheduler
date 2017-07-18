@@ -9,19 +9,17 @@ var token = process.env.SLACK_API_TOKEN || '';
 
 var rtm = new RtmClient(token);
 var web = new WebClient(token);
+sendReminder();
 
 
-
-function reminderTest(){
+function sendReminder(){
   var reminders = findReminders();
   reminders.forEach(function(reminder) {
       var dmChannel = rtm.dataStore.getDMByUserId(reminder.userID);
       var date = new Date(reminder.date);
-      rtm.sendMessage(`Reminder: ${date} for ${reminder.subject}`, dmChannel);
+      rtm.sendMessage(`Reminder: ${date} for ${reminder.subject}`, dmChannel.id);
   })
 
-
-  rtm.sendMessage('Please visit the following link to activate your account ' + process.env.DOMAIN + '/oauth?auth_id='+userId, message.channel);
 }
 
 function findReminders(){
