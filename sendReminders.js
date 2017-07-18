@@ -3,13 +3,13 @@ var {Reminder} = require('./models');
 mongoose.connect(process.env.MONGODB_URI);
 var _ = require('underscore')
 
-var {RtmClient, WebClient, CLIENT_EVENTS, RTM_EVENTS} = require('@slack/client');
+var {RtmClient, CLIENT_EVENTS, RTM_EVENTS} = require('@slack/client');
 // same as var RtmClient = require('@slack/client').RtmClient
 
 var token = process.env.SLACK_API_TOKEN || '';
 
 var rtm = new RtmClient(token);
-var web = new WebClient(token);
+// var web = new WebClient(token);
 rtm.start();
 
 findReminders(rtm);
@@ -42,6 +42,7 @@ function findReminders(rtm){
                     reminderString+= str;
                 })
                 // console.log('sending remidner string to user ', reminderString);
+                console.log('rtm issss', rtm);
                 rtm.sendMessage(reminderString, channel);
             })
 
