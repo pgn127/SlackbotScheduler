@@ -158,7 +158,7 @@ app.post('/command', function(req, res) {
 
 app.post('/slack/interactive', function(req,res){
   var payload = JSON.parse(req.body.payload);
-  console.log(payload);
+  // console.log(payload);
   //if user clicks confirm button
   if(payload.actions[0].value === 'true') {
     User.findOne({slackID: payload.user.id}).exec(function(err, user){

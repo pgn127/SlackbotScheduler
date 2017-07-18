@@ -8,15 +8,15 @@ var {RtmClient, WebClient, CLIENT_EVENTS, RTM_EVENTS} = require('@slack/client')
 
 var token = process.env.SLACK_API_TOKEN || '';
 
-var rtm = new RtmClient(token);
-var web = new WebClient(token);
-rtm.start();
+// var rtm = new RtmClient(token);
+// var web = new WebClient(token);
+// rtm.start();
 findReminders();
 
 function findReminders(){
   var now = Date.now();
   var tomorrow = new Date(new Date().getTime() + 24 * 60 * 60 * 1000).getTime();
-  Reminder.find({}).where('date').gt(now).lt(tomorrow).populate('userID')exec(function(err,reminders){
+  Reminder.find({}).where('date').gt(now).lt(tomorrow).populate('userID').exec(function(err,reminders){
     if (err){
       // res.status(400).json({error:err});
       console.log('error', err);
@@ -24,6 +24,7 @@ function findReminders(){
         if(reminders){
             //group the reminders by user id
             var groupedReminders = _.groupBy(reminders, function(reminder) {
+                console.log('REMINDER IN GROUPEDREMINDER IS', reminder);
                 return reminder.userID._id
             });
 
@@ -37,7 +38,8 @@ function findReminders(){
                     var str = `Reminder: ${date} for ${reminder.subject} \n`;
                     reminderString+= str;
                 })
-                rtm.sendMessage(reminderString, reminder.channelID);
+                console.log('sending remidner string to user ', reminderString);
+                // rtm.sendMessage(reminderString, reminder.channelID);
             })
 
         }
