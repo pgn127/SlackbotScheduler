@@ -47,7 +47,14 @@ rtm.on(CLIENT_EVENTS.RTM.AUTHENTICATED, (rtmStartData) => {
 rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
   var dm = rtm.dataStore.getDMByUserId(message.user); //gets the channel ID for the specific conversation between one user and bot
   // console.log(message);
-
+  if(message.subtype && message.subtype === 'message_changed') {
+      awaitingResponse = false;
+      return;
+  }
+  if( !dm || dm.id !== message.channel || message.type !== 'message') {
+      console.log('MESSAGE WAS NOT SENT TOA  DM SO INGORING IT');
+      return;
+  }
   const userId = message.user;
 
   User.findOne({slackId: userId}).exec(function(err, user){
@@ -59,14 +66,14 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
               return;
           } else {
               //IF THE USER HAS RESPONDED TO THE PREVIOUS INTERACTIVE MESSAGE, set awaitingResponse tp false again
-              if(message.subtype && message.subtype === 'message_changed') {
-                  awaitingResponse = false;
-                  return;
-              }
-              if( !dm || dm.id !== message.channel || message.type !== 'message') {
-                  console.log('MESSAGE WAS NOT SENT TOA  DM SO INGORING IT');
-                  return;
-              }
+            //   if(message.subtype && message.subtype === 'message_changed') {
+            //       awaitingResponse = false;
+            //       return;
+            //   }
+            //   if( !dm || dm.id !== message.channel || message.type !== 'message') {
+            //       console.log('MESSAGE WAS NOT SENT TOA  DM SO INGORING IT');
+            //       return;
+            //   }
               processMessage(message, rtm);
           }
       }
@@ -91,15 +98,15 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
   //   }
   // })
   //IF THE USER HAS RESPONDED TO THE PREVIOUS INTERACTIVE MESSAGE, set awaitingResponse tp false again
-  if(message.subtype && message.subtype === 'message_changed') {
-      awaitingResponse = false;
-      return;
-  }
-  if( !dm || dm.id !== message.channel || message.type !== 'message') {
-      console.log('MESSAGE WAS NOT SENT TOA  DM SO INGORING IT');
-      return;
-  }
-  processMessage(message, rtm);
+  // if(message.subtype && message.subtype === 'message_changed') {
+  //     awaitingResponse = false;
+  //     return;
+  // }
+  // if( !dm || dm.id !== message.channel || message.type !== 'message') {
+  //     console.log('MESSAGE WAS NOT SENT TOA  DM SO INGORING IT');
+  //     return;
+  // }
+  // processMessage(message, rtm);
 });
 
 rtm.on(RTM_EVENTS.REACTION_ADDED, function handleRtmReactionAdded(reaction) {
