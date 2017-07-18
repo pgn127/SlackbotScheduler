@@ -77,10 +77,7 @@ app.get('/connect/callback', function(req, res) {
 
     newUser.save();
 
-    res.send("Your account was successfuly authenticated")
-    // TODO: Put all of these into the database with the corresponding user;
-    res.status(200)
-    // Now tokens contains an access_token and an optional refresh_token. Save them.
+    res.status(200).send("Your account was successfuly authenticated")
     if (!err) {
       oauth2Client.setCredentials(tokens);
     }
@@ -101,7 +98,7 @@ app.post('/slack/interactive', function(req,res){
   var payload = JSON.parse(req.body.payload);
   //if user clicks confirm button
   if(payload.actions[0].value === 'true') {
-    res.send('Created reminder');
+    // res.send('Created reminder');
     // TODO: create a calendar event here
     if(Date.now() > expiry_date) {
       oauth2Client.refreshAccessToken(function(err, tokens) {
@@ -115,7 +112,13 @@ app.post('/slack/interactive', function(req,res){
             user.auth_id = JSON.parse(decodeURIComponent(req.query.state));
             user.token_type = tokens.token_type;
 
-            user.save();
+            user.save( function(err){
+                if(err){
+                    res.status(400).json({error: err});
+                } else {
+                    res.status(200).send('Created reminder');
+                }
+            });
 
           }
 
@@ -123,7 +126,6 @@ app.post('/slack/interactive', function(req,res){
       });
     }
   } else{
-    console.log('cancel was clicked');
     res.send('Cancelled');
   }
 })
