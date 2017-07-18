@@ -15,6 +15,9 @@ var access_token;
 var auth_id;
 var token_type;
 
+var oauth2Client;
+var url;
+
 mongoose.connect(process.env.MONGODB_URI);
 mongoose.Promise = global.Promise;
 
@@ -36,8 +39,7 @@ var CLIENT_ID = process.env.CLIENT_ID;
 var CLIENT_SECRET = process.env.CLIENT_SECRET;
 const PORT=3000;
 
-var oauth2Client;
-var url;
+
 
 
 app.get('/oauth', function(req, res){
