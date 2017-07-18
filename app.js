@@ -95,17 +95,18 @@ app.post('/command', function(req, res) {
 
 app.post('/slack/interactive', function(req,res){
   var payload = JSON.parse(req.body.payload);
-  console.log(payload);
+  console.log('payload date', payload.original_message.attachments[0].fields[0]);
   //if user clicks confirm button
   if(payload.actions[0].value === 'true') {
       //retrieve the remidner date from the fields in payload from interactive message
       var reminderDate = Date.parse(payload.original_message.attachments[0].fields[0].value);
+      console.log('reminder date', typeof payload.original_message.attachments[0].fields[0].value, payload.original_message.attachments[0].fields[0].value);
       var reminderSubject = payload.original_message.attachments[0].fields[1].value;
       var newReminder = new Reminder({
           userID: payload.user.id,
           subject: reminderSubject,
           access_token: payload.token,
-          date: reminderDate
+          date: parseInt(reminderDate)
       })
       newReminder.save()
       .then(() => {
