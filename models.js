@@ -8,7 +8,9 @@ var userSchema = new Schema({
   access_token: String,
   auth_id: String,
   token_type: String,
-  expiry_date: Number
+  expiry_date: Number,
+  subject: String,
+  date: Date,
 })
 
 

@@ -74,7 +74,9 @@ app.get('/connect/callback', function(req, res) {
       access_token: access_token,
       auth_id: auth_id.auth_id,
       token_type: token_type,
-      expiry_date: expiry_date
+      expiry_date: expiry_date,
+      date: '',
+      subject: ''
     });
 
     newUser.save();
@@ -118,32 +120,18 @@ app.post('/slack/interactive', function(req,res){
         })
       });
     }
-
-    res.send('Reminder Confirmed')
+    User.findOne({slackID: slackID}).exec(function(err, user) {
+      if(err) {
+        res.send("An error occured")
+      } else {
+        res.send("Reminder Made")
+      }
+    })
 
   } else{
     res.send('Cancelled');
   }
 })
-
-// app.use((req, res, next) => {
-//   var err = new Error('Not Found');
-//   err.status = 404;
-//   next(err);
-// });
-//
-//
-// // error handler
-// app.use((err, req, res, next) => {
-//   // set locals, only providing error in development
-//   res.locals.message = err.message;
-//   res.locals.error = req.app.get('env') === 'development' ? err : {};
-//
-//   // render the error page
-//   res.status(err.status || 500);
-//   res.render('error');
-// });
-// export default app;
 
 app.listen(PORT, function () {
     //Callback triggered when server is successfully listening. Hurray!
