@@ -1,4 +1,4 @@
-
+"use strict";
 // var fs = require('fs');
 var mongoose = require('mongoose');
 var logger = require('morgan');
@@ -100,7 +100,7 @@ app.post('/slack/interactive', function(req,res){
   if(payload.actions[0].value === 'true') {
     // res.send('Created reminder');
     // TODO: create a calendar event here
-    if(Date.now() > expiry_date) {
+    // if(Date.now() > expiry_date) {
       oauth2Client.refreshAccessToken(function(err, tokens) {
         User.findOne({slackID: slackID}).exec(function(err, user){
           if(err){
@@ -124,7 +124,7 @@ app.post('/slack/interactive', function(req,res){
 
         })
       });
-    }
+    // }
   } else{
     res.send('Cancelled');
   }
