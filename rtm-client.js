@@ -53,32 +53,11 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
       console.log('MESSAGE WAS NOT SENT TOA  DM SO INGORING IT');
       return;
   }
- 
 
-  axios.get('https://api.api.ai/api/query', {
-      params: {
-          v: identifier,
-          lang: 'en',
-          timezone: timeZone,
-          query: message.text,
-          sessionId: message.user
-      },
-      headers: {
-          Authorization: `Bearer ${process.env.API_ACCESS_TOKEN}`
-      }
-  })
-  .then(function({data}) {
-      console.log(data.result);
-      if(data.result.actionIncomplete) {
-          rtm.sendMessage(data.result.fulfillment.speech, message.channel)
-      } else {
-          console.log('is complete', data.result.parameters);
-          web.chat.postMessage(message.channel, `Creating reminder for ${data.result.parameters.subject} on ${data.result.parameters.date}`, messageButtons);
-      }
-  })
-  .catch(function(err){
-      console.log(err);
-  })
+  processMessage(message, rtm);
+
+
+
 });
 
 rtm.on(RTM_EVENTS.REACTION_ADDED, function handleRtmReactionAdded(reaction) {
@@ -93,28 +72,30 @@ rtm.start();
 
 
 function processMessage(message, rtm) {
-  axios.get('https://api.api.ai/api/query?v=' + identifier, {
-    headers: {
-      Authorization: "Bearer" + process.env.API_ACCESS_TOKEN
-    },
-    params: {
-      query: message.text,
-      lang: "en",
-      sessionId: message.user,
-      timezone: timeZone,
-    }
-  }).then((response) => {
-    if(response.data.result.actionIncomplete) {
-      //need to prompt the user for more information
-      // TODO: send the user response.result.fulfillment.speech
-      console.log(response.data.result.fulfillment.speech)
-      rtm.sendMessage(response.data.result.fulfillment.speech, message.channel)
-    } else {
-      // TODO: send the user a confirmation with response.result.fulfillment.speech
-    }
-  }).catch((error) => {
-    console.log(error)
-  })
+    axios.get('https://api.api.ai/api/query', {
+        params: {
+            v: identifier,
+            lang: 'en',
+            timezone: timeZone,
+            query: message.text,
+            sessionId: message.user
+        },
+        headers: {
+            Authorization: `Bearer ${process.env.API_ACCESS_TOKEN}`
+        }
+    })
+    .then(function({data}) {
+        console.log(data.result);
+        if(data.result.actionIncomplete) {
+            rtm.sendMessage(data.result.fulfillment.speech, message.channel)
+        } else {
+            console.log('is complete', data.result.parameters);
+            web.chat.postMessage(message.channel, `Creating reminder for ${data.result.parameters.subject} on ${data.result.parameters.date}`, messageButtons);
+        }
+    })
+    .catch(function(err){
+        console.log(err);
+    })
 
   // rtm.sendMessage(messageText, message.channel, function() {
   //   // getAndSendCurrentWeather(locationName, query, message.channel, rtm);
