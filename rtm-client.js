@@ -45,11 +45,9 @@ var {RtmClient, WebClient, CLIENT_EVENTS, RTM_EVENTS} = require('@slack/client')
 
 var token = process.env.SLACK_API_TOKEN || '';
 
-var { RtmClient, WebClient, CLIENT_EVENTS, RTM_EVENTS } = require('@slack/client');
 // var RtmClient = require('@slack/client').RtmClient;
 // var RTM_EVENTS = require('@slack/client').RTM_EVENTS;
 
-var token = process.env.SLACK_API_TOKEN;
 console.log(token);
 var notPending = true;
 var rtm = new RtmClient(token);
@@ -60,7 +58,7 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
   var dm = rtm.dataStore.getDMByUserId(message.user); //gets the channel ID for the specific conversation between one user and bot
   const userId = message.user;
 
-  User.findOne({slackID: userId}).exec(function(err, user){
+  User.findOne({slackId: userId}).exec(function(err, user){
     if(err){console.log(err)
     } else {
       if(!user){

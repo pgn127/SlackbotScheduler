@@ -27,7 +27,7 @@ var {RtmClient, WebClient, CLIENT_EVENTS, RTM_EVENTS} = require('@slack/client')
 
 var CLIENT_ID = process.env.CLIENT_ID;
 var CLIENT_SECRET = process.env.CLIENT_SECRET;
-const PORT=3001;
+const PORT=3000;
 
   var oauth2Client;
   var url;
@@ -69,7 +69,7 @@ app.get('/connect/callback', function(req, res) {
     const token_type = tokens.token_type;
     const expiry_date = tokens.expiry_date;
     var newUser = new User({
-      slackID: slackID,
+      slackId: slackID,
       refresh_token: refresh_token,
       access_token: access_token,
       auth_id: auth_id.auth_id,
