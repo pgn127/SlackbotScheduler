@@ -138,7 +138,7 @@ function processMessage(message, rtm) {
                   "title": "date",
                   "value": data.result.parameters.date,
                 },
-              ]
+              ],
               "actions": [
                 {
                   "name": "yes",
