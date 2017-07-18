@@ -36,6 +36,8 @@ var rtm = new RtmClient(token);
 var web = new WebClient(token);
 let channel;
 
+
+var awaitingResponse = false;
 // The client will emit an RTM.AUTHENTICATED event on successful connection, with the `rtm.start` payload
 rtm.on(CLIENT_EVENTS.RTM.AUTHENTICATED, (rtmStartData) => {
   console.log(`Logged in as ${rtmStartData.self.name} of team ${rtmStartData.team.name}, but not yet connected to a channel`);
@@ -50,7 +52,14 @@ rtm.on(CLIENT_EVENTS.RTM.AUTHENTICATED, (rtmStartData) => {
 
 rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
   //need to determine who this message was sent to
+  console.log(message);
   var dm = rtm.dataStore.getDMByUserId(message.user); //gets the channel ID for the specific conversation between one user and bot
+
+  //IF THE USER HAS RESPONDED TO THE PREVIOUS INTERACTIVE MESSAGE, set awaitingResponse tp false again
+  if(message.subtype && message.subtype === 'message_changed') {
+      awaitingResponse = false;
+      return;
+  }
   if( !dm || dm.id !== message.channel || message.type !== 'message') {
       console.log('MESSAGE WAS NOT SENT TOA  DM SO INGORING IT');
       return;
@@ -85,10 +94,15 @@ function processMessage(message, rtm) {
     })
     .then(function({data}) {
         console.log('data.result', data.result);
-        if(data.result.actionIncomplete) {
+        if(awaitingResponse) {
+            rtm.sendMessage('Please accept or decline the previous reminder', message.channel);
+        }
+        else if(data.result.actionIncomplete) {
             rtm.sendMessage(data.result.fulfillment.speech, message.channel)
         } else if(Object.keys(data.result.parameters).length !== 0){
+            awaitingResponse = true;
             web.chat.postMessage(message.channel, `Creating reminder for ${data.result.parameters.subject} on ${data.result.parameters.date}`, messageButtons);
+
         }
         else {
             rtm.sendMessage(data.result.fulfillment.speech, message.channel)
