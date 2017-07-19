@@ -286,15 +286,12 @@ function checkConflicts(meeting, rtm){
                         var meetingUTCend = new Date(dateSplit[0], dateSplit[1], dateSplit[2], (parseInt(timeSplit[0]) +1).toString(), timeSplit[1], timeSplit[2]);
 
 
-                        // console.log('OVERALP? comparing busy start and end time', busyUTCstart, busyUTCend, 'and meeting start and end times', meetingUTCstart, meetingUTCend);
-                        //
-                        //
                         if(meetingUTCstart >= busyUTCstart && meetingUTCstart <= busyUTCend || meetingUTCend >= busyUTCstart && meetingUTCend <= busyUTCend){
                             //the person is busy at that meeting time
-                            console.log('BUSY: The meeting time \n', meetingUTCstart, ' - ', meetingUTCend, '\n conflicts with user event at \n', busyUTCstart, ' - ', busyUTCend, '\n');
+                            console.log('BUSY: The meeting time \n', meetingUTCstart.toUTCString(), ' - ', meetingUTCend.toUTCString(), '\n conflicts with user event at \n', busyUTCstart.toUTCString(), ' - ', busyUTCend.toUTCString(), '\n');
                             conflictExists = true;
                         } else {
-                            console.log('FREE: No overlap between meeting at \n',meetingUTCstart, ' - ', meetingUTCend, '\n and the users event at \n', busyUTCstart, ' - ', busyUTCend, '\n');
+                            console.log('FREE: No overlap between meeting at \n',meetingUTCstart.toUTCString(), ' - ', meetingUTCend.toUTCString(), '\n and the users event at \n', busyUTCstart.toUTCString(), ' - ', busyUTCend.toUTCString(), '\n');
                         }
                     })
                   }
