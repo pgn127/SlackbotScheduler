@@ -44,27 +44,45 @@ app.get('/oauth', function(req, res){
   res.redirect(url);
 })
 app.get('/connect/callback', function(req, res) {
+  console.log("hit /connect/callback");
   const code = req.query.code;
   oauth2Client = new OAuth2(
     process.env.GOOGLE_CLIENT_ID,
     process.env.GOOGLE_CLIENT_SECRET,
     process.env.DOMAIN + '/connect/callback'
   )
+  console.log("this is oauth", oauth2Client);
   oauth2Client.getToken(code, function (err, tokens) {
-    let auth_id = JSON.parse(decodeURIComponent(req.query.state));
-    var newUser = new User({
-      token: tokens,
-      slackID: slackID,
-      auth_id: auth_id.auth_id,
-      //   date: '',
-      //   subject: ''
-    });
-    newUser.save()
-    .then( () => res.status(200).send("Your account was successfuly authenticated"))
-    .catch((err) => {
-      console.log('error in newuser save of connectcallback');
-      res.status(400).json({error:err});
-    })
+    if(err) {
+      console.log(err)
+    } else {
+      //set credentials. not entirely sure what this does but necessary for google plus
+      oauth2Client.setCredentials(tokens);
+      console.log("this is tokens", tokens);
+      var plus = google.plus('v1');
+      plus.people.get({auth: oauth2Client, userId: 'me'}, function(err, person){
+        if(err){
+          console.log(err)
+        } else {
+          console.log("this is googleplus person", person);
+        }
+      });
+
+      let auth_id = JSON.parse(decodeURIComponent(req.query.state));
+      var newUser = new User({
+        token: tokens,
+        slackID: slackID,
+        auth_id: auth_id.auth_id,
+        //   date: '',
+        //   subject: ''
+      });
+      newUser.save()
+      .then( () => res.status(200).send("Your account was successfuly authenticated"))
+      .catch((err) => {
+        console.log('error in newuser save of connectcallback');
+        res.status(400).json({error:err});
+      })
+    }
   });
 })
 // This route handles GET requests to our root ngrok address and responds with the same "Ngrok is working message" we used before
@@ -180,7 +198,6 @@ app.post('/slack/interactive', function(req,res){
               invitees: meetingInvitees,
             })
             newMeeting.save(function(err){
-              console.log("There was an error saving this for some freaking reason!: ", err)
               if (err){
                 res.status(400).json({error:err});
               }else{
