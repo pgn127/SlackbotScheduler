@@ -13,9 +13,7 @@ var url;
 mongoose.connect(process.env.MONGODB_URI);
 mongoose.Promise = global.Promise;
 
-// var googleAuth = require('google-auth-library');
 var express = require('express');
-// var request = require('request');
 require('./rtm-client');
 var app = express();
 var bodyParser = require('body-parser');

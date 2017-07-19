@@ -73,7 +73,6 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
   }
 
   User.findOne({slackID: slackID}).exec(function(err, user){
-
     if(err){
         console.log(err)
     } else {
