@@ -256,7 +256,7 @@ function checkConflicts(meeting, rtm){
                 //get all busy time slots IGNORE BELOW HERE BC ITS NONSENSE
                 var timemin = new Date(Date.UTC(dateSplit[0], dateSplit[1], dateSplit[2], timeSplit[0], timeSplit[1], timeSplit[2]));
                 var timemax = new Date(Date.UTC(dateSplit[0], dateSplit[1], (parseInt(dateSplit[2]) + 2).toString(), timeSplit[0], timeSplit[1], timeSplit[2]));
-                console.log('timemin and max', timemin.toISOString(),timemax.toISOString());
+                console.log('timemin and max', timemin.toUTCString(),timemax.toUTCString());
                 calendar.freebusy.query({
                     auth: oauth2Client,
                     headers: { "content-type" : "application/json" },
