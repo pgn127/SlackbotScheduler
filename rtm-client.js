@@ -129,13 +129,13 @@ function processMessage(message, rtm) {
               "actions": [
                 {
                   "name": "yes",
-                  "text": "Yes",
+                  "text": "Confirm",
                   "type": "button",
                   "value": "true"
                 },
                 {
                   "name": "no",
-                  "text": "No",
+                  "text": "Cancel",
                   "type": "button",
                   "value": "false"
                 }
@@ -175,13 +175,13 @@ function processMessage(message, rtm) {
               "actions": [
                 {
                   "name": "yes",
-                  "text": "Yes",
+                  "text": "Confirm",
                   "type": "button",
                   "value": "true"
                 },
                 {
                   "name": "no",
-                  "text": "No",
+                  "text": "Cancel",
                   "type": "button",
                   "value": "false"
                 }
