@@ -272,17 +272,12 @@ function checkConflicts(meeting, rtm){
                     console.log("There was an error getting invitee calendar", err);
                     return
                   }else {
-                    //   console.log('schedule is', schedule);
+
                     var busyList = schedule.calendars.primary.busy;
-                    // console.log('busy list', busyList);
+                    var conflictExists = false;
                     busyList.forEach((time) => {
                         //TIME WILL BE IN UTC
-                        var newtimestart = new Date(time.start).toUTCString();
-                        var newtimeend = new Date(time.end).toUTCString();
-                        //
                         // //UTC DATE OBJECT FOR BUSY TIME
-                        // var busyUTCstart = new Date(newtimestart);
-                        // var busyUTCend = new Date(newtimeend);
                         var busyUTCstart = new Date(time.start);
                         var busyUTCend = new Date(time.end);
                         //
@@ -291,12 +286,15 @@ function checkConflicts(meeting, rtm){
                         var meetingUTCend = new Date(dateSplit[0], dateSplit[1], dateSplit[2], (parseInt(timeSplit[0]) +1).toString(), timeSplit[1], timeSplit[2]);
 
 
-                        // console.log('utc version', newtimestart, newtimeend);
-                        console.log('OVERALP? comparing busy start and end time', busyUTCstart, busyUTCend, 'and meeting start and end times', meetingUTCstart, meetingUTCend);
-
+                        // console.log('OVERALP? comparing busy start and end time', busyUTCstart, busyUTCend, 'and meeting start and end times', meetingUTCstart, meetingUTCend);
+                        //
+                        //
                         if(meetingUTCstart >= busyUTCstart && meetingUTCstart <= busyUTCend || meetingUTCend >= busyUTCstart && meetingUTCend <= busyUTCend){
                             //the person is busy at that meeting time
                             console.log('USER IS BUSY DURING THAT MEETING TIME');
+                            conflictExists = true;
+                        } else {
+                            console.log('No overlap between meeting at \n',meetingUTCstart, ' - ', meetingUTCend, '\n and the users event at \n', busyUTCstart, ' - ', busyUTCend);
                         }
                     })
                   }
