@@ -78,16 +78,25 @@ app.post('/command', function(req, res) {
 
 app.post('/slack/interactive', function(req,res){
   var payload = JSON.parse(req.body.payload);
-  console.log(payload.original_message.attachments)
   if(payload.actions[0].value === 'true') {
-      slackID = payload.user.id;
+    slackID = payload.user.id;
     User.findOne({slackID: slackID}).exec(function(err, user){
       if(err || !user){
         console.log(err);
         res.send('an error occured');
       } else if (user){
-        var reminderSubject = payload.original_message.attachments[0].fields[0].value;
-        var reminderDate = Date.parse(payload.original_message.attachments[0].fields[1].value);
+        if(payload.original_message.text === "Would you like me to create a reminder for "){
+          //it was a reminder
+          var reminderSubject = payload.original_message.attachments[0].fields[0].value;
+          var reminderDate = Date.parse(payload.original_message.attachments[0].fields[1].value);
+        } else {
+          //it was a meeting
+          var meetingSubject = payload.original_message.attachments[0].fields[0].value;
+          var meetingDate = Date.parse(payload.original_message.attachments[0].fields[1].value);
+          var meetingTime = payload.original_message.attachments[0].fields[2].value;
+          var meetingInvitees = payload.original_message.attachments[0].fields[1].value;
+
+        }
         if(Date.now() > user.token.expiry_date) {
           oauth2Client = new OAuth2(
             process.env.GOOGLE_CLIENT_ID,
@@ -99,7 +108,6 @@ app.post('/slack/interactive', function(req,res){
           });
           oauth2Client.refreshAccessToken(function(err, tokens) {
             user.token = tokens;
-            console.log(tokens);
             user.save()
             .then((user)=>{
               if(payload.original_message.text === "Would you like me to create a reminder for "){
@@ -124,17 +132,18 @@ app.post('/slack/interactive', function(req,res){
                 var newMeeting = new Reminder({
                   userID: user._id,
                   channelID: payload.channel.id,
-                  subject: payload.original_message.attachments[0].fields[0].value,
-                  date: payload.original_message.attachments[0].fields[1].value,
-                  time: payload.original_message.attachments[0].fields[2].value,
-                  invitees: payload.original_message.attachments[0].fields[1].value,
+                  subject: meetingSubject,
+                  date: meetingDate,
+                  time: meetingTime,
+                  invitees: meetingInvitees,
                 })
-                newReminder.save(function(err){
+
+                newMeeting.save(function(err){
                   if (err){
                     res.status(400).json({error:err});
                   }else{
-                    reminderDate = new Date(reminderDate);
-                    createCalendarReminder(reminderDate.toISOString().substring(0, 10), reminderSubject, user.token);
+                    meetingDate = new Date(meetingDate);
+                    createCalendarReminder(meetingDate.toISOString().substring(0, 10), meetingSubject, user.token);
                     res.send('Reminder Confirmed')
                   }
                 })
@@ -143,39 +152,75 @@ app.post('/slack/interactive', function(req,res){
           });
           //ELSE STILL SAVE REMINDER EVEN IF THEIR TOKEN IS EXPIRED
         } else {
-          var newReminder = new Reminder({
-            userID: user._id,
-            channelID: payload.channel.id,
-            subject: reminderSubject,
-            date: reminderDate,
-          })
-          newReminder.save(function(err){
-            if (err){
-              res.status(400).json({error:err});
-            }else{
-              reminderDate = new Date(reminderDate);
-              createCalendarReminder(reminderDate.toISOString().substring(0, 10), reminderSubject, user.token);
-              res.send('Reminder Confirmed')
-            }
-          })
+          if(payload.original_message.text === "Would you like me to create a reminder for "){
+            //it was a reminder
+            var newReminder = new Reminder({
+              userID: user._id,
+              channelID: payload.channel.id,
+              subject: reminderSubject,
+              date: reminderDate,
+            })
+            newReminder.save(function(err){
+              if (err){
+                res.status(400).json({error:err});
+              }else{
+                reminderDate = new Date(reminderDate);
+                createCalendarReminder(reminderDate.toISOString().substring(0, 10), reminderSubject, user.token);
+                res.send('Reminder Confirmed')
+              }
+            })
+          } else {
+            //it was a meeting
+            var newMeeting = new Reminder({
+              userID: user._id,
+              channelID: payload.channel.id,
+              subject: meetingSubject,
+              date: meetingDate,
+              time: meetingTime,
+              invitees: meetingInvitees,
+            })
+            newMeeting.save(function(err){
+              console.log("There was an error saving this for some freaking reason!: ", err)
+              if (err){
+                res.status(400).json({error:err});
+              }else{
+                meetingDate = new Date(meetingDate);
+                createCalendarReminder(meetingDate.toISOString().substring(0, 10), meetingSubject, user.token, meetingTime, meetingInvitees);
+                res.send('Reminder Confirmed')
+              }
+            })
+          }
         }
       }
     })
   } else {
     res.send('Cancelled');
-}
+  }
 })
 app.listen(process.env.PORT || 3000);
-function createCalendarReminder(date, subject, tokens){
-  var event = {
-    'summary': subject,
-    'start': {
-      'date': date,
-    },
-    'end': {
-      'date': date
-    }
-  };
+function createCalendarReminder(date, subject, tokens, time, invitees){
+  if(!time){
+    var event = {
+      'summary': subject,
+      'start': {
+        'date': date,
+      },
+      'end': {
+        'date': date
+      }
+    };
+  } else {
+    var event = {
+      'summary': subject,
+      'start': {
+        'date': date,
+      },
+      'end': {
+        'date': date
+      }
+    };
+  }
+
   oauth2Client = new OAuth2(
     process.env.GOOGLE_CLIENT_ID,
     process.env.GOOGLE_CLIENT_SECRET,
