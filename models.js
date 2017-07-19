@@ -24,7 +24,7 @@ var meetingSchema = new Schema({
   channelID: String,
   date: String,
   invitees: Array,
-  Time: String,
+  time: String,
 })
 
 var Meeting = mongoose.model('Meeting', meetingSchema);
