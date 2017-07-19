@@ -148,16 +148,16 @@ function processMessage(message, rtm) {
 
         var fields = [
           {
+            "title": "Subject",
+            "value": `${data.result.parameters.subject}`
+          },
+          {
             "title": "Date",
             "value": `${data.result.parameters.date}`
           },
           {
             "title": "Time",
             "value": `${data.result.parameters.time}`
-          },
-          {
-            "title": "Subject",
-            "value": `${data.result.parameters.subject}`
           },
           {
             "title": "Invitees",

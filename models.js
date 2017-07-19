@@ -16,7 +16,6 @@ var reminderSchema = new Schema({
   date: Number
 })
 
-<<<<<<< HEAD
 var meetingSchema = new Schema({
   userID: {
       type: mongoose.Schema.Types.ObjectId,
@@ -30,8 +29,6 @@ var meetingSchema = new Schema({
 })
 
 var Meeting = mongoose.model('Meeting', meetingSchema);
-=======
->>>>>>> c8bbdb31c3b1c6d0b5c562ac22f0595523604f68
 var User = mongoose.model('User', userSchema);
 var Reminder = mongoose.model('Reminder', reminderSchema);
 module.exports = {
