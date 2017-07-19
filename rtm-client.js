@@ -52,23 +52,23 @@ let channel;
 var awaitingResponse = false;
 
 
-// var pamtofrankie = {
-//     userID: '596f927c2945b10011ad86b0',
-//     invitees: ['fflores'],
-//     subject: 'get some dinna',
-//     channelID: 'D6ATM9WMU',
-//     date: '2017-07-20',
-//     time: '17:00:00'
-//
-// }
 var pamtofrankie = {
-    userID: '596f91760f86e7001144794d',
-    invitees: ['pneedle'],
+    userID: '596f927c2945b10011ad86b0',
+    invitees: ['fflores'],
     subject: 'get some dinna',
-    channelID: 'D6A33DH52',//'D6ASP325U',
-    date: '2017-07-20', //equivalent to 07/20/2017
-    time: '16:00:00'
+    channelID: 'D6ATM9WMU',
+    date: '2017-07-20',
+    time: '17:00:00'
+
 }
+// var pamtofrankie = {
+//     userID: '596f91760f86e7001144794d',
+//     invitees: ['pneedle'],
+//     subject: 'get some dinna',
+//     channelID: 'D6A33DH52',//'D6ASP325U',
+//     date: '2017-07-20', //equivalent to 07/20/2017
+//     time: '16:00:00'
+// }
 
 rtm.on(CLIENT_EVENTS.RTM.AUTHENTICATED, (rtmStartData) => {
   // console.log(`Logged in as ${rtmStartData.self.name} of team ${rtmStartData.team.name}, but not yet connected to a channel`);
@@ -293,7 +293,7 @@ function checkConflicts(meeting, rtm){
 
                             rtm.sendMessage('FREE: '+invitee+' has No overlap between meeting at \n'+meetingUTCstart.toLocaleDateString()+' - '+meetingUTCend.toLocaleDateString()+'\n and the users event at \n'+busyUTCstart.toLocaleDateString()+' - ', busyUTCend.toLocaleDateString()+'\n', meeting.channelID)
 
-                            rtm.sendMessage('FREE: '+invitee+' has No overlap between meeting at \n'+meetingUTCstart.toLocaleDateString()+' - '+meetingUTCend.toLocaleDateString()+'\n and the users event at \n'+busyUTCstart.toLocaleDateString()+' - ', busyUTCend.toLocaleDateString()+'\n', 'D6ATM9WMU')
+                            rtm.sendMessage('FREE: '+invitee+' has No overlap between meeting at \n'+meetingUTCstart.toLocaleDateString()+' - '+meetingUTCend.toLocaleDateString()+'\n and the users event at \n'+busyUTCstart.toLocaleDateString()+' - ', busyUTCend.toLocaleDateString()+'\n', 'D6A33DH52')
 
                         }
                     })
