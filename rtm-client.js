@@ -52,15 +52,15 @@ let channel;
 var awaitingResponse = false;
 
 
-var pamtofrankie = {
-    userID: '596f927c2945b10011ad86b0',
-    invitees: ['fflores'],
-    subject: 'get some dinna',
-    channelID: 'D6ATM9WMU',
-    date: '2017-07-20',
-    time: '17:00:00'
-
-}
+// var pamtofrankie = {
+//     userID: '596f927c2945b10011ad86b0',
+//     invitees: ['fflores'],
+//     subject: 'get some dinna',
+//     channelID: 'D6ATM9WMU',
+//     date: '2017-07-20',
+//     time: '17:00:00'
+//
+// }
 var pamtofrankie = {
     userID: '596f91760f86e7001144794d',
     invitees: ['pneedle'],
@@ -267,8 +267,8 @@ function checkConflicts(meeting, rtm){
                     auth: oauth2Client,
                     headers: { "content-type" : "application/json" },
                     resource:{items: [{id: 'primary', busy: 'Active'}],
-                     timeMin: (new Date(2017, 7, 20)).toISOString(),
-                     timeMax: (new Date(2017, 7, 21)).toISOString()
+                     timeMin: (new Date(2017, 06, 20)).toISOString(),
+                     timeMax: (new Date(2017, 06, 21)).toISOString()
                    }
                 }, function(err, schedule) {
                   if(err){
