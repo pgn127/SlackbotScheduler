@@ -291,10 +291,10 @@ function checkConflicts(meeting, rtm){
                         //
                         if(meetingUTCstart >= busyUTCstart && meetingUTCstart <= busyUTCend || meetingUTCend >= busyUTCstart && meetingUTCend <= busyUTCend){
                             //the person is busy at that meeting time
-                            console.log('USER IS BUSY DURING THAT MEETING TIME');
+                            console.log('BUSY: The meeting time \n', meetingUTCstart, ' - ', meetingUTCend, '\n conflicts with user event at \n', busyUTCstart, ' - ', busyUTCend, '\n');
                             conflictExists = true;
                         } else {
-                            console.log('No overlap between meeting at \n',meetingUTCstart, ' - ', meetingUTCend, '\n and the users event at \n', busyUTCstart, ' - ', busyUTCend);
+                            console.log('FREE: No overlap between meeting at \n',meetingUTCstart, ' - ', meetingUTCend, '\n and the users event at \n', busyUTCstart, ' - ', busyUTCend, '\n');
                         }
                     })
                   }
