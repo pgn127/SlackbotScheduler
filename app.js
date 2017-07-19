@@ -39,6 +39,7 @@ app.get('/oauth', function(req, res){
     prompt: 'consent',
     scope: [
       'https://www.googleapis.com/auth/userinfo.profile',
+      'email',
       'https://www.googleapis.com/auth/calendar'
     ],
     state: encodeURIComponent(JSON.stringify({
@@ -49,27 +50,48 @@ app.get('/oauth', function(req, res){
   res.redirect(url);
 })
 app.get('/connect/callback', function(req, res) {
+  console.log("hit /connect/callback");
   const code = req.query.code;
   oauth2Client = new OAuth2(
     process.env.GOOGLE_CLIENT_ID,
     process.env.GOOGLE_CLIENT_SECRET,
     process.env.DOMAIN + '/connect/callback'
   )
+  console.log("this is oauth", oauth2Client);
   oauth2Client.getToken(code, function (err, tokens) {
-    let auth_id = JSON.parse(decodeURIComponent(req.query.state));
-    var newUser = new User({
-      token: tokens,
-      slackID: slackID,
-      auth_id: auth_id.auth_id,
-      //   date: '',
-      //   subject: ''
-    });
-    newUser.save()
-    .then( () => res.status(200).send("Your account was successfuly authenticated"))
-    .catch((err) => {
-      console.log('error in newuser save of connectcallback');
-      res.status(400).json({error:err});
-    })
+    if(err) {
+      console.log(err)
+    } else {
+      //set credentials. not entirely sure what this does but necessary for google plus
+      //when a person gives access to their google calendar, we also make a request to google plus
+      //with their oauth2client in order to get their email address which is then saved in the user object
+      //in mongodb. 
+      oauth2Client.setCredentials(tokens);
+      console.log("this is tokens", tokens);
+      var plus = google.plus('v1');
+      plus.people.get({auth: oauth2Client, userId: 'me'}, function(err, person){
+        if(err){
+          console.log(err)
+        } else {
+          //when a person
+          console.log("this is googleplus person object", person);
+          var tempEmail = person.emails[0].value;
+          let auth_id = JSON.parse(decodeURIComponent(req.query.state));
+          var newUser = new User({
+            token: tokens,
+            slackID: slackID,
+            auth_id: auth_id.auth_id,
+            email: tempEmail
+          });
+          newUser.save()
+          .then( () => res.status(200).send("Your account was successfuly authenticated"))
+          .catch((err) => {
+            console.log('error in newuser save of connectcallback');
+            res.status(400).json({error:err});
+          })
+        }
+      });
+    }
   });
 })
 // This route handles GET requests to our root ngrok address and responds with the same "Ngrok is working message" we used before
@@ -196,11 +218,11 @@ app.post('/slack/interactive', function(req,res){
               invitees: meetingInvitees,
             })
             newMeeting.save(function(err){
-              console.log("There was an error saving this for some freaking reason!: ", err)
               if (err){
                 res.status(400).json({error:err});
               }else{
                 meetingDate = new Date(meetingDate);
+<<<<<<< HEAD
                 let dateTime = meetingDate.toISOString().substring(0, 10);
                 // createCalendarReminder(dateTime, meetingSubject, user.token , meetingInvitees);
                 var meeting = {
@@ -217,6 +239,11 @@ app.post('/slack/interactive', function(req,res){
                   createCalendarReminder(meeting.date, meeting.subject, tokens, meeting.invitees, meeting.time);
                 };
                 res.send('Meeting Confirmed')
+=======
+                var dateTime = meetingDate.toISOString().substring(0, 11) + meetingTime + "-07:00"
+                createCalendarReminder(dateTime, meetingSubject, user.token , meetingInvitees);
+                res.send('Reminder Confirmed')
+>>>>>>> googleplus
               }
             })
           }

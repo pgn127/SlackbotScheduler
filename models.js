@@ -5,6 +5,7 @@ var userSchema = new Schema({
   slackID: String,
   auth_id: String,
   token: Object,
+  email: String
 })
 var reminderSchema = new Schema({
   userID: {
