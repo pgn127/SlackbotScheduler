@@ -65,7 +65,7 @@ var pamtofrankie = {
     userID: '596f91760f86e7001144794d',
     invitees: ['pneedle'],
     subject: 'get some dinna',
-    channelID: 'D6ATM9WMU',
+    channelID: 'D6ASP325U',
     date: '2017-07-20', //equivalent to 07/20/2017
     time: '16:00:00'
 }
@@ -289,6 +289,9 @@ function checkConflicts(meeting, rtm){
                             inviteesAllAvailable = false;
                         } else {
                             console.log('FREE: No overlap between meeting at \n',meetingUTCstart.toUTCString(), ' - ', meetingUTCend.toUTCString(), '\n and the users event at \n', busyUTCstart.toUTCString(), ' - ', busyUTCend.toUTCString(), '\n');
+
+
+                            rtm.sendMessage('FREE: No overlap between meeting at \n'+meetingUTCstart.toLocaleDateString()+' - '+meetingUTCend.toLocaleDateString()+'\n and the users event at \n'+busyUTCstart.toLocaleDateString()+' - ', busyUTCend.toLocaleDateString()+'\n', message.channelID)
 
                         }
                     })
