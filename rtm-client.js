@@ -61,7 +61,7 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
     return;
   }
   if( !dm || dm.id !== message.channel || message.type !== 'message') {
-    console.log('MESSAGE WAS NOT SENT TOA  DM SO INGORING IT');
+    // console.log('MESSAGE WAS NOT SENT TOA  DM SO INGORING IT');
     return;
   }
   User.findOne({slackID: slackID}).exec(function(err, user){

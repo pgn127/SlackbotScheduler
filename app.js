@@ -79,7 +79,7 @@ app.post('/command', function(req, res) {
 
 app.post('/slack/interactive', function(req,res){
   var payload = JSON.parse(req.body.payload);
-  console.log(payload)
+  // console.log(payload)
   if(payload.actions[0].value === 'true') {
     slackID = payload.user.id;
     User.findOne({slackID: slackID}).exec(function(err, user){
@@ -87,6 +87,11 @@ app.post('/slack/interactive', function(req,res){
         console.log(err);
         res.send('an error occured');
       } else if (user){
+        if(payload.original_message.text === "Would you like me to create a reminder for "){
+          //it was a reminder
+        } else {
+          // it was a meeting
+        }
         var reminderSubject = payload.original_message.attachments[0].fields[0].value;
         var reminderDate = Date.parse(payload.original_message.attachments[0].fields[1].value);
         // console.log(user);
