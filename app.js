@@ -157,6 +157,9 @@ app.post('/slack/interactive', function(req,res){
             process.env.DOMAIN + '/connect/callback'
           )
           console.log(oauth2Client);
+          oauth2Client.setCredentials({
+            refresh_token: user.token.refresh_token
+          });
           oauth2Client.refreshAccessToken(function(err, tokens) {
             user.token = tokens;
             console.log(tokens);
