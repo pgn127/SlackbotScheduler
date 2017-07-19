@@ -106,53 +106,93 @@ function processMessage(message, rtm) {
       rtm.sendMessage(data.result.fulfillment.speech, message.channel)
     } else if(Object.keys(data.result.parameters).length !== 0){
       awaitingResponse = true;
-      // User.findOne({slackID: slackID}).exec(function(err, user) {
-      //   if(err) {
-      //     console.log("there was an error finding the user");
-      //   }else {
-      //     // console.log(data.result.parameters.date)
-      //     // user.date = data.result.parameters.date;
-      //     // user.subject = data.result.parameters.subject;
-      //     user.save(function(err) {
-      //       if(err) console.log("There was an error updating the user")
-      //     })
-      //   }
-      // })
-      // var reminderDate = Date.parse(data.result.parameters.date.toString());
-      web.chat.postMessage(message.channel, `Would you like me to create a reminder for ` , {
-        "attachments": [
+
+      if(data.result.metadata.intentName === "Setting a Reminder"){
+        //remind intent
+        web.chat.postMessage(message.channel, `Would you like me to create a reminder for ` , {
+          "attachments": [
+            {
+              "fields": [
+                {
+                  "title": "Subject",
+                  "value": `${data.result.parameters.subject}`
+                },
+                {
+                  "title": "Date",
+                  "value": `${data.result.parameters.date}`
+                }
+              ],
+              "fallback": "You are unable to choose a game",
+              "callback_id": "wopr_game",
+              "color": "#3AA3E3",
+              "attachment_type": "default",
+              "actions": [
+                {
+                  "name": "yes",
+                  "text": "Yes",
+                  "type": "button",
+                  "value": "true"
+                },
+                {
+                  "name": "no",
+                  "text": "No",
+                  "type": "button",
+                  "value": "false"
+                }
+              ]
+            }
+          ]
+        });
+      } else {
+        //it is the meeting intent
+
+        var fields = [
           {
-            "fields": [
-              {
-                "title": "Subject",
-                "value": `${data.result.parameters.subject}`
-              },
-              {
-                "title": "Date",
-                "value": `${data.result.parameters.date}`
-              }
-            ],
-            "fallback": "You are unable to choose a game",
-            "callback_id": "wopr_game",
-            "color": "#3AA3E3",
-            "attachment_type": "default",
-            "actions": [
-              {
-                "name": "yes",
-                "text": "Yes",
-                "type": "button",
-                "value": "true"
-              },
-              {
-                "name": "no",
-                "text": "No",
-                "type": "button",
-                "value": "false"
-              }
-            ]
-          }
-        ]
-      });
+            "title": "Date",
+            "value": `${data.result.parameters.date}`
+          },
+          {
+            "title": "Time",
+            "value": `${data.result.parameters.time}`
+          },
+        ];
+
+        if(data.result.parameters.subject !== ""){
+          fields.push({"title": "Subject", "value": `${data.result.parameters.subject}`})
+        }
+        if(data.result.parameters.invitees !== ""){
+          fields.push({
+            "title": "Invitees",
+            "value": `${data.result.parameters.invitees}`
+          })
+        }
+        // if(data.result.parameters.subject)
+
+        web.chat.postMessage(message.channel, `Would you like me to create the following meeting: ` , {
+          "attachments": [
+            {
+              "fields": fields,
+              "callback_id": "wopr_game",
+              "color": "#3AA3E3",
+              "attachment_type": "default",
+              "actions": [
+                {
+                  "name": "yes",
+                  "text": "Yes",
+                  "type": "button",
+                  "value": "true"
+                },
+                {
+                  "name": "no",
+                  "text": "No",
+                  "type": "button",
+                  "value": "false"
+                }
+              ]
+            }
+          ]
+        });
+      }
     }
     else {
       rtm.sendMessage(data.result.fulfillment.speech, message.channel)
