@@ -137,7 +137,7 @@ app.post('/command', function(req, res) {
 //     res.send('Cancelled');
 //   }
 // })
-app.post('/interactive', function(req,res){
+app.post('/slack/interactive', function(req,res){
   var payload = JSON.parse(req.body.payload);
   if(payload.actions[0].value === 'true') {
     slackID = payload.user.id;
