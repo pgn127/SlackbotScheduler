@@ -148,8 +148,18 @@ app.post('/slack/interactive', function(req,res){
                     res.status(400).json({error:err});
                   }else{
                     meetingDate = new Date(meetingDate);
-                    let dateTime = meetingDate.toISOString().substring(0, 11) + meetingTime + "-07:00"
-                    createCalendarReminder(dateTime, meetingSubject, user.token);
+                    // let dateTime = meetingDate.toISOString().substring(0, 11) + meetingTime + "-07:00"
+                    let dateTime = meetingDate.toISOString().substring(0, 10);
+                    // createCalendarReminder(dateTime, meetingSubject, user.token , meetingInvitees);
+                    var meeting = {
+                      userID: user._id, //mongodb user model _id
+                      invitees: meetingInvitees, // list of slack usernames invited
+                      subject: meetingSubject,
+                      channelID: 'D6ATM9WMU', //TODO: not sure where to get this from yet
+                      date: dateTime,
+                      time: meetingTime
+                    }
+                    checkConflicts(meeting, rtm);
                     res.send('Meeting Confirmed')
                   }
                 })
@@ -191,17 +201,17 @@ app.post('/slack/interactive', function(req,res){
                 res.status(400).json({error:err});
               }else{
                 meetingDate = new Date(meetingDate);
-                let dateTime = meetingDate.toISOString().substring(0, 11) + meetingTime + "-07:00"
-                createCalendarReminder(dateTime, meetingSubject, user.token , meetingInvitees);
-                // var meeting = {
-                //   userID: test, //mongodb user model _id
-                //   invitees: ['pneedle'], // list of slack usernames invited
-                //   subject: 'get some dinna',
-                //   channelID: 'D6ATM9WMU', //TODO: not sure where to get this from yet
-                //   date: '2017-07-20',
-                //   time: '17:00:00'
-                // }
-                // checkConflicts(meeting, rtm);
+                let dateTime = meetingDate.toISOString().substring(0, 10);
+                // createCalendarReminder(dateTime, meetingSubject, user.token , meetingInvitees);
+                var meeting = {
+                  userID: user._id, //mongodb user model _id
+                  invitees: meetingInvitees, // list of slack usernames invited
+                  subject: meetingSubject,
+                  channelID: 'D6ATM9WMU', //TODO: not sure where to get this from yet
+                  date: dateTime,
+                  time: meetingTime
+                }
+                checkConflicts(meeting, rtm);
                 res.send('Meeting Confirmed')
               }
             })
@@ -214,7 +224,7 @@ app.post('/slack/interactive', function(req,res){
   }
 })
 app.listen(process.env.PORT || 3000);
-function createCalendarReminder(date, subject, tokens, invitees){
+function createCalendarReminder(date, subject, tokens, invitees, time){
   if(!invitees){
     var event = {
       'summary': subject,
@@ -226,13 +236,21 @@ function createCalendarReminder(date, subject, tokens, invitees){
       }
     };
   } else {
+    let attendeesArr = [];
+    invitees.forEach((invited) => {
+      attendeesArr.push({
+        'email' : invited
+      })
+    })
+
+    let dateTime = date + "T" + time + "-07:00"
     var event = {
       'summary': subject,
       'start': {
         'dateTime': date
       },
       'end': {
-        'dateTime': date
+        'dateTime': dateTime
       },
       'attendees': [
     {'email': 'ryan.clyde15@gmail.com'},
@@ -287,7 +305,8 @@ function checkConflicts(meeting, rtm){
                 //AT THIS POINT YOU ARE AUTHENTICATED TO SEE THE INVITEE GOOGLE calendar
 
                 //calling createCalendarReminder function to add meeting to invitee's calendar
-                createCalendarReminder(meeting.dateTime, meeting.subject, tokens, meeting.invitees);
+                // TODO: meeting.invitees needs to be the array of emails
+                createCalendarReminder(meeting.date, meeting.subject, tokens, meeting.invitees, meeting.time);
 
                 //get all busy time slots IGNORE BELOW HERE BC ITS NONSENSE
                 calendar.freebusy.query({
