@@ -211,7 +211,11 @@ app.post('/slack/interactive', function(req,res){
                   date: dateTime,
                   time: meetingTime
                 }
-                checkConflicts(meeting, rtm);
+                if(checkConflicts(meeting, rtm)){
+                  //there was no conflict
+                  // TODO: meeting.invitees needs to be the array of emails
+                  createCalendarReminder(meeting.date, meeting.subject, tokens, meeting.invitees, meeting.time);
+                };
                 res.send('Meeting Confirmed')
               }
             })
@@ -304,10 +308,6 @@ function checkConflicts(meeting, rtm){
                 var calendar = google.calendar('v3');
                 //AT THIS POINT YOU ARE AUTHENTICATED TO SEE THE INVITEE GOOGLE calendar
 
-                //calling createCalendarReminder function to add meeting to invitee's calendar
-                // TODO: meeting.invitees needs to be the array of emails
-                createCalendarReminder(meeting.date, meeting.subject, tokens, meeting.invitees, meeting.time);
-
                 //get all busy time slots IGNORE BELOW HERE BC ITS NONSENSE
                 calendar.freebusy.query({
                     auth: oauth2Client,
@@ -337,7 +337,6 @@ function checkConflicts(meeting, rtm){
                     })
                   }
                 })
-
             }
         })
     })
