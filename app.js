@@ -150,7 +150,7 @@ app.post('/slack/interactive', function(req,res){
                     meetingDate = new Date(meetingDate);
                     let dateTime = meetingDate.toISOString().substring(0, 11) + meetingTime + "-07:00"
                     createCalendarReminder(dateTime, meetingSubject, user.token);
-                    res.send('Reminder Confirmed')
+                    res.send('Meeting Confirmed')
                   }
                 })
               }
@@ -202,7 +202,7 @@ app.post('/slack/interactive', function(req,res){
                 //   time: '17:00:00'
                 // }
                 // checkConflicts(meeting, rtm);
-                res.send('Reminder Confirmed')
+                res.send('Meeting Confirmed')
               }
             })
           }

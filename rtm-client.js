@@ -146,6 +146,15 @@ function processMessage(message, rtm) {
       } else {
         //it is the meeting intent
 
+        let inviteArr = [];
+        data.result.parameters.invitees.forEach((user) => {
+          let newUser = user.substr(2)
+          let userObj = rtm.dataStore.getUserById(newUser)
+          inviteArr.push(userObj.profile.first_name)
+        })
+
+
+
         var fields = [
           {
             "title": "Subject",
@@ -161,7 +170,7 @@ function processMessage(message, rtm) {
           },
           {
             "title": "Invitees",
-            "value": `${data.result.parameters.invitees}`
+            "value": `${inviteArr}`
           }
         ];
 
