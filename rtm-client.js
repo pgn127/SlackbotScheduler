@@ -292,7 +292,7 @@ function checkConflicts(meeting, rtm){
 
                             // var str = `FREE: ${invitee} has no overlap with meeting from \n ${meetingUTCstart.toLocaleDateString()}-${meetingUTCend.toLocaleDateString()} \n and the users event from \n ${busyUTCstart.toLocaleDateString()}-${busyUTCend.toLocaleDateString()}.`
 
-                            rtm.sendMessage(`FREE: ${invitee} has no overlap with meeting from \n ${meetingUTCstart.toLocaleDateString()}-${meetingUTCend.toLocaleDateString()} \n and the users event from \n ${busyUTCstart.toLocaleDateString()}-${busyUTCend.toLocaleDateString()}.`, busyUTCend.toLocaleDateString()+'\n', 'D6A33DH52');
+                            // rtm.sendMessage(`FREE: ${invitee} has no overlap with meeting from \n ${meetingUTCstart.toLocaleDateString()}-${meetingUTCend.toLocaleDateString()} \n and the users event from \n ${busyUTCstart.toLocaleDateString()}-${busyUTCend.toLocaleDateString()}.`, busyUTCend.toLocaleDateString()+'\n', 'D6A33DH52');
 
                             // rtm.sendMessage('FREE: '+invitee+' has No overlap between meeting at \n'+meetingUTCstart.toLocaleDateString()+' - '+meetingUTCend.toLocaleDateString()+'\n and the users event at \n'+busyUTCstart.toLocaleDateString()+' - ', busyUTCend.toLocaleDateString()+'\n', meeting.channelID);
 
