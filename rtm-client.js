@@ -233,7 +233,7 @@ function checkConflicts(meeting, rtm){
 
     meetingDate= new Date(meeting.date);
     // let dateTime = meetingDate.toISOString().substring(0, 11) + meetingTime + "-07:00"
-    let dateTime = meeting.date.toISOString().substring(0, 11) + meeting.time + "-07:00";
+    let dateTime = meetingDate.toISOString().substring(0, 11) + meeting.time + "-07:00";
     console.log('meeting datetime', dateTime);
 
     var inviteesAllAvailable = true;
