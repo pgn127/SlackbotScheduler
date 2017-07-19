@@ -66,7 +66,7 @@ var pamtofrankie = {
     invitees: ['pneedle'],
     subject: 'get some dinna',
     channelID: 'D6ATM9WMU',
-    date: '2017-06-21', //equivalent to 07/19/2017
+    date: '2017-06-21', //equivalent to 07/20/2017
     time: '17:00:00'
 
 }
@@ -254,8 +254,8 @@ function checkConflicts(meeting, rtm){
                 //AT THIS POINT YOU ARE AUTHENTICATED TO SEE THE INVITEE GOOGLE calendar
 
                 //get all busy time slots IGNORE BELOW HERE BC ITS NONSENSE
-                var timemin = new Date(dateSplit[0], dateSplit[1], dateSplit[2], timeSplit[0], timeSplit[1], timeSplit[2]);
-                var timemax = new Date(dateSplit[0], dateSplit[1], (parseInt(dateSplit[2]) + 1).toString(), timeSplit[0], timeSplit[1], timeSplit[2]);
+                var timemin = new Date(Date.UTC(dateSplit[0], dateSplit[1], dateSplit[2], timeSplit[0], timeSplit[1], timeSplit[2]));
+                var timemax = new Date(Date.UTC(dateSplit[0], dateSplit[1], (parseInt(dateSplit[2]) + 2).toString(), timeSplit[0], timeSplit[1], timeSplit[2]));
                 console.log('timemin and max', timemin.toISOString(),timemax.toISOString());
                 calendar.freebusy.query({
                     auth: oauth2Client,
