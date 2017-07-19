@@ -66,7 +66,7 @@ var pamtofrankie = {
     invitees: ['pneedle'],
     subject: 'get some dinna',
     channelID: 'D6ATM9WMU',
-    date: '2017-06-20', //equivalent to 07/20/2017
+    date: '2017-07-20', //equivalent to 07/20/2017
     time: '16:00:00'
 
 }
@@ -232,8 +232,6 @@ function checkConflicts(meeting, rtm){
     // var meetingStart = meeting.date+'T'+meeting.time+'-00:00';
     var dateSplit = meeting.date.split('-');
     var timeSplit = meeting.time.split(':');
-    var meetingStart = new Date(dateSplit[0], dateSplit[1], dateSplit[2], timeSplit[0], timeSplit[1], timeSplit[2]).toISOString();
-    var meetingEnd = new Date(dateSplit[0], dateSplit[1], dateSplit[2], timeSplit[0] + 1, timeSplit[1], timeSplit[2]).toISOString();
 
     meeting.invitees.forEach( function(invitee) {
         var inviteeuser = rtm.dataStore.getUserByName(invitee); //given the invitee slack name, find their slack user object
@@ -253,12 +251,10 @@ function checkConflicts(meeting, rtm){
                 var calendar = google.calendar('v3');
                 //AT THIS POINT YOU ARE AUTHENTICATED TO SEE THE INVITEE GOOGLE calendar
 
+                //need to subtract one month because of weird time conversion shit idk
+                var timemin = new Date(dateSplit[0], (parseInt(dateSplit[1]) - 1).toString(), dateSplit[2], timeSplit[0], timeSplit[1], timeSplit[2]);
+                var timemax = new Date(dateSplit[0], (parseInt(dateSplit[1]) - 1).toString(), (parseInt(dateSplit[2]) + 2).toString(), timeSplit[0], timeSplit[1], timeSplit[2]);
 
-                var timemin = new Date(dateSplit[0], dateSplit[1], dateSplit[2], timeSplit[0], timeSplit[1], timeSplit[2]);
-                var timemax = new Date(dateSplit[0], dateSplit[1], (parseInt(dateSplit[2]) + 2).toString(), timeSplit[0], timeSplit[1], timeSplit[2]);
-
-                console.log('timemin and max', timemin.toUTCString(),timemax.toUTCString());
-                console.log('');
                 calendar.freebusy.query({
                     auth: oauth2Client,
                     headers: { "content-type" : "application/json" },
@@ -274,24 +270,30 @@ function checkConflicts(meeting, rtm){
                   }else {
 
                     var busyList = schedule.calendars.primary.busy;
-                    var conflictExists = false;
+                    var conflictExists = false; //true when no vconflict exists between invitee events and meeting time and false otherwise
+
+                    var inviteeFreeSlots = []; //array of time invertvals that this invitee is free
                     busyList.forEach((time) => {
-                        //TIME WILL BE IN UTC
-                        // //UTC DATE OBJECT FOR BUSY TIME
+
+                        //TIME WILL BE IN UTC --- UTC DATE OBJECT FOR BUSY TIME
                         var busyUTCstart = new Date(time.start);
                         var busyUTCend = new Date(time.end);
-                        //
-                        // //UTC DATE OBJECTS FOR MEETING START AND end
+
+                        // //UTC DATE OBJECTS FOR MEETING START AND end (assume meeting is 1 horu long)
                         var meetingUTCstart = new Date(dateSplit[0], dateSplit[1], dateSplit[2], timeSplit[0], timeSplit[1], timeSplit[2]);
                         var meetingUTCend = new Date(dateSplit[0], dateSplit[1], dateSplit[2], (parseInt(timeSplit[0]) +1).toString(), timeSplit[1], timeSplit[2]);
 
-
+                        //TEST FOR CONFLICT:
+                        //1. meeting starts during the invitee's event
+                        //OR
+                        //2. meeting ends during the invitee's event
                         if(meetingUTCstart >= busyUTCstart && meetingUTCstart <= busyUTCend || meetingUTCend >= busyUTCstart && meetingUTCend <= busyUTCend){
-                            //the person is busy at that meeting time
+
                             console.log('BUSY: The meeting time \n', meetingUTCstart.toUTCString(), ' - ', meetingUTCend.toUTCString(), '\n conflicts with user event at \n', busyUTCstart.toUTCString(), ' - ', busyUTCend.toUTCString(), '\n');
                             conflictExists = true;
                         } else {
                             console.log('FREE: No overlap between meeting at \n',meetingUTCstart.toUTCString(), ' - ', meetingUTCend.toUTCString(), '\n and the users event at \n', busyUTCstart.toUTCString(), ' - ', busyUTCend.toUTCString(), '\n');
+
                         }
                     })
                   }
