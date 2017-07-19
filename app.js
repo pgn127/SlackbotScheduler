@@ -257,8 +257,8 @@ function createCalendarReminder(date, subject, tokens, invitees, time){
         'dateTime': dateTime
       },
       'attendees': [
-    {'email': 'ryan.clyde15@gmail.com'},
-  ],
+        {'email': 'ryan.clyde15@gmail.com'},
+      ],
     };
   }
 
@@ -284,60 +284,75 @@ function createCalendarReminder(date, subject, tokens, invitees, time){
 }
 
 function checkConflicts(meeting, rtm){
-    // var meetingStart = meeting.date+'T'+meeting.time+'-00:00';
-    // var dateSplit = meeting.date.split('-');
-    // var timeSplit = meeting.time.split(':');
-    // var meetingStart = new Date(dateSplit[0], dateSplit[1], dateSplit[2], timeSplit[0], timeSplit[1], timeSplit[2]).toISOString();
-    // var meetingEnd = new Date(dateSplit[0], dateSplit[1], dateSplit[2], timeSplit[0] + 1, timeSplit[1], timeSplit[2]).toISOString();
+  var dateSplit = meeting.date.split('-');
+  var timeSplit = meeting.time.split(':');
+  var inviteesAllAvailable = true;
+  meeting.invitees.forEach( function(invitee) {
+    var inviteeuser = rtm.dataStore.getUserByName(invitee); //given the invitee slack name, find their slack user object
+    var inviteeSlackID = inviteeuser.id; //get slack id from slack user
 
-    meeting.invitees.forEach( function(invitee) {
-        var inviteeuser = rtm.dataStore.getUserByName(invitee); //given the invitee slack name, find their slack user object
-        var inviteeSlackID = inviteeuser.id; //get slack id from slack user
+    //find a user in our DB with that slack username
+    User.findOne({slackID: inviteeSlackID}, function(err, user) {
+      if(user) {
+        //save user tokens
+        var tokens = user.token;
+        oauth2Client = new OAuth2(
+          process.env.GOOGLE_CLIENT_ID,
+          process.env.GOOGLE_CLIENT_SECRET,
+          process.env.DOMAIN + '/connect/callback'
+        )
+        oauth2Client.setCredentials(tokens);
+        var calendar = google.calendar('v3');
+        //AT THIS POINT YOU ARE AUTHENTICATED TO SEE THE INVITEE GOOGLE calendar
 
-        //find a user in our DB with that slack username
-        User.findOne({slackID: inviteeSlackID}, function(err, user) {
-            if(user) {
-                //save user tokens
-                var tokens = user.token;
-                oauth2Client = new OAuth2(
-                  process.env.GOOGLE_CLIENT_ID,
-                  process.env.GOOGLE_CLIENT_SECRET,
-                  process.env.DOMAIN + '/connect/callback'
-                )
-                oauth2Client.setCredentials(tokens);
-                var calendar = google.calendar('v3');
-                //AT THIS POINT YOU ARE AUTHENTICATED TO SEE THE INVITEE GOOGLE calendar
+        //need to subtract one month because of weird time conversion shit idk
+        var timemin = new Date(dateSplit[0], (parseInt(dateSplit[1]) - 1).toString(), dateSplit[2], timeSplit[0], timeSplit[1], timeSplit[2]);
+        var timemax = new Date(dateSplit[0], (parseInt(dateSplit[1]) - 1).toString(), (parseInt(dateSplit[2]) + 2).toString(), timeSplit[0], timeSplit[1], timeSplit[2]);
 
-                //get all busy time slots IGNORE BELOW HERE BC ITS NONSENSE
-                calendar.freebusy.query({
-                    auth: oauth2Client,
-                    headers: { "content-type" : "application/json" },
-                    resource:{items: [{id: 'primary', busy: 'Active'}],
-                    // timeZone: "America/Los_Angeles",
-                     timeMin: (new Date(2017, 06, 20)).toISOString(),
-                     timeMax: (new Date(2017, 06, 21)).toISOString()
-                   }
-                }, function(err, schedule) {
-                  if(err){
-                    console.log("There was an error getting invitee calendar", err);
-                    return
-                  }else {
+        calendar.freebusy.query({
+          auth: oauth2Client,
+          headers: { "content-type" : "application/json" },
+          resource:{items: [{id: 'primary', busy: 'Active'}],
+          // timeZone: "America/Los_Angeles",
+          timeMin: timemin.toISOString(),//(new Date(2017, 06, 20)).toISOString(),
+          timeMax: timemax.toISOString(),//(new Date(2017, 06, 21)).toISOString()
+        }
+      }, function(err, schedule) {
+        if(err){
+          console.log("There was an error getting invitee calendar", err);
+          return
+        }else {
 
-                    //   console.log('schedule is', schedule);
-                    var busyList = schedule.calendars.primary.busy;
-                    busyList.forEach((time) => {
-                        // console.log('busy at time: ', time);
-                        var newtimestart = new Date(time.start).toUTCString();
-                        var newtimeend = new Date(time.end).toUTCString();
-                        console.log('utc version', newtimestart, newtimeend);
-                        if(meetingStart >= time.start && meetingStart <= time.end || meetingEnd >= time.start && meetingEnd <= time.end){
-                            //the person is busy at that meeting time
-                            console.log('USER IS BUSY DURING THAT MEETING TIME');
-                        }
-                    })
-                  }
-                })
+          var busyList = schedule.calendars.primary.busy;
+          //true when no vconflict exists between invitee events and meeting time and false otherwise
+
+          var inviteeFreeSlots = []; //array of time invertvals that this invitee is free
+          busyList.forEach((time) => {
+
+            //TIME WILL BE IN UTC --- UTC DATE OBJECT FOR BUSY TIME
+            var busyUTCstart = new Date(time.start);
+            var busyUTCend = new Date(time.end);
+
+            // //UTC DATE OBJECTS FOR MEETING START AND end (assume meeting is 1 horu long)
+            var meetingUTCstart = new Date(dateSplit[0], parseInt(dateSplit[1]) - 1, dateSplit[2], timeSplit[0], timeSplit[1], timeSplit[2]);
+            var meetingUTCend = new Date(dateSplit[0], parseInt(dateSplit[1]) - 1, dateSplit[2], (parseInt(timeSplit[0]) +1).toString(), timeSplit[1], timeSplit[2]);
+
+            //TEST FOR CONFLICT:
+            //1. meeting starts during the invitee's event OR 2. meeting ends during the invitee's event
+            if(meetingUTCstart >= busyUTCstart && meetingUTCstart <= busyUTCend || meetingUTCend >= busyUTCstart && meetingUTCend <= busyUTCend){
+
+              console.log('BUSY: The meeting time \n', meetingUTCstart.toUTCString(), ' - ', meetingUTCend.toUTCString(), '\n conflicts with user event at \n', busyUTCstart.toUTCString(), ' - ', busyUTCend.toUTCString(), '\n');
+              inviteesAllAvailable = false;
+            } else {
+              console.log('FREE: No overlap between meeting at \n',meetingUTCstart.toUTCString(), ' - ', meetingUTCend.toUTCString(), '\n and the users event at \n', busyUTCstart.toUTCString(), ' - ', busyUTCend.toUTCString(), '\n');
+
             }
-        })
-    })
+          })
+        }
+      })
+
+    }
+  })
+})
+return inviteesAllAvailable;
 }
