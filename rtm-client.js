@@ -233,7 +233,7 @@ function checkConflicts(meeting, rtm){
     // var meetingStart = meeting.date+'T'+meeting.time+'-00:00';
     var dateSplit = meeting.date.split('-');
     var timeSplit = meeting.time.split(':');
-    console.log(dateSplit, timeSplit);
+    // console.log(dateSplit, timeSplit);
     var meetingStart = new Date(dateSplit[0], dateSplit[1], dateSplit[2], timeSplit[0], timeSplit[1], timeSplit[2]).toISOString();
     var meetingEnd = new Date(dateSplit[0], dateSplit[1], dateSplit[2], timeSplit[0] + 1, timeSplit[1], timeSplit[2]).toISOString();
 
@@ -241,7 +241,7 @@ function checkConflicts(meeting, rtm){
         var inviteeuser = rtm.dataStore.getUserByName(invitee);
         var inviteeSlackID = inviteeuser.id;
         User.findOne({slackID: inviteeSlackID}, function(err, user) {
-            console.log('user is ', user);
+            // console.log('user is ', user);
             if(user) {
                 var tokens = user.token;
                 console.log('user tokens are ', tokens);
@@ -275,10 +275,10 @@ function checkConflicts(meeting, rtm){
                     console.log("There was an error getting invitee calendar", err);
                     return
                   }else {
-                      console.log('schedule is', schedule);
+                    //   console.log('schedule is', schedule);
                     var busyList = schedule.calendars.primary.busy;
                     busyList.forEach((time) => {
-                        console.log('busy at time: ', time.start, time.end);
+                        console.log('busy at time: ', time, time.start, time.end);
                     })
                   }
                 })
