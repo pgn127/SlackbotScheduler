@@ -153,8 +153,6 @@ function processMessage(message, rtm) {
           inviteArr.push(userObj.profile.first_name)
         })
 
-
-
         var fields = [
           {
             "title": "Subject",
