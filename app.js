@@ -1,6 +1,6 @@
 var logger = require('morgan');
 var google = require('googleapis');
-var {User, Reminder} = require('./models')
+var {User, Reminder, Meeting} = require('./models')
 var OAuth2 = google.auth.OAuth2;
 var mongoose = require('mongoose');
 var models = require('./models');
@@ -79,7 +79,7 @@ app.post('/command', function(req, res) {
 
 app.post('/slack/interactive', function(req,res){
   var payload = JSON.parse(req.body.payload);
-  // console.log(payload)
+  console.log(payload.original_message.attachments)
   if(payload.actions[0].value === 'true') {
     slackID = payload.user.id;
     User.findOne({slackID: slackID}).exec(function(err, user){
@@ -87,11 +87,6 @@ app.post('/slack/interactive', function(req,res){
         console.log(err);
         res.send('an error occured');
       } else if (user){
-        if(payload.original_message.text === "Would you like me to create a reminder for "){
-          //it was a reminder
-        } else {
-          // it was a meeting
-        }
         var reminderSubject = payload.original_message.attachments[0].fields[0].value;
         var reminderDate = Date.parse(payload.original_message.attachments[0].fields[1].value);
         if(Date.now() > user.token.expiry_date) {
@@ -109,21 +104,43 @@ app.post('/slack/interactive', function(req,res){
             console.log(tokens);
             user.save()
             .then((user)=>{
-              var newReminder = new Reminder({
-                userID: user._id,
-                channelID: payload.channel.id,
-                subject: reminderSubject,
-                date: reminderDate,
-              })
-              newReminder.save(function(err){
-                if (err){
-                  res.status(400).json({error:err});
-                }else{
-                  reminderDate = new Date(reminderDate);
-                  createCalendarReminder(reminderDate.toISOString().substring(0, 10), reminderSubject, user.token);
-                  res.send('Reminder Confirmed')
-                }
-              })
+              if(payload.original_message.text === "Would you like me to create a reminder for "){
+                //it was a reminder
+                var newReminder = new Reminder({
+                  userID: user._id,
+                  channelID: payload.channel.id,
+                  subject: reminderSubject,
+                  date: reminderDate,
+                })
+                newReminder.save(function(err){
+                  if (err){
+                    res.status(400).json({error:err});
+                  }else{
+                    reminderDate = new Date(reminderDate);
+                    createCalendarReminder(reminderDate.toISOString().substring(0, 10), reminderSubject, user.token);
+                    res.send('Reminder Confirmed')
+                  }
+                })
+              } else {
+                // it was a meeting
+                var newMeeting = new Reminder({
+                  userID: user._id,
+                  channelID: payload.channel.id,
+                  subject: payload.original_message.attachments[0].fields[0].value,
+                  date: payload.original_message.attachments[0].fields[1].value,
+                  time: payload.original_message.attachments[0].fields[2].value,
+                  invitees: payload.original_message.attachments[0].fields[1].value,
+                })
+                newReminder.save(function(err){
+                  if (err){
+                    res.status(400).json({error:err});
+                  }else{
+                    reminderDate = new Date(reminderDate);
+                    createCalendarReminder(reminderDate.toISOString().substring(0, 10), reminderSubject, user.token);
+                    res.send('Reminder Confirmed')
+                  }
+                })
+              }
             })
           });
           //ELSE STILL SAVE REMINDER EVEN IF THEIR TOKEN IS EXPIRED

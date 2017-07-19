@@ -155,18 +155,15 @@ function processMessage(message, rtm) {
             "title": "Time",
             "value": `${data.result.parameters.time}`
           },
-        ];
-
-        if(data.result.parameters.subject !== ""){
-          fields.push({"title": "Subject", "value": `${data.result.parameters.subject}`})
-        }
-        if(data.result.parameters.invitees !== ""){
-          fields.push({
+          {
+            "title": "Subject",
+            "value": `${data.result.parameters.subject}`
+          },
+          {
             "title": "Invitees",
             "value": `${data.result.parameters.invitees}`
-          })
-        }
-        // if(data.result.parameters.subject)
+          }
+        ];
 
         web.chat.postMessage(message.channel, `Would you like me to create the following meeting: ` , {
           "attachments": [
