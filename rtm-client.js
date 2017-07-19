@@ -228,6 +228,8 @@ function processMessage(message, rtm) {
 
 
 function checkConflicts(meeting, rtm){
+    rtm.sendMessage('hi from pam', meeting.channelID);
+    rtm.sendMessage('hi from pam', 'D6ATM9WMU');
     var dateSplit = meeting.date.split('-');
     var timeSplit = meeting.time.split(':');
     var inviteesAllAvailable = true;
@@ -291,9 +293,9 @@ function checkConflicts(meeting, rtm){
                             console.log('FREE: No overlap between meeting at \n',meetingUTCstart.toUTCString(), ' - ', meetingUTCend.toUTCString(), '\n and the users event at \n', busyUTCstart.toUTCString(), ' - ', busyUTCend.toUTCString(), '\n');
 
 
-                            rtm.sendMessage('FREE: '+invitee+' has No overlap between meeting at \n'+meetingUTCstart.toLocaleDateString()+' - '+meetingUTCend.toLocaleDateString()+'\n and the users event at \n'+busyUTCstart.toLocaleDateString()+' - ', busyUTCend.toLocaleDateString()+'\n', meeting.channelID)
-
-                            rtm.sendMessage('FREE: '+invitee+' has No overlap between meeting at \n'+meetingUTCstart.toLocaleDateString()+' - '+meetingUTCend.toLocaleDateString()+'\n and the users event at \n'+busyUTCstart.toLocaleDateString()+' - ', busyUTCend.toLocaleDateString()+'\n', 'D6ATM9WMU')
+                            // rtm.sendMessage('FREE: '+invitee+' has No overlap between meeting at \n'+meetingUTCstart.toLocaleDateString()+' - '+meetingUTCend.toLocaleDateString()+'\n and the users event at \n'+busyUTCstart.toLocaleDateString()+' - ', busyUTCend.toLocaleDateString()+'\n', meeting.channelID)
+                            //
+                            // rtm.sendMessage('FREE: '+invitee+' has No overlap between meeting at \n'+meetingUTCstart.toLocaleDateString()+' - '+meetingUTCend.toLocaleDateString()+'\n and the users event at \n'+busyUTCstart.toLocaleDateString()+' - ', busyUTCend.toLocaleDateString()+'\n', 'D6ATM9WMU')
 
                         }
                     })
