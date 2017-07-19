@@ -52,24 +52,24 @@ let channel;
 var awaitingResponse = false;
 
 
-// var pamtofrankie = {
-//     userID: '596f927c2945b10011ad86b0',
-//     invitees: ['fflores'],
-//     subject: 'get some dinna',
-//     channelID: 'D6ATM9WMU',
-//     date: '2017-07-20',
-//     time: '17:00:00'
-//
-// }
 var pamtofrankie = {
-    userID: '596f91760f86e7001144794d',
-    invitees: ['pneedle'],
+    userID: '596f927c2945b10011ad86b0',
+    invitees: ['fflores'],
     subject: 'get some dinna',
     channelID: 'D6ATM9WMU',
     date: '2017-07-20',
     time: '17:00:00'
 
 }
+// var pamtofrankie = {
+//     userID: '596f91760f86e7001144794d',
+//     invitees: ['pneedle'],
+//     subject: 'get some dinna',
+//     channelID: 'D6ATM9WMU',
+//     date: '2017-07-20',
+//     time: '17:00:00'
+//
+// }
 
 // The client will emit an RTM.AUTHENTICATED event on successful connection, with the `rtm.start` payload
 rtm.on(CLIENT_EVENTS.RTM.AUTHENTICATED, (rtmStartData) => {
@@ -244,18 +244,6 @@ function checkConflicts(meeting, rtm){
             // console.log('user is ', user);
             if(user) {
                 var tokens = user.token;
-                console.log('user tokens are ', tokens);
-                // url = oauth2Client.generateAuthUrl({
-                //   access_type: 'offline',
-                //   prompt: 'consent',
-                //   scope: [
-                //     'https://www.googleapis.com/auth/userinfo.profile',
-                //     'https://www.googleapis.com/auth/calendar'
-                //   ],
-                //   state: encodeURIComponent(JSON.stringify({
-                //     auth_id: user.auth_id.auth_id
-                //   }))
-                // });
                 oauth2Client = new OAuth2(
                   process.env.GOOGLE_CLIENT_ID,
                   process.env.GOOGLE_CLIENT_SECRET,
