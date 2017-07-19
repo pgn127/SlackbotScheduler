@@ -234,7 +234,7 @@ function checkConflicts(meeting, rtm){
     meetingDate= new Date(meeting.date);
     // let dateTime = meetingDate.toISOString().substring(0, 11) + meetingTime + "-07:00"
     let dateTime = meetingDate.toISOString().substring(0, 11) + meeting.time + "-07:00";
-    console.log('meeting datetime', dateTime);
+    console.log('meeting datetime', dateTime, new Date(dateTime), new Date(dateTime).toLocaleTimeString({timeZone: "America/Los_Angeles"}));
 
     var inviteesAllAvailable = true;
     meeting.invitees.forEach( function(invitee) {
@@ -243,7 +243,7 @@ function checkConflicts(meeting, rtm){
 
         //find a user in our DB with that slack username
         User.findOne({slackID: inviteeSlackID}, function(err, user) {
-            console.log('user is ', user);
+            // console.log('user is ', user);
             if(user) {
                 //save user tokens
                 var tokens = user.token;
