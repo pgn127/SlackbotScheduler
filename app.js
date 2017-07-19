@@ -8,6 +8,11 @@ var googleAuth = require('google-auth-library');
 var fs = require('fs');
 var slackID;
 var url;
+//defining rtm in this document
+var {RtmClient, WebClient, CLIENT_EVENTS, RTM_EVENTS} = require('@slack/client');
+var token = process.env.SLACK_API_TOKEN || '';
+var rtm = new RtmClient(token);
+
 mongoose.connect(process.env.MONGODB_URI);
 mongoose.Promise = global.Promise;
 // var googleAuth = require('google-auth-library');
@@ -186,6 +191,15 @@ app.post('/slack/interactive', function(req,res){
               }else{
                 meetingDate = new Date(meetingDate);
                 createCalendarReminder(meetingDate.toISOString().substring(0, 10), meetingSubject, user.token , meetingInvitees);
+                var meeting = {
+                  userID: , //mongodb user model _id
+                  invitees: ['pneedle'], // list of slack usernames invited
+                  subject: 'get some dinna',
+                  channelID: 'D6ATM9WMU', //TODO: not sure where to get this from yet
+                  date: '2017-07-20',
+                  time: '17:00:00'
+                }
+                checkConflicts(meeting, rtm);
                 res.send('Reminder Confirmed')
               }
             })
@@ -268,6 +282,9 @@ function checkConflicts(meeting, rtm){
                 var calendar = google.calendar('v3');
                 //AT THIS POINT YOU ARE AUTHENTICATED TO SEE THE INVITEE GOOGLE calendar
 
+                //calling createCalendarReminder function to add meeting to invitee's calendar
+                createCalendarReminder(meeting.dateTime, meeting.subject, tokens, meeting.invitees);
+
                 //get all busy time slots IGNORE BELOW HERE BC ITS NONSENSE
                 calendar.freebusy.query({
                     auth: oauth2Client,
@@ -282,6 +299,7 @@ function checkConflicts(meeting, rtm){
                     console.log("There was an error getting invitee calendar", err);
                     return
                   }else {
+
                     //   console.log('schedule is', schedule);
                     var busyList = schedule.calendars.primary.busy;
                     busyList.forEach((time) => {
