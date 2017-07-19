@@ -230,6 +230,12 @@ function processMessage(message, rtm) {
 function checkConflicts(meeting, rtm){
     var dateSplit = meeting.date.split('-');
     var timeSplit = meeting.time.split(':');
+
+    meetingDate= new Date(meeting.date);
+    // let dateTime = meetingDate.toISOString().substring(0, 11) + meetingTime + "-07:00"
+    let dateTime = meeting.date.toISOString().substring(0, 11) + meeting.time + "-07:00";
+    console.log('meeting datetime', dateTime);
+
     var inviteesAllAvailable = true;
     meeting.invitees.forEach( function(invitee) {
         var inviteeuser = rtm.dataStore.getUserByName(invitee); //given the invitee slack name, find their slack user object
