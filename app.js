@@ -57,14 +57,14 @@ app.get('/connect/callback', function(req, res) {
       token: tokens,
       slackID: slackID,
       auth_id: auth_id.auth_id,
-    //   date: '',
-    //   subject: ''
+      //   date: '',
+      //   subject: ''
     });
     newUser.save()
     .then( () => res.status(200).send("Your account was successfuly authenticated"))
     .catch((err) => {
-        console.log('error in newuser save of connectcallback');
-        res.status(400).json({error:err});
+      console.log('error in newuser save of connectcallback');
+      res.status(400).json({error:err});
     })
   });
 })
@@ -140,65 +140,65 @@ app.post('/command', function(req, res) {
 app.post('/interactive', function(req,res){
   var payload = JSON.parse(req.body.payload);
   if(payload.actions[0].value === 'true') {
-      slackID = payload.user.id;
+    slackID = payload.user.id;
     User.findOne({slackID: slackID}).exec(function(err, user){
       if(err || !user){
         console.log(err);
         res.send('an error occured');
-    } else if (user){
+      } else if (user){
         var reminderSubject = payload.original_message.attachments[0].fields[0].value;
         var reminderDate = Date.parse(payload.original_message.attachments[0].fields[1].value);
         // console.log();
         if(Date.now() > user.token.expiry_date) {
-            oauth2Client = new OAuth2(
-                process.env.GOOGLE_CLIENT_ID,
-                process.env.GOOGLE_CLIENT_SECRET,
-                process.env.DOMAIN + '/connect/callback'
-            )
-            oauth2Client.refreshAccessToken(function(err, tokens) {
-                user.token = tokens;
-                user.save()
-                .then((user)=>{
-                  var newReminder = new Reminder({
-                    userID: user._id,
-                    channelID: payload.channel.id,
-                    subject: reminderSubject,
-                    date: reminderDate,
-                  })
-                  newReminder.save(function(err){
-                    if (err){
-                      res.status(400).json({error:err});
-                    }else{
-                      reminderDate = new Date(reminderDate);
-                      createCalendarReminder(reminderDate.toISOString().substring(0, 10), reminderSubject, user.token);
-                      res.send('Reminder Confirmed')
-                    }
-                  })
-                })
-            });
-            //ELSE STILL SAVE REMINDER EVEN IF THEIR TOKEN IS EXPIRED
+          oauth2Client = new OAuth2(
+            process.env.GOOGLE_CLIENT_ID,
+            process.env.GOOGLE_CLIENT_SECRET,
+            process.env.DOMAIN + '/connect/callback'
+          )
+          oauth2Client.refreshAccessToken(function(err, tokens) {
+            user.token = tokens;
+            user.save()
+            .then((user)=>{
+              var newReminder = new Reminder({
+                userID: user._id,
+                channelID: payload.channel.id,
+                subject: reminderSubject,
+                date: reminderDate,
+              })
+              newReminder.save(function(err){
+                if (err){
+                  res.status(400).json({error:err});
+                }else{
+                  reminderDate = new Date(reminderDate);
+                  createCalendarReminder(reminderDate.toISOString().substring(0, 10), reminderSubject, user.token);
+                  res.send('Reminder Confirmed')
+                }
+              })
+            })
+          });
+          //ELSE STILL SAVE REMINDER EVEN IF THEIR TOKEN IS EXPIRED
         } else {
-            var newReminder = new Reminder({
-              userID: user._id,
-              channelID: payload.channel.id,
-              subject: reminderSubject,
-              date: reminderDate,
-            })
-            newReminder.save(function(err){
-              if (err){
-                res.status(400).json({error:err});
-              }else{
-                reminderDate = new Date(reminderDate);
-                createCalendarReminder(reminderDate.toISOString().substring(0, 10), reminderSubject, user.token);
-                res.send('Reminder Confirmed')
-              }
-            })
+          var newReminder = new Reminder({
+            userID: user._id,
+            channelID: payload.channel.id,
+            subject: reminderSubject,
+            date: reminderDate,
+          })
+          newReminder.save(function(err){
+            if (err){
+              res.status(400).json({error:err});
+            }else{
+              reminderDate = new Date(reminderDate);
+              createCalendarReminder(reminderDate.toISOString().substring(0, 10), reminderSubject, user.token);
+              res.send('Reminder Confirmed')
+            }
+          })
         }
-    }
-})
-} else {
+      }
+    })
+  } else {
     res.send('Cancelled');
-}
+  }
 })
 app.listen(process.env.PORT || 3000);
 function createCalendarReminder(date, subject, tokens){
@@ -217,7 +217,7 @@ function createCalendarReminder(date, subject, tokens){
     process.env.DOMAIN + '/connect/callback'
   )
   oauth2Client.setCredentials(tokens);
-var calendar = google.calendar('v3');
+  var calendar = google.calendar('v3');
   calendar.events.insert({
     auth: oauth2Client,
     calendarId: 'primary',
