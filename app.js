@@ -152,7 +152,8 @@ app.post('/slack/interactive', function(req,res){
         var reminderDate = Date.parse(payload.original_message.attachments[0].fields[1].value);
         // console.log();
         console.log('about to compare user expiry date to now, user.token', user.token);
-        if(Date.now() > user.token.expiry_date) {
+        // if(Date.now() > user.token.expiry_date) {
+        if(Date.now()) {
           oauth2Client = new OAuth2(
             process.env.GOOGLE_CLIENT_ID,
             process.env.GOOGLE_CLIENT_SECRET,
