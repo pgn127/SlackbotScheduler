@@ -160,7 +160,7 @@ app.post('/slack/interactive', function(req,res){
       if(err || !user){
         console.log(err);
         res.send('an error occured');
-      } else{
+    } else if (user){
         var reminderSubject = payload.original_message.attachments[0].fields[0].value;
         var reminderDate = Date.parse(payload.original_message.attachments[0].fields[1].value);
         if(Date.now() > user.token.expiry_date) {
