@@ -255,9 +255,9 @@ function checkConflicts(meeting, rtm){
                     auth: oauth2Client,
                     headers: { "content-type" : "application/json" },
                     resource:{items: [{id: 'primary', busy: 'Active'}],
-                    timeZone: "America/Los_Angeles",
-                     timeMin: (new Date(2017, 06, 21)).toISOString(),
-                     timeMax: (new Date(2017, 06, 22)).toISOString()
+                    // timeZone: "America/Los_Angeles",
+                     timeMin: (new Date(2017, 06, 20)).toUTCString(),
+                     timeMax: (new Date(2017, 06, 21)).toUTCString()
                    }
                 }, function(err, schedule) {
                   if(err){
