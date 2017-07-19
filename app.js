@@ -148,8 +148,7 @@ app.post('/slack/interactive', function(req,res){
           console.log('user found in interactive route', user);
         var reminderSubject = payload.original_message.attachments[0].fields[0].value;
         var reminderDate = Date.parse(payload.original_message.attachments[0].fields[1].value);
-        // if(Date.now() > user.token.expiry_date) {
-        if(Date.now()) {
+        if(Date.now() > user.token.expiry_date) {
           oauth2Client = new OAuth2(
             process.env.GOOGLE_CLIENT_ID,
             process.env.GOOGLE_CLIENT_SECRET,
