@@ -254,13 +254,16 @@ function checkConflicts(meeting, rtm){
                 //AT THIS POINT YOU ARE AUTHENTICATED TO SEE THE INVITEE GOOGLE calendar
 
                 //get all busy time slots IGNORE BELOW HERE BC ITS NONSENSE
+                var timemin = new Date(dateSplit[0], dateSplit[1], dateSplit[2], timeSplit[0], timeSplit[1], timeSplit[2]);
+                var timemax = new Date(dateSplit[0], dateSplit[1], (parseInt(dateSplit[2]) + 1).toString(), timeSplit[0], timeSplit[1], timeSplit[2]);
+
                 calendar.freebusy.query({
                     auth: oauth2Client,
                     headers: { "content-type" : "application/json" },
                     resource:{items: [{id: 'primary', busy: 'Active'}],
                     // timeZone: "America/Los_Angeles",
-                     timeMin: (new Date(dateSplit[0], dateSplit[1], dateSplit[2], timeSplit[0], timeSplit[1], timeSplit[2])).toISOString(),//(new Date(2017, 06, 20)).toISOString(),
-                     timeMax: (new Date(dateSplit[0], dateSplit[1], dateSplit[2] + 1, timeSplit[0], timeSplit[1], timeSplit[2])).toISOString(),//(new Date(2017, 06, 21)).toISOString()
+                     timeMin: timemin.toISOString(),//(new Date(2017, 06, 20)).toISOString(),
+                     timeMax: timemax.toISOString(),//(new Date(2017, 06, 21)).toISOString()
                    }
                 }, function(err, schedule) {
                   if(err){
