@@ -74,7 +74,7 @@ rtm.on(CLIENT_EVENTS.RTM.AUTHENTICATED, (rtmStartData) => {
   // console.log(`Logged in as ${rtmStartData.self.name} of team ${rtmStartData.team.name}, but not yet connected to a channel`);
 });
 rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
-    console.log(message);
+    // console.log(message);
   var dm = rtm.dataStore.getDMByUserId(message.user); //gets the channel ID for the specific conversation between one user and bot
   slackID = message.user;
   const userId = message.user;
@@ -228,8 +228,6 @@ function processMessage(message, rtm) {
 
 
 function checkConflicts(meeting, rtm){
-    rtm.sendMessage('hi from pam', meeting.channelID);
-    rtm.sendMessage('hi from pam', 'D6ATM9WMU');
     var dateSplit = meeting.date.split('-');
     var timeSplit = meeting.time.split(':');
     var inviteesAllAvailable = true;
@@ -293,9 +291,9 @@ function checkConflicts(meeting, rtm){
                             console.log('FREE: No overlap between meeting at \n',meetingUTCstart.toUTCString(), ' - ', meetingUTCend.toUTCString(), '\n and the users event at \n', busyUTCstart.toUTCString(), ' - ', busyUTCend.toUTCString(), '\n');
 
 
-                            // rtm.sendMessage('FREE: '+invitee+' has No overlap between meeting at \n'+meetingUTCstart.toLocaleDateString()+' - '+meetingUTCend.toLocaleDateString()+'\n and the users event at \n'+busyUTCstart.toLocaleDateString()+' - ', busyUTCend.toLocaleDateString()+'\n', meeting.channelID)
-                            //
-                            // rtm.sendMessage('FREE: '+invitee+' has No overlap between meeting at \n'+meetingUTCstart.toLocaleDateString()+' - '+meetingUTCend.toLocaleDateString()+'\n and the users event at \n'+busyUTCstart.toLocaleDateString()+' - ', busyUTCend.toLocaleDateString()+'\n', 'D6ATM9WMU')
+                            rtm.sendMessage('FREE: '+invitee+' has No overlap between meeting at \n'+meetingUTCstart.toLocaleDateString()+' - '+meetingUTCend.toLocaleDateString()+'\n and the users event at \n'+busyUTCstart.toLocaleDateString()+' - ', busyUTCend.toLocaleDateString()+'\n', meeting.channelID)
+
+                            rtm.sendMessage('FREE: '+invitee+' has No overlap between meeting at \n'+meetingUTCstart.toLocaleDateString()+' - '+meetingUTCend.toLocaleDateString()+'\n and the users event at \n'+busyUTCstart.toLocaleDateString()+' - ', busyUTCend.toLocaleDateString()+'\n', 'D6ATM9WMU')
 
                         }
                     })
