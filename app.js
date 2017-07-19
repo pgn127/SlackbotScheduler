@@ -148,15 +148,19 @@ app.post('/slack/interactive', function(req,res){
       } else if (user){
         var reminderSubject = payload.original_message.attachments[0].fields[0].value;
         var reminderDate = Date.parse(payload.original_message.attachments[0].fields[1].value);
-        console.log(user);
         if(Date.now() > user.token.expiry_date) {
           oauth2Client = new OAuth2(
             process.env.GOOGLE_CLIENT_ID,
             process.env.GOOGLE_CLIENT_SECRET,
             process.env.DOMAIN + '/connect/callback'
           )
+          console.log(oauth2Client);
+          oauth2Client.setCredentials({
+            refresh_token: user.token.refresh_token
+          });
           oauth2Client.refreshAccessToken(function(err, tokens) {
             user.token = tokens;
+            console.log(tokens);
             user.save()
             .then((user)=>{
               var newReminder = new Reminder({
