@@ -12,7 +12,6 @@ mongoose.connect(process.env.MONGODB_URI);
 mongoose.Promise = global.Promise;
 // var googleAuth = require('google-auth-library');
 var express = require('express');
-// var request = require('request');
 require('./rtm-client');
 var app = express();
 var bodyParser = require('body-parser');
@@ -81,7 +80,7 @@ app.post('/slack/interactive', function(req,res){
   var payload = JSON.parse(req.body.payload);
   console.log(payload.original_message.attachments)
   if(payload.actions[0].value === 'true') {
-    slackID = payload.user.id;
+      slackID = payload.user.id;
     User.findOne({slackID: slackID}).exec(function(err, user){
       if(err || !user){
         console.log(err);
@@ -95,7 +94,6 @@ app.post('/slack/interactive', function(req,res){
             process.env.GOOGLE_CLIENT_SECRET,
             process.env.DOMAIN + '/connect/callback'
           )
-          console.log(oauth2Client);
           oauth2Client.setCredentials({
             refresh_token: user.token.refresh_token
           });
@@ -165,7 +163,7 @@ app.post('/slack/interactive', function(req,res){
     })
   } else {
     res.send('Cancelled');
-  }
+}
 })
 app.listen(process.env.PORT || 3000);
 function createCalendarReminder(date, subject, tokens){
