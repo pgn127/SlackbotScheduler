@@ -267,7 +267,7 @@ function checkConflicts(meeting, rtm){
                     //   console.log('schedule is', schedule);
                     var busyList = schedule.calendars.primary.busy;
                     busyList.forEach((time) => {
-                        console.log('busy at time: ', time);
+                        // console.log('busy at time: ', time);
                         var newtimestart = new Date(time.start).toUTCString();
                         var newtimeend = new Date(time.end).toUTCString();
                         console.log('utc version', newtimestart, newtimeend);
