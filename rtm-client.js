@@ -256,8 +256,8 @@ function checkConflicts(meeting, rtm){
                     headers: { "content-type" : "application/json" },
                     resource:{items: [{id: 'primary', busy: 'Active'}],
                     // timeZone: "America/Los_Angeles",
-                     timeMin: (new Date(2017, 06, 20)).toUTCString(),
-                     timeMax: (new Date(2017, 06, 21)).toUTCString()
+                     timeMin: (new Date(2017, 06, 20)).toISOString(),
+                     timeMax: (new Date(2017, 06, 21)).toISOString()
                    }
                 }, function(err, schedule) {
                   if(err){
