@@ -34,6 +34,7 @@ app.get('/oauth', function(req, res){
     prompt: 'consent',
     scope: [
       'https://www.googleapis.com/auth/userinfo.profile',
+      'email',
       'https://www.googleapis.com/auth/calendar'
     ],
     state: encodeURIComponent(JSON.stringify({
@@ -57,6 +58,9 @@ app.get('/connect/callback', function(req, res) {
       console.log(err)
     } else {
       //set credentials. not entirely sure what this does but necessary for google plus
+      //when a person gives access to their google calendar, we also make a request to google plus
+      //with their oauth2client in order to get their email address which is then saved in the user object
+      //in mongodb. 
       oauth2Client.setCredentials(tokens);
       console.log("this is tokens", tokens);
       var plus = google.plus('v1');
@@ -64,24 +68,24 @@ app.get('/connect/callback', function(req, res) {
         if(err){
           console.log(err)
         } else {
-          console.log("this is googleplus person", person);
+          //when a person
+          console.log("this is googleplus person object", person);
+          var tempEmail = person.emails[0].value;
+          let auth_id = JSON.parse(decodeURIComponent(req.query.state));
+          var newUser = new User({
+            token: tokens,
+            slackID: slackID,
+            auth_id: auth_id.auth_id,
+            email: tempEmail
+          });
+          newUser.save()
+          .then( () => res.status(200).send("Your account was successfuly authenticated"))
+          .catch((err) => {
+            console.log('error in newuser save of connectcallback');
+            res.status(400).json({error:err});
+          })
         }
       });
-
-      let auth_id = JSON.parse(decodeURIComponent(req.query.state));
-      var newUser = new User({
-        token: tokens,
-        slackID: slackID,
-        auth_id: auth_id.auth_id,
-        //   date: '',
-        //   subject: ''
-      });
-      newUser.save()
-      .then( () => res.status(200).send("Your account was successfuly authenticated"))
-      .catch((err) => {
-        console.log('error in newuser save of connectcallback');
-        res.status(400).json({error:err});
-      })
     }
   });
 })
