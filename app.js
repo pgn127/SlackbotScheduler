@@ -217,7 +217,7 @@ function createCalendarReminder(date, subject, tokens){
 
 function checkConflicts(meeting){
     // var meetingStart = meeting.date+'T'+meeting.time+'-00:00';
-    var dateSplit = meeting.split('-');
+    var dateSplit = meeting.time.split('-');
     var timeSplit = meeting.time.split(':');
     var meetingStart = new Date(dateSplit[0], dateSplit[1], dateSplit[2], timeSplit[0], timeSplit[1], timeSplit[2]).toISOString();
     var meetingEnd = new Date(dateSplit[0], dateSplit[1], dateSplit[2], timeSplit[0] + 1, timeSplit[1], timeSplit[2]).toISOString();
