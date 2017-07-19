@@ -1,12 +1,14 @@
 var mongoose = require('mongoose');
 var models = require('./models');
+var google = require('googleapis');
 var {User, Reminder} = require('./models');
 var slackID;
 var _ = require('underscore')
 var axios = require('axios');
 const timeZone = "2017-07-17T14:26:36-0700";
 const identifier = 20150910;
-var slackID;
+var OAuth2 = google.auth.OAuth2;
+var googleAuth = require('google-auth-library');
 // var messageButtons = {
 //           "attachments": [
 //               {
@@ -231,7 +233,7 @@ function checkConflicts(meeting, rtm){
         User.findOne({slackID: inviteeSlackID}, function(err, user) {
             if(user) {
                 var tokens = user.token;
-                oauth2Client = new OAuth2(
+                var oauth2Client = new OAuth2(
                   process.env.GOOGLE_CLIENT_ID,
                   process.env.GOOGLE_CLIENT_SECRET,
                   process.env.DOMAIN + '/connect/callback'
