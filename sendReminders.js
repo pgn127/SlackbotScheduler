@@ -42,7 +42,7 @@ function findReminders(rtm){
                     reminderString+= str;
                 })
                 // console.log('sending remidner string to user ', reminderString);
-                console.log('rtm issss', rtm);
+                // console.log('rtm issss', rtm);
                 rtm.sendMessage(reminderString, channel);
             })
 
