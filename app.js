@@ -1,14 +1,14 @@
 "use strict";
-// var fs = require('fs');
-var mongoose = require('mongoose');
 var logger = require('morgan');
 var google = require('googleapis');
 var {User, Reminder} = require('./models')
 var OAuth2 = google.auth.OAuth2;
 var mongoose = require('mongoose');
 var models = require('./models');
+var googleAuth = require('google-auth-library');
+var fs = require('fs');
 var slackID;
-var expiry_date
+var url;
 
 mongoose.connect(process.env.MONGODB_URI);
 mongoose.Promise = global.Promise;
@@ -30,10 +30,6 @@ var {RtmClient, WebClient, CLIENT_EVENTS, RTM_EVENTS} = require('@slack/client')
 var CLIENT_ID = process.env.CLIENT_ID;
 var CLIENT_SECRET = process.env.CLIENT_SECRET;
 const PORT=3000;
-
-var oauth2Client;
-var url;
-
 
 app.get('/oauth', function(req, res){
   oauth2Client = new OAuth2(
@@ -59,27 +55,27 @@ app.get('/oauth', function(req, res){
 
 app.get('/connect/callback', function(req, res) {
   const code = req.query.code;
+  oauth2Client = new OAuth2(
+    process.env.GOOGLE_CLIENT_ID,
+    process.env.GOOGLE_CLIENT_SECRET,
+    process.env.DOMAIN + '/connect/callback'
+  )
   oauth2Client.getToken(code, function (err, tokens) {
-    const refresh_token = tokens.refresh_token;
-    const access_token = tokens.access_token;
-    const auth_id = JSON.parse(decodeURIComponent(req.query.state));
-    const token_type = tokens.token_type;
-    expiry_date = tokens.expiry_date;
+    let auth_id = JSON.parse(decodeURIComponent(req.query.state));
     var newUser = new User({
+      token: tokens,
       slackID: slackID,
-      refresh_token: refresh_token,
-      access_token: access_token,
       auth_id: auth_id.auth_id,
-      token_type: token_type,
-      expiry_date: expiry_date
+    //   date: '',
+    //   subject: ''
     });
+    newUser.save()
+    .then( () => res.status(200).send("Your account was successfuly authenticated"))
+    .catch((err) => {
+        console.log('error in newuser save of connectcallback');
+        res.status(400).json({error:err});
+    })
 
-    newUser.save();
-
-    res.status(200).send("Your account was successfuly authenticated")
-    if (!err) {
-      oauth2Client.setCredentials(tokens);
-    }
   });
 })
 
@@ -158,79 +154,105 @@ app.post('/command', function(req, res) {
 
 app.post('/slack/interactive', function(req,res){
   var payload = JSON.parse(req.body.payload);
-  // console.log(payload);
-  //if user clicks confirm button
   if(payload.actions[0].value === 'true') {
-    User.findOne({slackID: payload.user.id}).exec(function(err, user){
+      slackID = payload.user.id;
+    User.findOne({slackID: slackID}).exec(function(err, user){
       if(err || !user){
-        console.log(err)
+        console.log(err);
+        res.send('an error occured');
       } else{
         var reminderSubject = payload.original_message.attachments[0].fields[0].value;
         var reminderDate = Date.parse(payload.original_message.attachments[0].fields[1].value);
         if(Date.now() > expiry_date) {
-          oauth2Client.refreshAccessToken(function(err, tokens) {
-            user.refresh_token = tokens.refresh_token;
-            user.access_token = tokens.access_token;
-            user.expiry_date = tokens.expiry_date;
-            user.auth_id = JSON.parse(decodeURIComponent(req.query.state));
-            user.token_type = tokens.token_type;
-            console.log("made it to this point in time before crashing")
-            user.save()
-            .then((user)=>{
-              var newReminder = new Reminder({
-                userID: user._id,
-                channelID: payload.channel.id,
-                subject: reminderSubject,
-                date: reminderDate,
-              })
-              newReminder.save(function(err){
-                if (err){
-                  res.status(400).json({error:err});
-                }else{
-                  res.send('Reminder Confirmed')
-                }
-              })
+            oauth2Client = new OAuth2(
+                process.env.GOOGLE_CLIENT_ID,
+                process.env.GOOGLE_CLIENT_SECRET,
+                process.env.DOMAIN + '/connect/callback'
+            )
+            oauth2Client.refreshAccessToken(function(err, tokens) {
+                user.token = tokens;
+                user.save()
+                .then((user)=>{
+                  var newReminder = new Reminder({
+                    userID: user._id,
+                    channelID: payload.channel.id,
+                    subject: reminderSubject,
+                    date: reminderDate,
+                  })
+                  newReminder.save(function(err){
+                    if (err){
+                      res.status(400).json({error:err});
+                    }else{
+                        createCalendarReminder(reminderDate.toISOString().substring(0, 10), reminderSubject, user.token);
+                      res.send('Reminder Confirmed')
+                    }
+                  })
+                })
+            });
+            //ELSE STILL SAVE REMINDER EVEN IF THEIR TOKEN IS EXPIRED
+        } else {
+            var newReminder = new Reminder({
+              userID: user._id,
+              channelID: payload.channel.id,
+              subject: reminderSubject,
+              date: reminderDate,
             })
-          })
-        }else{
-          var newReminder = new Reminder({
-            userID: user._id,
-            channelID: payload.channel.id,
-            subject: reminderSubject,
-            date: reminderDate,
-          })
-          newReminder.save(function(err){
-            if (err){
-              res.status(400).json({error:err});
-            }else{
-              res.send('Reminder Confirmed')
-            }
-          })
+            newReminder.save(function(err){
+              if (err){
+                res.status(400).json({error:err});
+              }else{
+                  createCalendarReminder(reminderDate.toISOString().substring(0, 10), reminderSubject, user.token);
+                res.send('Reminder Confirmed')
+              }
+            })
         }
-      }
-    })
-  } else{
+
+    }
+})
+} else {
     res.send('Cancelled');
-  }
+}
 })
 
-// app.use((req, res, next) => {
-//   var err = new Error('Not Found');
-//   err.status = 404;
-//   next(err);
-// });
-//
-//
-// // error handler
-// app.use((err, req, res, next) => {
-//   // set locals, only providing error in development
-//   res.locals.message = err.message;
-//   res.locals.error = req.app.get('env') === 'development' ? err : {};
-//
-//   // render the error page
-//   res.status(err.status || 500);
-//   res.render('error');
-// });
-// export default app;
+
+
+
 
 app.listen(process.env.PORT || 3000);
+
+
+
+function createCalendarReminder(date, subject, tokens){
+
+  var event = {
+    'summary': subject,
+    'start': {
+      'date': date,
+    },
+    'end': {
+      'date': date
+    }
+  };
+
+  oauth2Client = new OAuth2(
+    process.env.GOOGLE_CLIENT_ID,
+    process.env.GOOGLE_CLIENT_SECRET,
+    process.env.DOMAIN + '/connect/callback'
+  )
+
+  oauth2Client.setCredentials(tokens);
+
+var calendar = google.calendar('v3');
+  calendar.events.insert({
+    auth: oauth2Client,
+    calendarId: 'primary',
+    resource: event,
+  }, function(err, event) {
+    if(err){
+      console.log("There was an error adding the calendar", err);
+      return
+    }else {
+      console.log('event created')
+    }
+  })
+}

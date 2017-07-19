@@ -6,7 +6,7 @@ var _ = require('underscore')
 var axios = require('axios');
 const timeZone = "2017-07-17T14:26:36-0700";
 const identifier = 20150910;
-
+var slackID;
 
 // var messageButtons = {
 //           "attachments": [
@@ -56,13 +56,13 @@ let channel;
 var awaitingResponse = false;
 // The client will emit an RTM.AUTHENTICATED event on successful connection, with the `rtm.start` payload
 rtm.on(CLIENT_EVENTS.RTM.AUTHENTICATED, (rtmStartData) => {
-  console.log(`Logged in as ${rtmStartData.self.name} of team ${rtmStartData.team.name}, but not yet connected to a channel`);
+  // console.log(`Logged in as ${rtmStartData.self.name} of team ${rtmStartData.team.name}, but not yet connected to a channel`);
 });
 
 rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
   var dm = rtm.dataStore.getDMByUserId(message.user); //gets the channel ID for the specific conversation between one user and bot
+  slackID = message.user;
   const userId = message.user;
-  //IF THE USER HAS RESPONDED TO THE PREVIOUS INTERACTIVE MESSAGE, set awaitingResponse tp false again
   if(message.subtype && message.subtype === 'message_changed') {
       awaitingResponse = false;
       return;
@@ -72,14 +72,14 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
       return;
   }
 
-  User.findOne({slackID: userId}).exec(function(err, user){
-    if(err){console.log(err)
+  User.findOne({slackID: slackID}).exec(function(err, user){
+
+    if(err){
+        console.log(err)
     } else {
       if(!user){
-        rtm.sendMessage('Please visit the following link to activate your account ' + process.env.DOMAIN + '/oauth?auth_id='+userId, message.channel);
+        rtm.sendMessage('Please visit the following link to activate your account ' + process.env.DOMAIN + '/oauth?auth_id='+slackID, message.channel);
       } else {
-
-
         processMessage(message, rtm);
       }
     }
@@ -112,7 +112,7 @@ function processMessage(message, rtm) {
         }
     })
     .then(function({data}) {
-        console.log('data.result', data.result);
+        // console.log('data.result', data.result);
         if(awaitingResponse) {
             rtm.sendMessage('Please accept or decline the previous reminder', message.channel);
         }
@@ -120,6 +120,18 @@ function processMessage(message, rtm) {
             rtm.sendMessage(data.result.fulfillment.speech, message.channel)
         } else if(Object.keys(data.result.parameters).length !== 0){
             awaitingResponse = true;
+            // User.findOne({slackID: slackID}).exec(function(err, user) {
+            //   if(err) {
+            //     console.log("there was an error finding the user");
+            //   }else {
+            //     // console.log(data.result.parameters.date)
+            //     // user.date = data.result.parameters.date;
+            //     // user.subject = data.result.parameters.subject;
+            //     user.save(function(err) {
+            //       if(err) console.log("There was an error updating the user")
+            //     })
+            //   }
+            // })
             // var reminderDate = Date.parse(data.result.parameters.date.toString());
             web.chat.postMessage(message.channel, `Would you like me to create a reminder for ` , {
                       "attachments": [
