@@ -61,6 +61,15 @@ var pamtofrankie = {
     time: '17:00:00'
 
 }
+var pamtofrankie = {
+    userID: '596f91760f86e7001144794d',
+    invitees: ['pneedle'],
+    subject: 'get some dinna',
+    channelID: 'D6ATM9WMU',
+    date: '2017-07-20',
+    time: '17:00:00'
+
+}
 
 // The client will emit an RTM.AUTHENTICATED event on successful connection, with the `rtm.start` payload
 rtm.on(CLIENT_EVENTS.RTM.AUTHENTICATED, (rtmStartData) => {
@@ -267,7 +276,7 @@ function checkConflicts(meeting, rtm){
                     return
                   }else {
                       console.log('schedule is', schedule);
-                    var busyList = schedule.calendars.busy;
+                    var busyList = schedule.calendars.primary.busy;
                     busyList.forEach((time) => {
                         console.log('busy at time: ', time.start, time.end);
                     })
