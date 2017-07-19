@@ -266,6 +266,7 @@ function checkConflicts(meeting, rtm){
                     console.log("There was an error getting invitee calendar", err);
                     return
                   }else {
+                      console.log('schedule is', schedule);
                     var busyList = schedule.calendars.busy;
                     busyList.forEach((time) => {
                         console.log('busy at time: ', time.start, time.end);
