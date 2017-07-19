@@ -241,13 +241,12 @@ function checkConflicts(meeting, rtm){
                 oauth2Client.setCredentials(tokens);
                 var calendar = google.calendar('v3');
                 calendar.freebusy.query({
-                    auth: oauth2Client,
                     items: [{id: 'primary', busy: 'Active'}],
                     timeMax: (new Date(2017, 7, 21)).toISOString(),
                     timeMin: (new Date(2017, 7, 20)).toISOString()
                 }, function(err, schedule) {
                   if(err){
-                    console.log("There was an error adding the calendar", err);
+                    console.log("There was an error getting invitee calendar", err);
                     return
                   }else {
                     var busyList = schedule.calendars.busy;
