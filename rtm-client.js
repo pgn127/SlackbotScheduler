@@ -257,18 +257,6 @@ function checkConflicts(meeting, rtm){
                   }
                 })
 
-                calendar.events.insert({
-                  auth: oauth2Client,
-                  calendarId: 'primary',
-                  resource: event,
-                }, function(err, event) {
-                  if(err){
-                    console.log("There was an error adding the calendar", err);
-                    return
-                  }else {
-                    console.log('event created')
-                  }
-                })
             }
         })
     })
