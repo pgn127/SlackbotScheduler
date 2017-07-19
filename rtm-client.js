@@ -67,7 +67,7 @@ rtm.on(CLIENT_EVENTS.RTM.AUTHENTICATED, (rtmStartData) => {
   // console.log(`Logged in as ${rtmStartData.self.name} of team ${rtmStartData.team.name}, but not yet connected to a channel`);
 });
 rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
-    checkConflicts(pamtofrankie, rtm);
+
   var dm = rtm.dataStore.getDMByUserId(message.user); //gets the channel ID for the specific conversation between one user and bot
   slackID = message.user;
   const userId = message.user;
@@ -86,6 +86,7 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
       if(!user){
         rtm.sendMessage('Please visit the following link to activate your account ' + process.env.DOMAIN + '/oauth?auth_id='+slackID, message.channel);
       } else {
+          checkConflicts(pamtofrankie, rtm);
         processMessage(message, rtm);
       }
     }
@@ -231,8 +232,21 @@ function checkConflicts(meeting, rtm){
         var inviteeuser = rtm.dataStore.getUserByName(invitee);
         var inviteeSlackID = inviteeuser.id;
         User.findOne({slackID: inviteeSlackID}, function(err, user) {
+            console.log('user is ', user);
             if(user) {
                 var tokens = user.token;
+                console.log('user tokens are ', tokens);
+                // url = oauth2Client.generateAuthUrl({
+                //   access_type: 'offline',
+                //   prompt: 'consent',
+                //   scope: [
+                //     'https://www.googleapis.com/auth/userinfo.profile',
+                //     'https://www.googleapis.com/auth/calendar'
+                //   ],
+                //   state: encodeURIComponent(JSON.stringify({
+                //     auth_id: user.auth_id.auth_id
+                //   }))
+                // });
                 var oauth2Client = new OAuth2(
                   process.env.GOOGLE_CLIENT_ID,
                   process.env.GOOGLE_CLIENT_SECRET,
@@ -241,6 +255,7 @@ function checkConflicts(meeting, rtm){
                 oauth2Client.setCredentials(tokens);
                 var calendar = google.calendar('v3');
                 calendar.freebusy.query({
+                    auth: oauth2Client,
                     items: [{id: 'primary', busy: 'Active'}],
                     timeMax: (new Date(2017, 7, 21)).toISOString(),
                     timeMin: (new Date(2017, 7, 20)).toISOString()
