@@ -154,7 +154,6 @@ app.post('/slack/interactive', function(req,res){
             process.env.GOOGLE_CLIENT_SECRET,
             process.env.DOMAIN + '/connect/callback'
           )
-          console.log(oauth2Client);
           oauth2Client.setCredentials({
             refresh_token: user.token.refresh_token
           });
