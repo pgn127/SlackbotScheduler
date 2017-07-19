@@ -169,7 +169,8 @@ app.post('/interactive', function(req,res){
                     if (err){
                       res.status(400).json({error:err});
                     }else{
-                        createCalendarReminder(reminderDate.toISOString().substring(0, 10), reminderSubject, user.token);
+                      reminderDate = new Date(reminderDate);
+                      createCalendarReminder(reminderDate.toISOString().substring(0, 10), reminderSubject, user.token);
                       res.send('Reminder Confirmed')
                     }
                   })
@@ -187,7 +188,8 @@ app.post('/interactive', function(req,res){
               if (err){
                 res.status(400).json({error:err});
               }else{
-                  createCalendarReminder(reminderDate.toISOString().substring(0, 10), reminderSubject, user.token);
+                reminderDate = new Date(reminderDate);
+                createCalendarReminder(reminderDate.toISOString().substring(0, 10), reminderSubject, user.token);
                 res.send('Reminder Confirmed')
               }
             })
