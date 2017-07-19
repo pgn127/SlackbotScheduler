@@ -75,69 +75,10 @@ app.get('/', function(req, res) {
 app.post('/command', function(req, res) {
   res.send('Your ngrok tunnel is up and running!');
 });
-// app.post('/slack/interactive', function(req,res){
-//   var payload = JSON.parse(req.body.payload);
-//   console.log('payload date', payload.original_message.attachments[0].fields[0]);
-//   //if user clicks confirm button
-//   if(payload.actions[0].value === 'true') {
-//
-//           if(Date.now() > expiry_date) {
-//             oauth2Client.refreshAccessToken(function(err, tokens) {
-//               User.findOne({slackID: slackID}).exec(function(err, user){
-//                 if(err){
-//                   console.log(err)
-//                 } else {
-//                   user.refresh_token = tokens.refresh_token;
-//                   user.access_token = tokens.access_token;
-//                   user.expiry_date = tokens.expiry_date;
-//                   user.auth_id = JSON.parse(decodeURIComponent(req.query.state));
-//                   user.token_type = tokens.token_type;
-//                   console.log("made it to this point in time before crashing")
-//                   user.save()
-//                   .then((user) => {
-//                       var reminderSubject = payload.original_message.attachments[0].fields[0].value;
-//                       var reminderDate = Date.parse(payload.original_message.attachments[0].fields[1].value);
-//                       console.log('reminder date', typeof payload.original_message.attachments[0].fields[1].value, payload.original_message.attachments[0].fields[1].value);
-//
-//                       var newReminder = new Reminder({
-//                           userID: user._id,
-//                           channelID: payload.channel_id,
-//                           subject: reminderSubject,
-//                           date: reminderDate
-//                       })
-//                       newReminder.save();
-//                   })
-//                 }
-//               })
-//             });
-//         } else {
-//             User.findOne({slackID: slackID}).exec(function(err, user){
-//               if(err){
-//                 console.log(err)
-//               } else {
-//                 var reminderSubject = payload.original_message.attachments[0].fields[0].value;
-//                 var reminderDate = Date.parse(payload.original_message.attachments[0].fields[1].value);
-//                 console.log('reminder date', typeof payload.original_message.attachments[0].fields[1].value, payload.original_message.attachments[0].fields[1].value);
-//
-//                 var newReminder = new Reminder({
-//                     userID: user._id,
-//                     channelID: payload.channel_id,
-//                     subject: reminderSubject,
-//                     date: reminderDate
-//                     })
-//                 newReminder.save();
-//
-//               }
-//             })
-//         }
-//           res.send('Reminder Confirmed')
-//
-//   } else{
-//     res.send('Cancelled');
-//   }
-// })
+
 app.post('/slack/interactive', function(req,res){
   var payload = JSON.parse(req.body.payload);
+  // console.log(payload)
   if(payload.actions[0].value === 'true') {
       slackID = payload.user.id;
     User.findOne({slackID: slackID}).exec(function(err, user){
@@ -145,7 +86,6 @@ app.post('/slack/interactive', function(req,res){
         console.log(err);
         res.send('an error occured');
       } else if (user){
-          console.log('user found in interactive route', user);
         var reminderSubject = payload.original_message.attachments[0].fields[0].value;
         var reminderDate = Date.parse(payload.original_message.attachments[0].fields[1].value);
         if(Date.now() > user.token.expiry_date) {
