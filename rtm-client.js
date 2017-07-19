@@ -280,8 +280,8 @@ function checkConflicts(meeting, rtm){
                         var busyUTCend = new Date(time.end);
 
                         // //UTC DATE OBJECTS FOR MEETING START AND end (assume meeting is 1 horu long)
-                        var meetingUTCstart = new Date(dateSplit[0], dateSplit[1], dateSplit[2], timeSplit[0], timeSplit[1], timeSplit[2]);
-                        var meetingUTCend = new Date(dateSplit[0], dateSplit[1], dateSplit[2], (parseInt(timeSplit[0]) +1).toString(), timeSplit[1], timeSplit[2]);
+                        var meetingUTCstart = new Date(dateSplit[0], parseInt(dateSplit[1]) - 1, dateSplit[2], timeSplit[0], timeSplit[1], timeSplit[2]);
+                        var meetingUTCend = new Date(dateSplit[0], parseInt(dateSplit[1]) - 1, dateSplit[2], (parseInt(timeSplit[0]) +1).toString(), timeSplit[1], timeSplit[2]);
 
                         //TEST FOR CONFLICT:
                         //1. meeting starts during the invitee's event
