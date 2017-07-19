@@ -1,162 +1,167 @@
 var mongoose = require('mongoose');
 var models = require('./models');
-var {User} = require('./models');
-var {Reminder} = require('./models');
+var {User, Reminder} = require('./models');
 var slackID;
-
+var _ = require('underscore')
 var axios = require('axios');
 const timeZone = "2017-07-17T14:26:36-0700";
 const identifier = 20150910;
-
-
-var messageButtons = {
-  "attachments": [
-    {
-      "fallback": "You are unable to choose a game",
-      "callback_id": "wopr_game",
-      "color": "#3AA3E3",
-      "attachment_type": "default",
-      "actions": [
-        {
-          "name": "yes",
-          "text": "Yes",
-          "type": "button",
-          "value": "true"
-        },
-        {
-          "name": "no",
-          "text": "No",
-          "type": "button",
-          "value": "false"
-        }
-      ]
-    }
-  ]
-}
-
+var slackID;
+// var messageButtons = {
+//           "attachments": [
+//               {
+//                   "fields": [
+//                       {
+//                           "title": "Subject",
+//                           "value": `${data.result.parameters.subject}`
+//                       },
+//                       {
+//                           "title": "Date",
+//                           "value": `${data.result.parameters.date}`
+//                       }
+//                   ],
+//                   "fallback": "You are unable to choose a game",
+//                   "callback_id": "wopr_game",
+//                   "color": "#3AA3E3",
+//                   "attachment_type": "default",
+//                   "actions": [
+//                       {
+//                           "name": "yes",
+//                           "text": "Yes",
+//                           "type": "button",
+//                           "value": "true"
+//                       },
+//                       {
+//                           "name": "no",
+//                           "text": "No",
+//                           "type": "button",
+//                           "value": "false"
+//                       }
+//                   ]
+//               }
+//           ]
+//       }
 var {RtmClient, WebClient, CLIENT_EVENTS, RTM_EVENTS} = require('@slack/client');
-
+//same as var RtmClient = require('@slack/client').RtmClient
 var token = process.env.SLACK_API_TOKEN || '';
-
-
-console.log(token);
-var notPending = true;
 var rtm = new RtmClient(token);
 var web = new WebClient(token);
-rtm.start();
-
+let channel;
+var awaitingResponse = false;
+// The client will emit an RTM.AUTHENTICATED event on successful connection, with the `rtm.start` payload
+rtm.on(CLIENT_EVENTS.RTM.AUTHENTICATED, (rtmStartData) => {
+  // console.log(`Logged in as ${rtmStartData.self.name} of team ${rtmStartData.team.name}, but not yet connected to a channel`);
+});
 rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
   var dm = rtm.dataStore.getDMByUserId(message.user); //gets the channel ID for the specific conversation between one user and bot
+  slackID = message.user;
   const userId = message.user;
   if(message.subtype && message.subtype === 'message_changed') {
-    awaitingResponse = false;
-    return;
+      awaitingResponse = false;
+      return;
   }
   if( !dm || dm.id !== message.channel || message.type !== 'message') {
-    console.log('Message was not sent to DM. Ignoring.');
-    return;
+      console.log('MESSAGE WAS NOT SENT TOA  DM SO INGORING IT');
+      return;
   }
-  User.findOne({slackID: userId}).exec(function(err, user){
-    if(err){console.log(err)
+  User.findOne({slackID: slackID}).exec(function(err, user){
+    if(err){
+        console.log(err)
     } else {
       if(!user){
-        rtm.sendMessage('Please visit the following link to activate your account ' + process.env.DOMAIN + '/oauth?auth_id='+userId, message.channel);
-        return;
+        rtm.sendMessage('Please visit the following link to activate your account ' + process.env.DOMAIN + '/oauth?auth_id='+slackID, message.channel);
       } else {
         processMessage(message, rtm);
       }
     }
   })
 });
-
 rtm.on(RTM_EVENTS.REACTION_ADDED, function handleRtmReactionAdded(reaction) {
   console.log('Reaction added:', reaction);
 });
-
 rtm.on(RTM_EVENTS.REACTION_REMOVED, function handleRtmReactionRemoved(reaction) {
   console.log('Reaction removed:', reaction);
 });
-
 rtm.start();
-
-
 function processMessage(message, rtm) {
-  axios.get('https://api.api.ai/api/query',{
-    params: {
-      v: 20150910,
-      lang: 'en',
-      timezone: '2017-07-17T16:55:33-0700',
-      query: message.text,
-      sessionId: message.user
-    },
-    headers: {
-      Authorization: `Bearer ${process.env.API_AI_TOKEN}`
-    }
-  })
-  .then(function({data}){
-    if (data.result.actionIncomplete){
-      console.log('first ',data.result);
-      //console.log(data.result);
-      rtm.sendMessage(data.result.fulfillment.speech, message.channel)
-    }else if (!data.result.actionIncomplete && Object.keys(data.result.parameters).length !== 0){
-      //console.log('inside ',data.result);
-      notPending = false;
-      web.chat.postMessage(message.channel,
-        `Please confirm your reminder: `,
-        {
-          "attachments": [
-            {
-              "fallback": "You are unable to choose a game",
-              "callback_id": "wopr_game",
-              "color": "#3AA3E3",
-              "attachment_type": "default",
-              "fields" : [
-                {
-                  "title": "subject",
-                  "value": `${data.result.parameters.subject}`,
-                },
-                {
-                  "title": "date",
-                  "value": `${data.result.parameters.date}`,
-                },
-              ],
-              "actions": [
-                {
-                  "name": "yes",
-                  "text": "Yes",
-                  "type": "button",
-                  "value": "true"
-                },
-                {
-                  "name": "no",
-                  "text": "No",
-                  "type": "button",
-                  "value": "false"
-                }
-              ]
-            }
-          ]
-        })
-      }else{
-        console.log('last ',data.result);
-        rtm.sendMessage(data.result.fulfillment.speech, message.channel)
-      }
+    // console.log('entered process message');
+    axios.get('https://api.api.ai/api/query', {
+        params: {
+            v: identifier,
+            lang: 'en',
+            timezone: timeZone,
+            query: message.text,
+            sessionId: message.user
+        },
+        headers: {
+            Authorization: `Bearer ${process.env.API_ACCESS_TOKEN}`
+        }
+    })
+    .then(function({data}) {
+        // console.log('data.result', data.result);
+        if(awaitingResponse) {
+            rtm.sendMessage('Please accept or decline the previous reminder', message.channel);
+        }
+        else if(data.result.actionIncomplete) {
+            rtm.sendMessage(data.result.fulfillment.speech, message.channel)
+        } else if(Object.keys(data.result.parameters).length !== 0){
+            awaitingResponse = true;
+            // User.findOne({slackID: slackID}).exec(function(err, user) {
+            //   if(err) {
+            //     console.log("there was an error finding the user");
+            //   }else {
+            //     // console.log(data.result.parameters.date)
+            //     // user.date = data.result.parameters.date;
+            //     // user.subject = data.result.parameters.subject;
+            //     user.save(function(err) {
+            //       if(err) console.log("There was an error updating the user")
+            //     })
+            //   }
+            // })
+            // var reminderDate = Date.parse(data.result.parameters.date.toString());
+            web.chat.postMessage(message.channel, `Would you like me to create a reminder for ` , {
+                      "attachments": [
+                          {
+                              "fields": [
+                                  {
+                                      "title": "Subject",
+                                      "value": `${data.result.parameters.subject}`
+                                  },
+                                  {
+                                      "title": "Date",
+                                      "value": `${data.result.parameters.date}`
+                                  }
+                              ],
+                              "fallback": "You are unable to choose a game",
+                              "callback_id": "wopr_game",
+                              "color": "#3AA3E3",
+                              "attachment_type": "default",
+                              "actions": [
+                                  {
+                                      "name": "yes",
+                                      "text": "Yes",
+                                      "type": "button",
+                                      "value": "true"
+                                  },
+                                  {
+                                      "name": "no",
+                                      "text": "No",
+                                      "type": "button",
+                                      "value": "false"
+                                  }
+                              ]
+                          }
+                      ]
+                  });
+        }
+        else {
+            rtm.sendMessage(data.result.fulfillment.speech, message.channel)
+        }
     })
     .catch(function(err){
-      console.log('error');
+        console.log('error in procesmessage', err);
     })
-  }
-
-  function findReminders(){
-    var now = Date.now();
-    var tomorrow = new Date(new Date().getTime() + 24 * 60 * 60 * 1000).getTime();
-    Reminder.find({}).where('date').gt(now).lt(tomorrow).populate('userID').exec(function(err,reminders){
-      if (err){
-        // res.status(400).json({error:err});
-        return [];
-      }else {
-        console.log(reminders);
-        return reminders;
-      }
-    })
-  }
+  // rtm.sendMessage(messageText, message.channel, function() {
+  //   // getAndSendCurrentWeather(locationName, query, message.channel, rtm);
+  // });
+}
