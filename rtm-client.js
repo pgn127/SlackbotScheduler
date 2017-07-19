@@ -65,7 +65,7 @@ var pamtofrankie = {
     userID: '596f91760f86e7001144794d',
     invitees: ['pneedle'],
     subject: 'get some dinna',
-    channelID: 'D6ASP325U',
+    channelID: 'D6A33DH52',//'D6ASP325U',
     date: '2017-07-20', //equivalent to 07/20/2017
     time: '16:00:00'
 }
