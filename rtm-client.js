@@ -66,7 +66,7 @@ var pamtofrankie = {
     invitees: ['pneedle'],
     subject: 'get some dinna',
     channelID: 'D6ATM9WMU',
-    date: '2017-07-20',
+    date: '2017-06-21', //equivalent to 07/19/2017
     time: '17:00:00'
 
 }
