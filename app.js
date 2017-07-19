@@ -148,7 +148,8 @@ app.post('/slack/interactive', function(req,res){
                     res.status(400).json({error:err});
                   }else{
                     meetingDate = new Date(meetingDate);
-                    createCalendarReminder(meetingDate.toISOString().substring(0, 10), meetingSubject, user.token);
+                    let dateTime = meetingDate.toISOString().substring(0, 11) + meetingTime + "-07:00"
+                    createCalendarReminder(dateTime, meetingSubject, user.token);
                     res.send('Reminder Confirmed')
                   }
                 })
@@ -190,16 +191,17 @@ app.post('/slack/interactive', function(req,res){
                 res.status(400).json({error:err});
               }else{
                 meetingDate = new Date(meetingDate);
-                createCalendarReminder(meetingDate.toISOString().substring(0, 10), meetingSubject, user.token , meetingInvitees);
-                var meeting = {
-                  userID: , //mongodb user model _id
-                  invitees: ['pneedle'], // list of slack usernames invited
-                  subject: 'get some dinna',
-                  channelID: 'D6ATM9WMU', //TODO: not sure where to get this from yet
-                  date: '2017-07-20',
-                  time: '17:00:00'
-                }
-                checkConflicts(meeting, rtm);
+                let dateTime = meetingDate.toISOString().substring(0, 11) + meetingTime + "-07:00"
+                createCalendarReminder(dateTime, meetingSubject, user.token , meetingInvitees);
+                // var meeting = {
+                //   userID: test, //mongodb user model _id
+                //   invitees: ['pneedle'], // list of slack usernames invited
+                //   subject: 'get some dinna',
+                //   channelID: 'D6ATM9WMU', //TODO: not sure where to get this from yet
+                //   date: '2017-07-20',
+                //   time: '17:00:00'
+                // }
+                // checkConflicts(meeting, rtm);
                 res.send('Reminder Confirmed')
               }
             })
@@ -232,7 +234,9 @@ function createCalendarReminder(date, subject, tokens, invitees){
       'end': {
         'dateTime': date
       },
-      'attendees': invitees
+      'attendees': [
+    {'email': 'ryan.clyde15@gmail.com'},
+  ],
     };
   }
 
