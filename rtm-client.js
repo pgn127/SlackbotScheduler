@@ -253,10 +253,12 @@ function checkConflicts(meeting, rtm){
                 var calendar = google.calendar('v3');
                 //AT THIS POINT YOU ARE AUTHENTICATED TO SEE THE INVITEE GOOGLE calendar
 
-                //get all busy time slots IGNORE BELOW HERE BC ITS NONSENSE
+
                 var timemin = new Date(dateSplit[0], dateSplit[1], dateSplit[2], timeSplit[0], timeSplit[1], timeSplit[2]);
                 var timemax = new Date(dateSplit[0], dateSplit[1], (parseInt(dateSplit[2]) + 2).toString(), timeSplit[0], timeSplit[1], timeSplit[2]);
+
                 console.log('timemin and max', timemin.toUTCString(),timemax.toUTCString());
+                console.log('');
                 calendar.freebusy.query({
                     auth: oauth2Client,
                     headers: { "content-type" : "application/json" },
@@ -272,26 +274,29 @@ function checkConflicts(meeting, rtm){
                   }else {
                     //   console.log('schedule is', schedule);
                     var busyList = schedule.calendars.primary.busy;
-                    console.log('busy list', busyList);
+                    // console.log('busy list', busyList);
                     busyList.forEach((time) => {
-                        // console.log('busy at time: ', time);
+                        //TIME WILL BE IN UTC
                         var newtimestart = new Date(time.start).toUTCString();
                         var newtimeend = new Date(time.end).toUTCString();
                         //
                         // //UTC DATE OBJECT FOR BUSY TIME
-                        // var busyUTCstart = new Date(newtimestart);
-                        // var busyUTCend = new Date(newtimeend);
+                        var busyUTCstart = new Date(newtimestart);
+                        var busyUTCend = new Date(newtimeend);
                         //
                         // //UTC DATE OBJECTS FOR MEETING START AND end
+                        var meetingUTCstart = new Date(dateSplit[0], dateSplit[1], dateSplit[2], timeSplit[0], timeSplit[1], timeSplit[2]);
+                        var meetingUTCend = new Date(dateSplit[0], dateSplit[1], dateSplit[2]) + 2, (parseInt(timeSplit[0]) +1).toString(), timeSplit[1], timeSplit[2]);
                         // var meetingUTCstart = new Date(new Date(dateSplit[0], dateSplit[1], dateSplit[2], timeSplit[0], timeSplit[1], timeSplit[2]).toUTCString());
                         // var meetingUTCend = new Date(new Date(dateSplit[0], dateSplit[1], dateSplit[2], timeSplit[0] + 1, timeSplit[1], timeSplit[2]).toUTCString());
 
 
-                        console.log('utc version', newtimestart, newtimeend);
-                        // if(meetingStart >= time.start && meetingStart <= time.end || meetingEnd >= time.start && meetingEnd <= time.end){
-                        //     //the person is busy at that meeting time
-                        //     console.log('USER IS BUSY DURING THAT MEETING TIME');
-                        // }
+                        // console.log('utc version', newtimestart, newtimeend);
+                        console.log('OVERALP? comparing busy start and end time', busyUTCstart, busyUTCend, 'and meeting start and end times', meetingUTCstart, meetingUTCend);
+                        if(meetingUTCstart >= busyUTCstart && meetingUTCstart <= busyUTCend || meetingUTCend >= busyUTCstart && meetingUTCend <= busyUTCend){
+                            //the person is busy at that meeting time
+                            console.log('USER IS BUSY DURING THAT MEETING TIME');
+                        }
                     })
                   }
                 })
