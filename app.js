@@ -185,7 +185,7 @@ app.post('/slack/interactive', function(req,res){
                 res.status(400).json({error:err});
               }else{
                 meetingDate = new Date(meetingDate);
-                createCalendarReminder(meetingDate.toISOString().substring(0, 10), meetingSubject, user.token, meetingTime, meetingInvitees);
+                createCalendarReminder(meetingDate.toISOString().substring(0, 10), meetingSubject, user.token , meetingInvitees);
                 res.send('Reminder Confirmed')
               }
             })
@@ -198,8 +198,8 @@ app.post('/slack/interactive', function(req,res){
   }
 })
 app.listen(process.env.PORT || 3000);
-function createCalendarReminder(date, subject, tokens, time, invitees){
-  if(!time){
+function createCalendarReminder(date, subject, tokens, invitees){
+  if(!invitees){
     var event = {
       'summary': subject,
       'start': {
@@ -213,11 +213,12 @@ function createCalendarReminder(date, subject, tokens, time, invitees){
     var event = {
       'summary': subject,
       'start': {
-        'date': date,
+        'dateTime': date
       },
       'end': {
-        'date': date
-      }
+        'dateTime': date
+      },
+      'attendees': invitees
     };
   }
 
