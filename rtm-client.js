@@ -52,24 +52,24 @@ let channel;
 var awaitingResponse = false;
 
 
-var pamtofrankie = {
-    userID: '596f927c2945b10011ad86b0',
-    invitees: ['fflores'],
-    subject: 'get some dinna',
-    channelID: 'D6ATM9WMU',
-    date: '2017-07-20',
-    time: '17:00:00'
-
-}
 // var pamtofrankie = {
-//     userID: '596f91760f86e7001144794d',
-//     invitees: ['pneedle'],
+//     userID: '596f927c2945b10011ad86b0',
+//     invitees: ['fflores'],
 //     subject: 'get some dinna',
 //     channelID: 'D6ATM9WMU',
 //     date: '2017-07-20',
 //     time: '17:00:00'
 //
 // }
+var pamtofrankie = {
+    userID: '596f91760f86e7001144794d',
+    invitees: ['pneedle'],
+    subject: 'get some dinna',
+    channelID: 'D6ATM9WMU',
+    date: '2017-07-20',
+    time: '17:00:00'
+
+}
 
 // The client will emit an RTM.AUTHENTICATED event on successful connection, with the `rtm.start` payload
 rtm.on(CLIENT_EVENTS.RTM.AUTHENTICATED, (rtmStartData) => {
@@ -256,8 +256,8 @@ function checkConflicts(meeting, rtm){
                     headers: { "content-type" : "application/json" },
                     resource:{items: [{id: 'primary', busy: 'Active'}],
                     timeZone: "America/Los_Angeles",
-                     timeMin: (new Date(2017, 06, 20)).toISOString(),
-                     timeMax: (new Date(2017, 06, 21)).toISOString()
+                     timeMin: (new Date(2017, 06, 21)).toISOString(),
+                     timeMax: (new Date(2017, 06, 22)).toISOString()
                    }
                 }, function(err, schedule) {
                   if(err){
@@ -267,7 +267,7 @@ function checkConflicts(meeting, rtm){
                     //   console.log('schedule is', schedule);
                     var busyList = schedule.calendars.primary.busy;
                     busyList.forEach((time) => {
-                        console.log('busy at time: ', time, time.start, time.end);
+                        console.log('busy at time: ', time);
                     })
                   }
                 })
