@@ -247,7 +247,7 @@ function checkConflicts(meeting, rtm){
                 //     auth_id: user.auth_id.auth_id
                 //   }))
                 // });
-                var oauth2Client = new OAuth2(
+                oauth2Client = new OAuth2(
                   process.env.GOOGLE_CLIENT_ID,
                   process.env.GOOGLE_CLIENT_SECRET,
                   process.env.DOMAIN + '/connect/callback'
