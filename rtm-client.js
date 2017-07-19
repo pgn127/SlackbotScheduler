@@ -259,8 +259,8 @@ function checkConflicts(meeting, rtm){
                     headers: { "content-type" : "application/json" },
                     resource:{items: [{id: 'primary', busy: 'Active'}],
                     // timeZone: "America/Los_Angeles",
-                     timeMin: new Date(dateSplit[0], dateSplit[1], dateSplit[2], timeSplit[0], timeSplit[1], timeSplit[2]).toISOString(),//(new Date(2017, 06, 20)).toISOString(),
-                     timeMax: new Date(dateSplit[0], dateSplit[1], dateSplit[2] + 1, timeSplit[0], timeSplit[1], timeSplit[2]).toISOString(),//(new Date(2017, 06, 21)).toISOString()
+                     timeMin: (new Date(dateSplit[0], dateSplit[1], dateSplit[2], timeSplit[0], timeSplit[1], timeSplit[2])).toISOString(),//(new Date(2017, 06, 20)).toISOString(),
+                     timeMax: (new Date(dateSplit[0], dateSplit[1], dateSplit[2] + 1, timeSplit[0], timeSplit[1], timeSplit[2])).toISOString(),//(new Date(2017, 06, 21)).toISOString()
                    }
                 }, function(err, schedule) {
                   if(err){
