@@ -185,7 +185,8 @@ app.post('/slack/interactive', function(req,res){
                 res.status(400).json({error:err});
               }else{
                 meetingDate = new Date(meetingDate);
-                createCalendarReminder(meetingDate.toISOString().substring(0, 10), meetingSubject, user.token , meetingInvitees);
+                var dateTime = meetingDate.toISOString().substring(0, 11) + meetingTime + "-07:00"
+                createCalendarReminder(dateTime, meetingSubject, user.token , meetingInvitees);
                 res.send('Reminder Confirmed')
               }
             })
