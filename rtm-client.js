@@ -308,7 +308,7 @@ function checkConflicts(meeting, rtm){
                             console.log('FREE: No overlap between meeting at \n',meetingUTCstart.toUTCString(), ' - ', meetingUTCend.toUTCString(), '\n and the users event at \n', busyUTCstart.toUTCString(), ' - ', busyUTCend.toUTCString(), '\n');
 
                             // var str = `FREE: ${invitee} has no overlap with meeting from \n ${meetingUTCstart.toLocaleDateString()}-${meetingUTCend.toLocaleDateString()} \n and the users event from \n ${busyUTCstart.toLocaleDateString()}-${busyUTCend.toLocaleDateString()}.`
-
+                            console.log('time start string versus time start date obj', time.start, new Date(time.start));
                             rtm.sendMessage(`FREE: ${invitee} has no overlap with meeting on day ${meetingUTCstart.toLocaleDateString()} from \n ${startTime.slice(11,19)}-${endTime.slice(11,19)} \n and ${invitee}s event on day ${busyUTCstart.toLocaleDateString()} from \n ${time.start.slice(11,time.start.length)}-${time.end.slice(11,time.end.length)}.\n\n`,'D6ATM9WMU');
 
                             // rtm.sendMessage(`FREE: ${invitee} has no overlap with meeting on day ${meetingUTCstart.toLocaleDateString()} from \n ${meetingUTCstart.toLocaleTimeString(timezone)}-${meetingUTCend.toLocaleTimeString(timezone)} \n and the ${invitee}s event on day ${busyUTCstart.toLocaleDateString()} from \n ${busyUTCstart.toLocaleTimeString(timezone)}-${busyUTCend.toLocaleTimeString(timezone)} \n\n`, meeting.channelID);
