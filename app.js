@@ -65,7 +65,7 @@ app.get('/connect/callback', function(req, res) {
       //set credentials. not entirely sure what this does but necessary for google plus
       //when a person gives access to their google calendar, we also make a request to google plus
       //with their oauth2client in order to get their email address which is then saved in the user object
-      //in mongodb. 
+      //in mongodb.
       oauth2Client.setCredentials(tokens);
       console.log("this is tokens", tokens);
       var plus = google.plus('v1');
@@ -181,7 +181,9 @@ app.post('/slack/interactive', function(req,res){
                       date: dateTime,
                       time: meetingTime
                     }
-                    checkConflicts(meeting, rtm);
+                    if(checkConflicts(meeting, rtm)){
+                      findAndReturnEmails(meeting.invitees, meeting.date,  meeting.subject, tokens, meeting.time);
+                    };
                     res.send('Meeting Confirmed')
                   }
                 })
@@ -222,7 +224,6 @@ app.post('/slack/interactive', function(req,res){
                 res.status(400).json({error:err});
               }else{
                 meetingDate = new Date(meetingDate);
-<<<<<<< HEAD
                 let dateTime = meetingDate.toISOString().substring(0, 10);
                 // createCalendarReminder(dateTime, meetingSubject, user.token , meetingInvitees);
                 var meeting = {
@@ -234,16 +235,9 @@ app.post('/slack/interactive', function(req,res){
                   time: meetingTime
                 }
                 if(checkConflicts(meeting, rtm)){
-                  //there was no conflict
-                  // TODO: meeting.invitees needs to be the array of emails
-                  createCalendarReminder(meeting.date, meeting.subject, tokens, meeting.invitees, meeting.time);
+                  findAndReturnEmails(meeting.invitees, meeting.date,  meeting.subject, tokens, meeting.time);
                 };
                 res.send('Meeting Confirmed')
-=======
-                var dateTime = meetingDate.toISOString().substring(0, 11) + meetingTime + "-07:00"
-                createCalendarReminder(dateTime, meetingSubject, user.token , meetingInvitees);
-                res.send('Reminder Confirmed')
->>>>>>> googleplus
               }
             })
           }
@@ -382,4 +376,27 @@ function checkConflicts(meeting, rtm){
   })
 })
 return inviteesAllAvailable;
+}
+
+function findAndReturnEmails (users, date, subject, tokens, time) {
+
+  var slackIdArray = [];
+
+  users.forEach((username) => {
+    let userObj = rtm.dataStore.getUserByName(username);
+    slackIdArray.push(userObj.id);
+  })
+
+  var emailArray = [];
+  emailArray.length = slackIdArray.length;
+
+  slackIdArray.forEach((slackId) => {
+    User.findOne({slackID: slackId}).exec(function(err, user){
+      emailArray.push(user.email)
+    })
+  })
+  Promise.all(emailArray).then(() => {
+    createCalendarReminder(meeting.date, meeting.subject, tokens, emailArray, meeting.time);
+  })
+
 }
