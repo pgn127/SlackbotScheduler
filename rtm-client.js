@@ -256,9 +256,11 @@ function checkConflicts(meeting, rtm){
                 var calendar = google.calendar('v3');
                 calendar.freebusy.query({
                     auth: oauth2Client,
-                    items: [{id: 'primary', busy: 'Active'}],
-                    timeMax: new Date(2017, 7, 21),//.toISOString(),
-                    timeMin: new Date(2017, 7, 20)//(new Date(2017, 7, 20)).toISOString()
+                    headers: { "content-type" : "application/json" },
+                    resource:{items: [{id: 'primary', busy: 'Active'}],
+                     timeMin: (new Date(2017, 7, 20)).toISOString(),
+                     timeMax: (new Date(2017, 7, 21)).toISOString()
+                   }
                 }, function(err, schedule) {
                   if(err){
                     console.log("There was an error getting invitee calendar", err);
