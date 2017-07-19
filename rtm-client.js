@@ -281,14 +281,14 @@ function checkConflicts(meeting, rtm){
                         var newtimeend = new Date(time.end).toUTCString();
                         //
                         // //UTC DATE OBJECT FOR BUSY TIME
-                        var busyUTCstart = new Date(newtimestart);
-                        var busyUTCend = new Date(newtimeend);
+                        // var busyUTCstart = new Date(newtimestart);
+                        // var busyUTCend = new Date(newtimeend);
+                        var busyUTCstart = new Date(time.start);
+                        var busyUTCend = new Date(time.end);
                         //
                         // //UTC DATE OBJECTS FOR MEETING START AND end
                         var meetingUTCstart = new Date(dateSplit[0], dateSplit[1], dateSplit[2], timeSplit[0], timeSplit[1], timeSplit[2]);
                         var meetingUTCend = new Date(dateSplit[0], dateSplit[1], dateSplit[2], (parseInt(timeSplit[0]) +1).toString(), timeSplit[1], timeSplit[2]);
-                        // var meetingUTCstart = new Date(new Date(dateSplit[0], dateSplit[1], dateSplit[2], timeSplit[0], timeSplit[1], timeSplit[2]).toUTCString());
-                        // var meetingUTCend = new Date(new Date(dateSplit[0], dateSplit[1], dateSplit[2], timeSplit[0] + 1, timeSplit[1], timeSplit[2]).toUTCString());
 
 
                         // console.log('utc version', newtimestart, newtimeend);
