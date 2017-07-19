@@ -286,13 +286,14 @@ function checkConflicts(meeting, rtm){
                         //
                         // //UTC DATE OBJECTS FOR MEETING START AND end
                         var meetingUTCstart = new Date(dateSplit[0], dateSplit[1], dateSplit[2], timeSplit[0], timeSplit[1], timeSplit[2]);
-                        var meetingUTCend = new Date(dateSplit[0], dateSplit[1], dateSplit[2]) + 2, (parseInt(timeSplit[0]) +1).toString(), timeSplit[1], timeSplit[2]);
+                        var meetingUTCend = new Date(dateSplit[0], dateSplit[1], dateSplit[2], (parseInt(timeSplit[0]) +1).toString(), timeSplit[1], timeSplit[2]);
                         // var meetingUTCstart = new Date(new Date(dateSplit[0], dateSplit[1], dateSplit[2], timeSplit[0], timeSplit[1], timeSplit[2]).toUTCString());
                         // var meetingUTCend = new Date(new Date(dateSplit[0], dateSplit[1], dateSplit[2], timeSplit[0] + 1, timeSplit[1], timeSplit[2]).toUTCString());
 
 
                         // console.log('utc version', newtimestart, newtimeend);
                         console.log('OVERALP? comparing busy start and end time', busyUTCstart, busyUTCend, 'and meeting start and end times', meetingUTCstart, meetingUTCend);
+
                         if(meetingUTCstart >= busyUTCstart && meetingUTCstart <= busyUTCend || meetingUTCend >= busyUTCstart && meetingUTCend <= busyUTCend){
                             //the person is busy at that meeting time
                             console.log('USER IS BUSY DURING THAT MEETING TIME');
