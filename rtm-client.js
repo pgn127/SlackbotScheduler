@@ -293,7 +293,7 @@ function checkConflicts(meeting, rtm){
 
                             // var str = `FREE: ${invitee} has no overlap with meeting from \n ${meetingUTCstart.toLocaleDateString()}-${meetingUTCend.toLocaleDateString()} \n and the users event from \n ${busyUTCstart.toLocaleDateString()}-${busyUTCend.toLocaleDateString()}.`
 
-                            rtm.sendMessage(`FREE: ${invitee} has no overlap with meeting from \n ${meetingUTCstart.toTimeString()}-${meetingUTCend.toTimeString()} \n and the users event from \n ${busyUTCstart.toLocaleTimeString()}-${busyUTCend.toLocaleTimeString()}.`,'D6ATM9WMU');
+                            rtm.sendMessage(`FREE: ${invitee} has no overlap with meeting on ${meetingUTCstart.toLocaleDateString()} from \n ${meetingUTCstart.toTimeString()}-${meetingUTCend.toTimeString()} \n and the users event on day ${busyUTCstart.toLocaleDateString()} from \n ${busyUTCstart.toLocaleTimeString()}-${busyUTCend.toLocaleTimeString()}.`,'D6ATM9WMU');
 
                             rtm.sendMessage(`FREE: ${invitee} has no overlap with meeting from \n ${meetingUTCstart.toLocaleString()}-${meetingUTCend.toLocaleString()} \n and the users event from \n ${busyUTCstart.toLocaleString()}-${busyUTCend.toLocaleString()}.`, meeting.channelID);
 
