@@ -232,16 +232,17 @@ function checkConflicts(meeting, rtm){
     // var meetingStart = meeting.date+'T'+meeting.time+'-00:00';
     var dateSplit = meeting.date.split('-');
     var timeSplit = meeting.time.split(':');
-    // console.log(dateSplit, timeSplit);
     var meetingStart = new Date(dateSplit[0], dateSplit[1], dateSplit[2], timeSplit[0], timeSplit[1], timeSplit[2]).toISOString();
     var meetingEnd = new Date(dateSplit[0], dateSplit[1], dateSplit[2], timeSplit[0] + 1, timeSplit[1], timeSplit[2]).toISOString();
 
     meeting.invitees.forEach( function(invitee) {
-        var inviteeuser = rtm.dataStore.getUserByName(invitee);
-        var inviteeSlackID = inviteeuser.id;
+        var inviteeuser = rtm.dataStore.getUserByName(invitee); //given the invitee slack name, find their slack user object
+        var inviteeSlackID = inviteeuser.id; //get slack id from slack user
+
+        //find a user in our DB with that slack username
         User.findOne({slackID: inviteeSlackID}, function(err, user) {
-            // console.log('user is ', user);
             if(user) {
+                //save user tokens
                 var tokens = user.token;
                 oauth2Client = new OAuth2(
                   process.env.GOOGLE_CLIENT_ID,
@@ -250,13 +251,16 @@ function checkConflicts(meeting, rtm){
                 )
                 oauth2Client.setCredentials(tokens);
                 var calendar = google.calendar('v3');
+                //AT THIS POINT YOU ARE AUTHENTICATED TO SEE THE INVITEE GOOGLE calendar
+
+                //get all busy time slots IGNORE BELOW HERE BC ITS NONSENSE
                 calendar.freebusy.query({
                     auth: oauth2Client,
                     headers: { "content-type" : "application/json" },
                     resource:{items: [{id: 'primary', busy: 'Active'}],
                     // timeZone: "America/Los_Angeles",
-                     timeMin: (new Date(2017, 06, 20)).toISOString(),
-                     timeMax: (new Date(2017, 06, 21)).toISOString()
+                     timeMin: new Date(dateSplit[0], dateSplit[1], dateSplit[2], timeSplit[0], timeSplit[1], timeSplit[2]).toISOString(),//(new Date(2017, 06, 20)).toISOString(),
+                     timeMax: new Date(dateSplit[0], dateSplit[1], dateSplit[2] + 1, timeSplit[0], timeSplit[1], timeSplit[2]).toISOString(),//(new Date(2017, 06, 21)).toISOString()
                    }
                 }, function(err, schedule) {
                   if(err){
@@ -269,7 +273,21 @@ function checkConflicts(meeting, rtm){
                         // console.log('busy at time: ', time);
                         var newtimestart = new Date(time.start).toUTCString();
                         var newtimeend = new Date(time.end).toUTCString();
+                        //
+                        // //UTC DATE OBJECT FOR BUSY TIME
+                        // var busyUTCstart = new Date(newtimestart);
+                        // var busyUTCend = new Date(newtimeend);
+                        //
+                        // //UTC DATE OBJECTS FOR MEETING START AND end
+                        // var meetingUTCstart = new Date(new Date(dateSplit[0], dateSplit[1], dateSplit[2], timeSplit[0], timeSplit[1], timeSplit[2]).toUTCString());
+                        // var meetingUTCend = new Date(new Date(dateSplit[0], dateSplit[1], dateSplit[2], timeSplit[0] + 1, timeSplit[1], timeSplit[2]).toUTCString());
+
+
                         console.log('utc version', newtimestart, newtimeend);
+                        // if(meetingStart >= time.start && meetingStart <= time.end || meetingEnd >= time.start && meetingEnd <= time.end){
+                        //     //the person is busy at that meeting time
+                        //     console.log('USER IS BUSY DURING THAT MEETING TIME');
+                        // }
                     })
                   }
                 })
