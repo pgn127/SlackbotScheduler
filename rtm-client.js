@@ -295,22 +295,26 @@ function checkConflicts(meeting, rtm){
                         timeMax: sevenBusinessDays.toISOString() //first # controls # of days to check for conflicting events
                     }
                 }
-                , function(err, schedule) {
-                    // console.log(typeof schedule);
-                    if(schedule){
-                        console.log('returning schedule to next then');
-                        // return schedule
-                    } else {
-                        console.log('INSIDE ELSE');
-                        // console.log("There was an error getting invitee calendar", err);
-                        throw new Error('couldnt find scheduke for user');
-
-                    }
-                }
+                // , function(err, schedule) {
+                //     // console.log(typeof schedule);
+                //     if(schedule){
+                //         console.log('returning schedule to next then');
+                //         // return schedule
+                //     } else {
+                //         console.log('INSIDE ELSE');
+                //         // console.log("There was an error getting invitee calendar", err);
+                //         throw new Error('couldnt find scheduke for user');
+                //
+                //     }
+                // }
             )
             } else {
                 throw new Error('couldnt find user');
             }
+        })
+        .then((calendarRequest) => {
+            console.log('calendar request');
+            return calendarRequest.execute()
         })
         .then((schedule) => {
             console.log('scheudle was retunred', schedule);
