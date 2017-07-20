@@ -184,7 +184,14 @@ app.post('/slack/interactive', function(req,res){
                                 .then((freeTimeList)=>{
                                     console.log(freeTimeList);
                                     if(freeTimeList && freeTimeList.length === 0){
-                                        findAndReturnEmails(meeting.invitees, meeting.date,  meeting.subject, user.token, meeting.time);
+
+                                        //M5 branch work
+                                        console.log("calling sendInvitations");
+                                        console.log("this is meeting", meeting);
+                                        // console.log("this is user (tokens too)", user);
+                                        sendInvitations(meeting, user);
+                                        //commment findandreturn out to call sendInvitations instead first
+                                        // findAndReturnEmails(meeting.invitees, meeting.date,  meeting.subject, user.token, meeting.time);
                                         res.send('No conflicts with that time. Meeting confirmed');
                                     } else {
                                         console.log('THERE WERE CONFLICTS, SHOULD NOT CONFIRM MEETING');
@@ -481,42 +488,90 @@ function findFreeTimes(busyArray, meetingStartDate, sevenBusinessDays){
 }
 
 function sendInvitations(meeting, user){
-
-  //// old and redundant code
-  //// get the invitor's userObj from dataStore
-  //// var sender = rtm.dataStore.getUserById(meeting.userID)
-  //// find the user by his slackId in the mongodb
-  //// User.findOne({slackID: }).exec()
-  //// .then((user) => user.pendingInvites = meeting.invitees)
+  // console.log("entering sendinvitations");
 
   // 1. add invitees to invitor's pending invites array
   //user that created event and is sending invitations's object gets passed into this function
   user.pendingInvites = meeting.invitees;
-  console.log("this is updated pendingInvites", user.pendingInvites);
   user.save()
-  .then( () => res.status(200).send("pendingInvites array updated"))
   .catch((err) => {
     console.log('error in saving pendinginvites array to mlabs');
-    res.status(400).json({error:err});
   })
 
 // 2.  get UserId and DM ID from the slack usernames in meeting.invitees =>
-//     check link pam sent in general
-  let tempArr = [];
-  user.pendingInvites.forEach((invitee) => {
-    let xyz = rtm.dataStore.UserByName(invitee)
-    console.log("this is UserByName", xyz)
-  })
+  let slackDmArray = [];
+  let slackUserArray = [];
 
+  try {
+    // console.log(" entering trycatch");
+    user.pendingInvites.forEach((invitee) => {
+      let usr = rtm.dataStore.getUserByName(invitee)
+      slackUserArray.push(usr)
+      let dm = rtm.dataStore.getDMByUserId(usr.id)
+      slackDmArray.push(dm.id)
+    })
+  }
+  catch(err) {
+    console.log("try catch error in sendInvitations: ", err);
+  }
+  // console.log("this is slackUserArray", slackUserArray);
 
+  // 3. for each invitee send web.chat.postmessage invitation message
+  for(var i = 0; i < slackDmArray.length; i++){
+    // console.log("entering forloop");
+    var tempName = slackUserArray[i].name;
+    console.log("this is tempName", tempName)
+    web.chat.postMessage(slackDmArray[i], "Will you attend the following meeting?", {
+      "attachments": [
+        {
+          "fields": [
+            {
+              "title": "Host",
+              "value": `${tempName}`
+            },
+            {
+              "title": "Subject",
+              "value": `${meeting.subject}`
+            },
+            {
+              "title": "Date",
+              "value": `${meeting.date}`
+            },
+            {
+              "title": "Time",
+              "value": `${meeting.time}`
+            },
+            {
+              "title": "Invitees",
+              "value": `${meeting.invitees}`
+            }
+          ],
+          // "fallback": "You are unable to choose a game",
+          "callback_id": "inviteResponse",
+          "color": "#3AA3E3",
+          "attachment_type": "default",
+          "actions": [
+            {
+              "name": "yes",
+              "text": "Confirm",
+              "type": "button",
+              "value": "true"
+            },
+            {
+              "name": "no",
+              "text": "Cancel",
+              "type": "button",
+              "value": "false"
+            }
+          ]
+        }
+      ]
+    });
+  }
 
-    // var abc = rtm.dataStore.getDMByUserId()
-    // tempArr.push(abc);
-
-// 3. for each invitee send web.chat.postmessage invitation message
-
-// findAndReturnEmails(meeting.invitees, meeting.date,  meeting.subject, tokens, meeting.time);
-
+ // 4. call findandreturn emails i guess
+  console.log("calling findAndReturnEmails");
+  findAndReturnEmails(meeting.invitees, meeting.date,  meeting.subject, user.token, meeting.time);
 }
 
 //4,5,6 for other function...
