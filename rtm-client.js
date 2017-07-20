@@ -17,14 +17,6 @@ var web = new WebClient(token);
 let channel;
 var awaitingResponse = false;
 mongoose.Promise = global.Promise;
-var pamtofrankie = {
-    userID: '596f91760f86e7001144794d',
-    invitees: ['pneedle'],
-    subject: 'get some dinna',
-    channelID: 'D6A33DH52',//'D6ASP325U',
-    date: '2017-07-20', //equivalent to 07/20/2017
-    time: '16:00:00'
-}
 
 rtm.on(CLIENT_EVENTS.RTM.AUTHENTICATED, (rtmStartData) => {
   // console.log(`Logged in as ${rtmStartData.self.name} of team ${rtmStartData.team.name}, but not yet connected to a channel`);
@@ -49,7 +41,6 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
       if(!user){
         rtm.sendMessage('Please visit the following link to activate your account ' + process.env.DOMAIN + '/oauth?auth_id='+slackID, message.channel);
       } else {
-        //   checkConflicts(pamtofrankie, rtm);
           processMessage(message, rtm);
       }
     }
