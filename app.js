@@ -117,9 +117,11 @@ app.post('/slack/interactive', function(req,res){
               //it was a meeting
               var meetingSubject = payload.original_message.attachments[0].fields[0].value;
               var meetingDate = Date.parse(payload.original_message.attachments[0].fields[1].value);
+            //   meetingDate = new Date(meetingDate);
+            //   let dateTime = meetingDate.toISOString().substring(0, 10);
               var meetingTime = payload.original_message.attachments[0].fields[2].value;
               var meetingInvitees = payload.original_message.attachments[0].fields[3].value.split(", ");
-              console.log('meetingDate', meetingDate, 'meetingTime', meetingTime);
+              console.log('meetingDate', meetingDate, 'meetingTime', meetingTime, payload.original_message.attachments[0].fields[1].value);
             //   console.log('meeting invites', meetingInvitees);
           }
             oauth2Client = new OAuth2(
