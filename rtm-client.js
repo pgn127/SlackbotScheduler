@@ -286,7 +286,7 @@ function checkConflicts(meeting, rtm){
                     n++;
                 }
                 sevenBusinessDays = new Date(Date.parse(meetingEnd) + n*24*60*60*1000)
-                var request =  calendar.freebusy.query({
+                calendar.freebusy.query({
                     auth: oauth2Client,
                     headers: { "content-type" : "application/json" },
                     resource:{
@@ -294,8 +294,9 @@ function checkConflicts(meeting, rtm){
                         timeMin: meetingDate.toISOString(),
                         timeMax: sevenBusinessDays.toISOString() //first # controls # of days to check for conflicting events
                     }
+                }, function(schedule) {
+                    return schedule
                 })
-                return Promise.resolve(request);
             } else {
                 // continue; //WILL THIS CONTINEU THE FOR EACHc
 
