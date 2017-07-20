@@ -181,12 +181,18 @@ function processMessage(message, rtm) {
             }
             console.log(newUser)
             let userObj = rtm.dataStore.getUserById(newUser)
-            if(!i){
-              inviteArr.push(userObj.name)
-            }else{
-              inviteArr.push(" " + userObj.name)
+            if(userObj){
+                if(!i){
+                  inviteArr.push(userObj.name)
+                }else{
+                  inviteArr.push(" " + userObj.name)
+                }
+                i++;
+            } else {
+                console.log('no user found with name ', newUser);
             }
-            i++;
+
+
           }
         })
 
