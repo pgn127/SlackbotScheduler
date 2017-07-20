@@ -538,5 +538,6 @@ function findFreeTimes(busyArray, meetingStartDate, sevenBusinessDays){
 //     return inviteesAllAvailable;
 // }
 module.exports = {
-  rtm : rtm
+  rtm : rtm,
+  web: web
 }

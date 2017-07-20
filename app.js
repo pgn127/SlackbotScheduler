@@ -9,7 +9,7 @@ var googleAuth = require('google-auth-library');
 var fs = require('fs');
 var slackID;
 var url;
-var {rtm} = require('./rtm-client')
+var {rtm, web} = require('./rtm-client')
 
 mongoose.connect(process.env.MONGODB_URI);
 mongoose.Promise = global.Promise;
@@ -250,7 +250,33 @@ app.post('/slack/interactive', function(req,res){
                         res.send('No conflicts with that time. Meeting confirmed');
                     } else {
                         console.log('THERE WERE CONFLICTS, SHOULD NOT CONFIRM MEETING');
-                        res.send('There were conflicts');
+                        //TODO: NEED TO SEND MESSAGE WITH FREE TIMES TO HAVE HTEM SELECT FROM BUT PROBABLY SHOULDNT DO THAT IN HERE??
+                        res.send('There were conflicts with that meeting time and your invitees. Please choose another meeting time. FIGURE OUT HOW TO SEND THE MESSAGE');
+                        // web.chat.postMessage(message.channel, `Would you like me to create the following meeting: ` , {
+                        //   "attachments": [
+                        //     {
+                        //       "fields": fields,
+                        //       "callback_id": "wopr_game",
+                        //       "color": "#3AA3E3",
+                        //       "attachment_type": "default",
+                        //       "actions": [
+                        //         {
+                        //           "name": "yes",
+                        //           "text": "Confirm",
+                        //           "type": "button",
+                        //           "value": "true"
+                        //         },
+                        //         {
+                        //           "name": "no",
+                        //           "text": "Cancel",
+                        //           "type": "button",
+                        //           "value": "false"
+                        //         }
+                        //       ]
+                        //     }
+                        //   ]
+                        // });
+                        //
                     }
                 });
 
@@ -351,6 +377,7 @@ function asyncConflicts(fn, meeting, rtm, callback) {
         if (callback) {callback();}
     }, 0);
 }
+
 function checkConflicts(meeting, rtm){
     var busySlots = [];
     var count = 0;
