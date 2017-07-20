@@ -239,10 +239,12 @@ app.post('/slack/interactive', function(req,res){
                 }
                 console.log(meeting)
                 // TODO: uncomment the following lines
-                // if(checkConflicts(meeting, rtm)){
-                //   findAndReturnEmails(meeting.invitees, meeting.date,  meeting.subject, tokens, meeting.time);
-                // };
-                findAndReturnEmails(meeting.invitees, meeting.date,  meeting.subject, user.token, meeting.time);
+                var freeTimeList = checkConflicts(meeting, rtm);
+                if(freeTimeList.length === 0){
+                    findAndReturnEmails(meeting.invitees, meeting.date,  meeting.subject, user.token, meeting.time);
+                }
+
+                // findAndReturnEmails(meeting.invitees, meeting.date,  meeting.subject, user.token, meeting.time);
 
                 res.send('Meeting Confirmed')
               }
@@ -256,6 +258,7 @@ app.post('/slack/interactive', function(req,res){
   }
 })
 app.listen(process.env.PORT || 3000);
+
 function createCalendarReminder(date, subject, tokens, invitees, time){
   if(!invitees){
     var event = {
@@ -330,4 +333,200 @@ function findAndReturnEmails (users, date, subject, tokens, time) {
   Promise.all(promisArray).then((arr) => {
     createCalendarReminder(date, subject, tokens, arr, time);
   })
+}
+
+
+function checkConflicts(meeting, rtm){
+    var busySlots = [];
+    var count = 0;
+    var conflictExists = false;
+    var counterGoal = meeting.invitees.length;
+    var invitee, user,sevenBusinessDays, meetingDate;
+    meeting.invitees.forEach( function(invitee) {
+        invitee = invitee;
+        var inviteeuser = rtm.dataStore.getUserByName(invitee); //given the invitee slack name, find their slack user object
+        var inviteeSlackID = inviteeuser.id; //get slack id from slack user
+        //find a user in our DB with that slack username
+        User.findOne({slackID: inviteeSlackID}).exec()
+        .then((user) =>{
+            if(user) {
+                user = user;
+                //save user tokens
+                var tokens = user.token;
+                oauth2Client = new OAuth2(
+                    process.env.GOOGLE_CLIENT_ID,
+                    process.env.GOOGLE_CLIENT_SECRET,
+                    process.env.DOMAIN + '/connect/callback'
+                )
+                oauth2Client.setCredentials(tokens);
+                var calendar = google.calendar('v3');
+                //AT THIS POINT YOU ARE AUTHENTICATED TO SEE THE INVITEE GOOGLE calendar
+                meetingDate = new Date(meeting.date + ' ' + meeting.time + "-07:00");
+                var meetingEnd = new Date(meeting.date + ' ' + meeting.time + "-07:00");
+                meetingEnd.setMinutes(meetingEnd.getMinutes() + 30);
+                var n = 7;
+                while (workingDaysBetweenDates(meetingDate, new Date(Date.parse(meetingEnd) + n*24*60*60*1000)) < 7){
+                    n++;
+                }
+                sevenBusinessDays = new Date(Date.parse(meetingEnd) + n*24*60*60*1000)
+                return new Promise((resolve, reject) => {
+                    calendar.freebusy.query({
+                    auth: oauth2Client,
+                    headers: { "content-type" : "application/json" },
+                    resource:{
+                        items: [{id: 'primary', busy: 'Active'}],
+                        timeMin: meetingDate.toISOString(),
+                        timeMax: sevenBusinessDays.toISOString() //first # controls # of days to check for conflicting events
+                    }
+                }, function(err, schedule) {
+                    // console.log(typeof schedule);
+                    if(schedule){
+                        console.log('returning schedule to next then');
+                        resolve(schedule)
+                    } else {
+                        console.log('INSIDE ELSE');
+                        reject(err);
+                        // console.log("There was an error getting invitee calendar", err);
+                        // throw new Error('couldnt find scheduke for user');
+
+                    }
+                }
+            )
+        })
+
+            } else {
+                throw new Error('couldnt find user');
+            }
+        })
+        .then((schedule) => {
+            // console.log('scheudle was retunred', schedule);
+            if(false && !schedule){
+                console.log("schedule wasnt returned");
+                throw new Error('no schedule returns');
+            }else {
+                // console.log('schedule is ', schedule);
+                var busyList = schedule.calendars.primary.busy;
+                busySlots = busySlots.concat(busyList);
+                console.log(invitee);
+                busyList.forEach((time) => {
+                    var meetingStartTime = new Date(meeting.date + ' ' + meeting.time + "-07:00");;
+                    meetingStartTime.setDate(meetingStartTime.getDate());
+                    var meetingEndTime = new Date(meeting.date + ' ' + meeting.time + "-07:00");
+                    meetingEndTime.setDate(meetingEndTime.getDate());
+                    meetingEndTime.setMinutes(meetingEndTime.getMinutes() + 30);
+                    var conflictStartTime = new Date(time.start);
+                    // conflictStartTime.setDate(conflictStartTime.getDate());
+                    var conflictEndTime = new Date(time.end);
+                    // conflictEndTime.setDate(conflictEndTime.getDate());
+                    var convertedMeetingStartTime = new Date(meetingStartTime.toDateString() + ' ' + meetingStartTime.toTimeString() + "+07:00").toLocaleString();
+                    var convertedMeetingEndTime = new Date(meetingEndTime.toDateString() + ' ' + meetingEndTime.toTimeString() + "+07:00").toLocaleString();
+                    var convertedConflictStartTime = new Date(conflictStartTime.toDateString() + ' ' + conflictStartTime.toTimeString() + "+07:00").toLocaleString();
+                    var convertedConflictEndTime = new Date(conflictEndTime.toDateString() + ' ' + conflictEndTime.toTimeString() + "+07:00").toLocaleString();
+                    if((meetingStartTime <= conflictStartTime && meetingEndTime > conflictStartTime) || (meetingStartTime >= conflictStartTime && meetingStartTime <= conflictEndTime)){
+                        console.log('BUSY: The meeting time \n', convertedMeetingStartTime, ' - ', convertedMeetingEndTime, '\n conflicts with user event at \n', convertedConflictStartTime, ' - ', convertedConflictEndTime, '\n');
+                        conflictExists = true;
+                    } else {
+                        console.log(meetingEndTime >= conflictStartTime && meetingEndTime <= conflictEndTime);
+                        console.log('FREE: No overlap between meeting at \n',convertedMeetingStartTime, ' - ', convertedMeetingEndTime, '\n and the users event at \n', convertedConflictStartTime, ' - ', convertedConflictEndTime, '\n');
+                    }
+                })
+            }
+            return;
+        })
+        .then( () => {
+            count+=1
+            if(count === counterGoal){
+                var freetimelist = findFreeTimes(busySlots, meetingDate.toISOString(), sevenBusinessDays.toISOString());
+                // console.log('freetimelist', freetimelist);
+                if(conflictExists) {
+
+                    return freetimelist;
+                } else {
+                    return [];
+                }
+                // return freetimelist;
+            }
+        })
+        .catch((err) => {
+            counterGoal -= 1; //if you cant get a user, subtract from counter goal so your not waiting on a users info that will never come
+            console.log('there was an error in catch', err);
+        })
+
+
+    }) //end of for each
+}
+
+function workingDaysBetweenDates(startDate, endDate) {
+  // Validate input
+  if (endDate < startDate)
+  return 0;
+
+  // Calculate days between dates
+  var millisecondsPerDay = 86400 * 1000; // Day in milliseconds
+  startDate.setHours(0,0,0,1);  // Start just after midnight
+  endDate.setHours(23,59,59,999);  // End just before midnight
+  var diff = endDate - startDate;  // Milliseconds between datetime objects
+  var days = Math.ceil(diff / millisecondsPerDay);
+
+  // Subtract two weekend days for every week in between
+  var weeks = Math.floor(days / 7);
+  days = days - (weeks * 2);
+
+  // Handle special cases
+  var startDay = startDate.getDay();
+  var endDay = endDate.getDay();
+
+  // Remove weekend not previously removed.
+  if (startDay - endDay > 1)
+  days = days - 2;
+
+  // Remove start day if span starts on Sunday but ends before Saturday
+  if (startDay == 0 && endDay != 6)
+  days = days - 1
+
+  // Remove end day if span ends on Saturday but starts after Sunday
+  if (endDay == 6 && startDay != 0)
+  days = days - 1
+
+  return days;
+}
+
+function reduceTimeIntervals(busyArray){
+    var intervalStack = [];
+    //sort the intervals based on increasing order of starting time
+    var sortedIntervals = _.sortBy(busyArray, 'start');
+    intervalStack.push(sortedIntervals[0]); //push the first interval on stack
+    sortedIntervals.forEach( (interval) => {
+        var stackTop = intervalStack[intervalStack.length - 1];
+        //If the current interval overlaps with stack top and ending
+        //        time of current interval is more than that of stack top,
+        //        update stack top with the ending  time of current interval.
+        if((Date.parse(interval.start) <= Date.parse(stackTop.start)&& Date.parse(interval.end) > Date.parse(stackTop.start)) || (Date.parse(interval.start) >= Date.parse(stackTop.start) && Date.parse(interval.start) <= Date.parse(stackTop.end))){
+            if(Date.parse(interval.end) > Date.parse(stackTop.end)){
+                var modifiedStackTop = Object.assign({}, intervalStack.pop(), {end: interval.end})
+                intervalStack.push(modifiedStackTop);
+            }
+        } else {
+            //if for some reason the busy interval has same start and end time, dont add it
+            if(Date.parse(interval.start) !== Date.parse(interval.end)){
+                intervalStack.push(interval);
+            }
+
+        }
+    })
+    return intervalStack;
+}
+
+function findFreeTimes(busyArray, meetingStartDate, sevenBusinessDays){
+    //meetingStartDate and sevenBusinessDays must be in format '2017-07-22T23:59:59Z'
+    var intervals = reduceTimeIntervals(busyArray);
+    var freeStart = meetingStartDate.slice(0,11)+'00:00:00Z'
+    var freeEnd = sevenBusinessDays.slice(0,11)+'23:59:59Z'
+    var freeStack = []
+    intervals.forEach((interval) => {
+        freeStack.push({start: freeStart, end: interval.start})
+        freeStart = interval.end;
+    })
+    freeStack.push({start: freeStart, end: freeEnd})
+    return freeStack;
 }

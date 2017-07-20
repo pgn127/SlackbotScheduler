@@ -94,7 +94,7 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
       if(!user){
         rtm.sendMessage('Please visit the following link to activate your account ' + process.env.DOMAIN + '/oauth?auth_id='+slackID, message.channel);
       } else {
-          checkConflicts(pamtofrankie, rtm);
+        //   checkConflicts(pamtofrankie, rtm);
           processMessage(message, rtm);
       }
     }
@@ -255,6 +255,7 @@ function processMessage(message, rtm) {
 function checkConflicts(meeting, rtm){
     var busySlots = [];
     var count = 0;
+    var conflictExists = false;
     var counterGoal = meeting.invitees.length;
     var invitee, user,sevenBusinessDays, meetingDate;
     meeting.invitees.forEach( function(invitee) {
@@ -353,7 +354,12 @@ function checkConflicts(meeting, rtm){
             if(count === counterGoal){
                 var freetimelist = findFreeTimes(busySlots, meetingDate.toISOString(), sevenBusinessDays.toISOString());
                 console.log('freetimelist', freetimelist);
-                return freetimelist;
+                if(conflictExists) {
+
+                    return freetimelist;
+                } else {
+                    return [];
+                }
             }
         })
         .catch((err) => {
