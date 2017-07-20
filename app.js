@@ -103,6 +103,7 @@ app.post('/command', function(req, res) {
 
 app.post('/slack/interactive', function(req,res){
   var payload = JSON.parse(req.body.payload);
+  console.log('PAYLOAD ACTIONS', payload.actions);
   if(payload.actions[0].value === 'true') {
     slackID = payload.user.id;
     User.findOne({slackID: slackID}).exec(function(err, user){

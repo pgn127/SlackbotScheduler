@@ -101,7 +101,7 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
           "actions": [
               {
                   "name": "games_list",
-                  "text": "Pick a game...",
+                  "text": "Select a new meeting time...",
                   "type": "select",
                   "options": [
                       {
@@ -133,7 +133,14 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
                           "value": "war"
                       }
                   ]
-              }
+              },
+                  {
+                    "name": "no",
+                    "text": "Cancel",
+                    "type": "button",
+                    "value": "false"
+                  }
+
           ]
       }
   ]
