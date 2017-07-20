@@ -312,10 +312,6 @@ function checkConflicts(meeting, rtm){
                 throw new Error('couldnt find user');
             }
         })
-        .then((calendarRequest) => {
-            console.log('calendar request');
-            return calendarRequest.execute()
-        })
         .then((schedule) => {
             console.log('scheudle was retunred', schedule);
             if(false && !schedule){
