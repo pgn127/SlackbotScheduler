@@ -306,8 +306,6 @@ function createCalendarReminder(date, subject, tokens, invitees, time){
   })
 }
 
-return inviteesAllAvailable;
-}
 
 function findAndReturnEmails (users, date, subject, tokens, time) {
 
