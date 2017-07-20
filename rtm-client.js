@@ -155,7 +155,7 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
         rtm.sendMessage('Please visit the following link to activate your account ' + process.env.DOMAIN + '/oauth?auth_id='+slackID, message.channel);
       } else {
         //   checkConflicts(pamtofrankie, rtm);
-          processMessage(message, rtm);
+          processMessage(message, rtm, user);
       }
     }
   })
@@ -168,7 +168,7 @@ rtm.on(RTM_EVENTS.REACTION_REMOVED, function handleRtmReactionRemoved(reaction) 
 });
 rtm.start();
 
-function processMessage(message, rtm) {
+function processMessage(message, rtm, sender) {
   // console.log('entered process message');
   axios.get('https://api.api.ai/api/query', {
     params: {
@@ -235,7 +235,7 @@ function processMessage(message, rtm) {
         var i = 0;
         console.log('The invitees are: ', data.result.parameters.invitees);
         data.result.parameters.invitees.forEach((user) => {
-            // console.log('USER IS', user);
+            console.log('current invitee is ', user);
           if(user.length > 1){
             if(user.charAt(0) === "<"){
               var newUser = user.substr(2)
