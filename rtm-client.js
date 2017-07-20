@@ -277,15 +277,15 @@ function checkConflicts(meeting, rtm){
                         //TEST FOR CONFLICT:
                         //1. meeting starts during the invitee's event OR 2. meeting ends during the invitee's event
 
-                        console.log('startTime new date(starttime)', startTime, new Date(startTime), '\n time.start new date of time.start \n', time.start, new Date(time.start));
-                        console.log('\n')
+                        // console.log('startTime new date(starttime)', startTime, new Date(startTime), '\n time.start new date of time.start \n', time.start, new Date(time.start));
+                        // console.log('\n')
 
                         var meetingStartTime = (new Date(Date.parse(startTime))).toTimeString();
                         var meetingEndTime = (new Date(Date.parse(endTime))).toTimeString();
                         var userEventStartTime = (new Date(Date.parse(time.start))).toTimeString();
                         var userEventEndTime = (new Date(Date.parse(time.end))).toTimeString();
                         var userEventDate = (new Date(Date.parse(time.start))).toDateString();
-
+                        console.log('USEREVENT DATE', userEventDate);
 
                         if(Date.parse(startTime) >= Date.parse(time.start) && Date.parse(startTime) <= Date.parse(time.end) || Date.parse(endTime) >= Date.parse(time.start) && Date.parse(endTime) <= Date.parse(time.end)){
                         // if(new Date(startTime) >= new Date(time.start) && new Date(startTime) <= new Date(time.end) || new Date(endTime) >= new Date(time.start) && new Date(endTime) <= new Date(time.end)){
@@ -295,7 +295,7 @@ function checkConflicts(meeting, rtm){
                         } else {
 
 
-                            rtm.sendMessage(`FREE: ${invitee} has no overlap with meeting on day ${startTime.substring(0, 10)} from \n ${new Date(startTime).toLocaleTimeString(timezone)}-${new Date(endTime).toLocaleTimeString(timezone)} \n and ${invitee}s event on day ${time.start.substring(0,10)} from \n ${new Date(time.start).toLocaleTimeString(timezone)}-${new Date(time.end).toLocaleTimeString(timezone)}.\n\n`,'D6ATM9WMU');
+                            rtm.sendMessage(`FREE: ${invitee} has no overlap with meeting on day ${startTime.substring(0, 10)} from \n ${meetingStartTime}-${meetingEndTime} \n and ${invitee}s event on day ${time.start.substring(0,10)} from \n ${new Date(time.start).toLocaleTimeString(timezone)}-${new Date(time.end).toLocaleTimeString(timezone)}.\n\n`,'D6ATM9WMU');
 
 
                         }
