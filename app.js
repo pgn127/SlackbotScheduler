@@ -105,9 +105,9 @@ app.post('/slack/interactive', function(req,res){
   var payload = JSON.parse(req.body.payload);
   console.log('PAYLOAD ACTIONS', payload.actions);
   //if the user selects a new meeting time from list of meetings
-  if(payload.actions[0].type === "select"){
-      var selectedMeeting =
-  }
+  // if(payload.actions[0].type === "select"){
+  //     var selectedMeeting =
+  // }
   //if the user selects confirm button
   else if(payload.actions[0].type === "button" && payload.actions[0].value === 'true') {
     //   console.log('PAYLOAD ACTIONS', payload.actions.selected_options);
