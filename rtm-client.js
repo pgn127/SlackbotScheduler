@@ -298,7 +298,7 @@ function checkConflicts(meeting, rtm){
 
                         //TEST FOR CONFLICT:
                         //1. meeting starts during the invitee's event OR 2. meeting ends during the invitee's event
-                        if(meetingUTCstart >= new Date(time.start) && meetingUTCstart <= new Date(time.end) || meetingUTCend >= new Date(time.start) && meetingUTCend <= new Date(time.end)){
+                        if(new Date(startTime) >= new Date(time.start) && new Date(startTime) <= new Date(time.end) || new Date(endTime) >= new Date(time.start) && new Date(endTime) <= new Date(time.end)){
 
                             console.log('BUSY: The meeting time \n', meetingUTCstart.toUTCString(), ' - ', meetingUTCend.toUTCString(), '\n conflicts with user event at \n', busyUTCstart.toUTCString(), ' - ', busyUTCend.toUTCString(), '\n');
                             inviteesAllAvailable = false;
@@ -313,7 +313,7 @@ function checkConflicts(meeting, rtm){
 
 
 
-                            rtm.sendMessage(`FREE: ${invitee} has no overlap with meeting on day ${new Date(startTime)} from \n ${new Date(startTime).toLocaleTimeString(timezone)}-${new Date(endTime).toLocaleTimeString(timezone)} \n and ${invitee}s event on day ${time.start.substring(0,11)} from \n ${new Date(time.start).toLocaleTimeString(timezone)}-${new Date(time.end).toLocaleTimeString(timezone)}.\n\n`,'D6ATM9WMU');
+                            rtm.sendMessage(`FREE: ${invitee} has no overlap with meeting on day ${startTime.substring(0, 10)} from \n ${new Date(startTime).toLocaleTimeString(timezone)}-${new Date(endTime).toLocaleTimeString(timezone)} \n and ${invitee}s event on day ${time.start.substring(0,11)} from \n ${new Date(time.start).toLocaleTimeString(timezone)}-${new Date(time.end).toLocaleTimeString(timezone)}.\n\n`,'D6ATM9WMU');
 
                             // rtm.sendMessage(`FREE: ${invitee} has no overlap with meeting on day ${meetingUTCstart.toLocaleDateString()} from \n ${meetingUTCstart.toLocaleTimeString(timezone)}-${meetingUTCend.toLocaleTimeString(timezone)} \n and the ${invitee}s event on day ${busyUTCstart.toLocaleDateString()} from \n ${busyUTCstart.toLocaleTimeString(timezone)}-${busyUTCend.toLocaleTimeString(timezone)} \n\n`, meeting.channelID);
 
