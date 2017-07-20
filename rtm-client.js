@@ -266,7 +266,6 @@ function checkConflicts(meeting, rtm){
         //find a user in our DB with that slack username
         User.findOne({slackID: inviteeSlackID}).exec()
         .then((user) =>{
-            console.log('user isss', user);
             if(user) {
                 user = user;
                 //save user tokens
@@ -295,16 +294,18 @@ function checkConflicts(meeting, rtm){
                         timeMin: meetingDate.toISOString(),
                         timeMax: sevenBusinessDays.toISOString() //first # controls # of days to check for conflicting events
                     }
-                }, function(err, schedule) {
+                }
+                , function(err, schedule) {
                     if(err){
-                        console.log("There was an error getting invitee calendar");
+                        console.log("There was an error getting invitee calendar", err);
                         throw new Error('couldnt find scheduke for user');
                     } else {
 
                         console.log(schedule);
                         return schedule
                     }
-                })
+                }
+            )
             } else {
                 // continue; //WILL THIS CONTINEU THE FOR EACHc
 
