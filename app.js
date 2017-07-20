@@ -124,7 +124,6 @@ app.post('/slack/interactive', function(req,res){
           var meetingInvitees = payload.original_message.attachments[0].fields[3].value.split(", ");
           console.log('meeting invites', meetingInvitees);
         }
-        if(Date.now() > user.token.expiry_date) {
           oauth2Client = new OAuth2(
             process.env.GOOGLE_CLIENT_ID,
             process.env.GOOGLE_CLIENT_SECRET,
@@ -154,9 +153,10 @@ app.post('/slack/interactive', function(req,res){
                     res.send('Reminder Confirmed')
                   }
                 })
-              } else {
-                // it was a meeting
-                var newMeeting = new Reminder({
+              }
+              else {
+                //it was a meeting
+                var newMeeting = new Meeting({
                   userID: user._id,
                   channelID: payload.channel.id,
                   subject: meetingSubject,
@@ -170,7 +170,6 @@ app.post('/slack/interactive', function(req,res){
                     res.status(400).json({error:err});
                   }else{
                     meetingDate = new Date(meetingDate);
-                    // let dateTime = meetingDate.toISOString().substring(0, 11) + meetingTime + "-07:00"
                     let dateTime = meetingDate.toISOString().substring(0, 10);
                     // createCalendarReminder(dateTime, meetingSubject, user.token , meetingInvitees);
                     var meeting = {
@@ -181,13 +180,20 @@ app.post('/slack/interactive', function(req,res){
                       date: dateTime,
                       time: meetingTime
                     }
+                    console.log(meeting)
                     // TODO: uncomment the following lines
-                    // if(flicts(meeting, rtm)){
-                    //   findAndReturnEmails(meeting.invitees, meeting.date,  meeting.subject, tokens, meeting.time);
-                    // };
-                      findAndReturnEmails(meeting.invitees, meeting.date,  meeting.subject, tokens, meeting.time);
-
-                    res.send('Meeting Confirmed')
+                    // var freeTimeList = checkConflicts(meeting, rtm);
+                    asyncConflicts(checkConflicts, meeting, rtm, function(freeTimeList) {
+                        if(freeTimeList && freeTimeList.length === 0){
+                            findAndReturnEmails(meeting.invitees, meeting.date,  meeting.subject, user.token, meeting.time);
+                            res.send('No conflicts with that time. Meeting confirmed');
+                        } else {
+                            console.log('THERE WERE CONFLICTS, SHOULD NOT CONFIRM MEETING');
+                            //TODO: NEED TO SEND MESSAGE WITH FREE TIMES TO HAVE HTEM SELECT FROM BUT PROBABLY SHOULDNT DO THAT IN HERE??
+                            res.send('There were conflicts with that meeting time and your invitees. Please choose another meeting time. FIGURE OUT HOW TO SEND THE MESSAGE');
+                        }
+                    });
+                    // findAndReturnEmails(meeting.invitees, meeting.date,  meeting.subject, user.token, meeting.time);
                   }
                 })
               }
