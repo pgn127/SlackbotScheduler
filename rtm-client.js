@@ -302,15 +302,13 @@ function checkConflicts(meeting, rtm){
         })
         .then((schedule) => {
             if(!schedule){
-                console.log("There was an error getting invitee calendar", err);
+                console.log("There was an error getting invitee calendar";
                 throw new Error('couldnt find scheduke for user');
             }else {
-                console.log('schedule is ', schedule);
-                var busyList = schedule.calendars.primary.busy;
+                console.log('schedule is ', schedule, schedule.groups);
+                var busyList = schedule.groups.calendars.primary.busy;
                 busySlots = busySlots.concat(busyList);
                 console.log(invitee);
-
-                var conflictExists = false; //true when no vconflict exists between invitee events and meeting time and false otherwise
                 busyList.forEach((time) => {
                     var meetingStartTime = new Date(meeting.date + ' ' + meeting.time + "-07:00");;
                     meetingStartTime.setDate(meetingStartTime.getDate());
