@@ -145,7 +145,6 @@ function processMessage(message, rtm) {
         });
       } else {
         //it is the meeting intent
-
         let inviteArr = [];
         data.result.parameters.invitees.forEach((user, index) => {
           let newUser = user.substr(2)
@@ -211,9 +210,6 @@ function processMessage(message, rtm) {
   .catch(function(err){
     console.log('error in procesmessage', err);
   })
-  // rtm.sendMessage(messageText, message.channel, function() {
-  //   // getAndSendCurrentWeather(locationName, query, message.channel, rtm);
-  // });
 }
 
 module.exports = {
