@@ -284,7 +284,7 @@ function checkConflicts(meeting, rtm){
                         if(Date.parse(startTime) >= Date.parse(time.start) && Date.parse(startTime) <= Date.parse(time.end) || Date.parse(endTime) >= Date.parse(time.start) && Date.parse(endTime) <= Date.parse(time.end)){
                         // if(new Date(startTime) >= new Date(time.start) && new Date(startTime) <= new Date(time.end) || new Date(endTime) >= new Date(time.start) && new Date(endTime) <= new Date(time.end)){
 
-                            rtm.sendMessage(`BUSY: the meeting you tried to schedule for day  ${startTime.substring(0, 10)} from \n ${new Date(startTime).toLocaleTimeString(timezone)}-${new Date(endTime).toLocaleTimeString(timezone)} \n conflicts with ${invitee}'s event on day ${time.start.substring(0,10)} from \n ${new Date(time.start).toLocaleTimeString(timezone)}-${new Date(time.end).toLocaleTimeString(timezone)}.\n\n`,'D6ATM9WMU');
+                            rtm.sendMessage(`BUSY: the meeting you tried to schedule for day  ${startTime.substring(0, 10)} from \n ${new Date(Date.parse(startTime))}-${new Date(endTime).toLocaleTimeString(timezone)} \n conflicts with ${invitee}'s event on day ${time.start.substring(0,10)} from \n ${new Date(time.start).toLocaleTimeString(timezone)}-${new Date(time.end).toLocaleTimeString(timezone)}.\n\n`,'D6ATM9WMU');
 
                         } else {
 
