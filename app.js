@@ -255,7 +255,6 @@ app.post('/slack/interactive', function(req,res){
 
                 // findAndReturnEmails(meeting.invitees, meeting.date,  meeting.subject, user.token, meeting.time);
 
-
               }
             })
           }
