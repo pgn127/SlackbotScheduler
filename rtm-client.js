@@ -93,7 +93,7 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
       if(!user){
         rtm.sendMessage('Please visit the following link to activate your account ' + process.env.DOMAIN + '/oauth?auth_id='+slackID, message.channel);
       } else {
-          checkConflicts(pamtofrankie, rtm);
+        //   checkConflicts(pamtofrankie, rtm);
         processMessage(message, rtm);
       }
     }
@@ -152,13 +152,13 @@ function processMessage(message, rtm) {
               "actions": [
                 {
                   "name": "yes",
-                  "text": "Yes",
+                  "text": "Confirm",
                   "type": "button",
                   "value": "true"
                 },
                 {
                   "name": "no",
-                  "text": "No",
+                  "text": "Cancel",
                   "type": "button",
                   "value": "false"
                 }
@@ -168,6 +168,26 @@ function processMessage(message, rtm) {
         });
       } else {
         //it is the meeting intent
+        let inviteArr = [];
+        var i = 0;
+        console.log('The invitees are: ', data.result.parameters.invitees);
+        data.result.parameters.invitees.forEach((user) => {
+          if(user.length > 1){
+            if(user.charAt(0) === "<"){
+              var newUser = user.substr(2)
+            } else {
+              var newUser = user.substr(1)
+            }
+            console.log(newUser)
+            let userObj = rtm.dataStore.getUserById(newUser)
+            if(!i){
+              inviteArr.push(userObj.name)
+            }else{
+              inviteArr.push(" " + userObj.name)
+            }
+            i++;
+          }
+        })
 
         var fields = [
           {
@@ -184,9 +204,16 @@ function processMessage(message, rtm) {
           },
           {
             "title": "Invitees",
-            "value": `${data.result.parameters.invitees}`
+            "value": `${inviteArr}`
           }
         ];
+
+        if(data.result.parameters.duration !== "") {
+          fields.push({
+            "title": "Duration",
+            "value": `${data.result.parameters.duration.amount} ${data.result.parameters.duration.unit}`
+          })
+        }
 
         web.chat.postMessage(message.channel, `Would you like me to create the following meeting: ` , {
           "attachments": [
@@ -198,13 +225,13 @@ function processMessage(message, rtm) {
               "actions": [
                 {
                   "name": "yes",
-                  "text": "Yes",
+                  "text": "Confirm",
                   "type": "button",
                   "value": "true"
                 },
                 {
                   "name": "no",
-                  "text": "No",
+                  "text": "Cancel",
                   "type": "button",
                   "value": "false"
                 }
@@ -221,9 +248,10 @@ function processMessage(message, rtm) {
   .catch(function(err){
     console.log('error in procesmessage', err);
   })
-  // rtm.sendMessage(messageText, message.channel, function() {
-  //   // getAndSendCurrentWeather(locationName, query, message.channel, rtm);
-  // });
+}
+
+module.exports = {
+  rtm : rtm
 }
 
 
