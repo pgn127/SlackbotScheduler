@@ -50,6 +50,7 @@ var rtm = new RtmClient(token);
 var web = new WebClient(token);
 let channel;
 var awaitingResponse = false;
+mongoose.Promise = global.Promise;
 
 
 // var pamtofrankie = {
@@ -285,7 +286,7 @@ function checkConflicts(meeting, rtm){
                     n++;
                 }
                 sevenBusinessDays = new Date(Date.parse(meetingEnd) + n*24*60*60*1000)
-                return calendar.freebusy.query({
+                var request =  calendar.freebusy.query({
                     auth: oauth2Client,
                     headers: { "content-type" : "application/json" },
                     resource:{
@@ -294,6 +295,7 @@ function checkConflicts(meeting, rtm){
                         timeMax: sevenBusinessDays.toISOString() //first # controls # of days to check for conflicting events
                     }
                 })
+                request.execute()
             } else {
                 // continue; //WILL THIS CONTINEU THE FOR EACHc
 
@@ -305,7 +307,7 @@ function checkConflicts(meeting, rtm){
                 console.log("There was an error getting invitee calendar");
                 throw new Error('couldnt find scheduke for user');
             }else {
-                console.log('schedule is ', schedule, schedule.groups);
+                console.log('schedule is ', schedule);
                 var busyList = schedule.calendars.primary.busy;
                 busySlots = busySlots.concat(busyList);
                 console.log(invitee);
