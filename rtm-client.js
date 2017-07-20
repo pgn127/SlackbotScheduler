@@ -173,17 +173,17 @@ function processMessage(message, rtm) {
         var i = 0;
         console.log('The invitees are: ', data.result.parameters.invitees);
         data.result.parameters.invitees.forEach((user) => {
-            console.log('USER IS', user);
+            // console.log('USER IS', user);
           if(user.length > 1){
             if(user.charAt(0) === "<"){
               var newUser = user.substr(2)
             } else {
               var newUser = user.substr(1)
             }
-            console.log(' new user is ', newUser)
+            // console.log(' new user is ', newUser)
             let userObj = rtm.dataStore.getUserById(newUser)
             if(userObj){
-                console.log('user found', userObj);
+                // console.log('user found', userObj);
                 if(!i){
                   inviteArr.push(userObj.name)
                 }else{

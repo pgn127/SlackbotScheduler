@@ -241,14 +241,17 @@ app.post('/slack/interactive', function(req,res){
                 }
                 console.log(meeting)
                 // TODO: uncomment the following lines
-                var freeTimeList = checkConflicts(meeting, rtm);
-                if(freeTimeList.length === 0){
-                    findAndReturnEmails(meeting.invitees, meeting.date,  meeting.subject, user.token, meeting.time);
-                    res.send('No conflicts with that time. Meeting confirmed');
-                } else {
-                    console.log('THERE WERE CONFLICTS, SHOULD NOT CONFIRM MEETING');
-                    res.send('There were conflicts');
-                }
+                // var freeTimeList = checkConflicts(meeting, rtm);
+                asyncConflicts(checkConflicts, meeting, rtm, function(freeTimeList) {
+
+                    if(freeTimeList && freeTimeList.length === 0){
+                        findAndReturnEmails(meeting.invitees, meeting.date,  meeting.subject, user.token, meeting.time);
+                        res.send('No conflicts with that time. Meeting confirmed');
+                    } else {
+                        console.log('THERE WERE CONFLICTS, SHOULD NOT CONFIRM MEETING');
+                        res.send('There were conflicts');
+                    }
+                });
 
                 // findAndReturnEmails(meeting.invitees, meeting.date,  meeting.subject, user.token, meeting.time);
 
@@ -341,7 +344,12 @@ function findAndReturnEmails (users, date, subject, tokens, time) {
   })
 }
 
-
+function asyncConflicts(fn, meeting, rtm, callback) {
+    setTimeout(function() {
+        fn(meeting, rtm);
+        if (callback) {callback();}
+    }, 0);
+}
 function checkConflicts(meeting, rtm){
     var busySlots = [];
     var count = 0;
@@ -445,9 +453,10 @@ function checkConflicts(meeting, rtm){
                 var freetimelist = findFreeTimes(busySlots, meetingDate.toISOString(), sevenBusinessDays.toISOString());
                 // console.log('freetimelist', freetimelist);
                 if(conflictExists) {
-
+                    console.log('conflcit exists reutrning free times list');
                     return freetimelist;
                 } else {
+                    console.log('no conflcit exists not returning ');
                     return [];
                 }
                 // return freetimelist;
@@ -460,6 +469,7 @@ function checkConflicts(meeting, rtm){
 
 
     }) //end of for each
+
 }
 
 function workingDaysBetweenDates(startDate, endDate) {
