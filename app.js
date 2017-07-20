@@ -160,27 +160,29 @@ app.post('/slack/interactive', function(req,res){
                             time: meetingTime,
                             invitees: meetingInvitees,
                         })
-
-                        newMeeting.save(function(err, meeting){
-                            if (err){
-                                res.status(400).json({error:err});
-                            }else{
-                                checkConflicts(meeting, rtm)
-                                .then((freeTimeList)=>{
-                                    console.log(freeTimeList);
-                                    if(freeTimeList && freeTimeList.length === 0){
+                        checkConflicts(meeting, rtm)
+                        .then((freeTimeList)=>{
+                            console.log(freeTimeList);
+                            if(freeTimeList && freeTimeList.length === 0){
+                                //only save new meeting if there are no conflicts
+                                newMeeting.save(function(err, meeting){
+                                    if (err){
+                                        res.status(400).json({error:err});
+                                    }else{
                                         findAndReturnEmails(meeting.invitees, meeting.date,  meeting.subject, user.token, meeting.time);
                                         res.send('No conflicts with that time. Meeting confirmed');
-                                    } else {
-                                        console.log('THERE WERE CONFLICTS, SHOULD NOT CONFIRM MEETING');
-                                        //TODO: NEED TO SEND MESSAGE WITH FREE TIMES TO HAVE HTEM SELECT FROM BUT PROBABLY SHOULDNT DO THAT IN HERE??
-                                        res.send('There were conflicts with that meeting time and your invitees. Please choose another meeting time. FIGURE OUT HOW TO SEND THE MESSAGE');
-                                    }
-                                }).catch((err) => {
-                                    console.log('error with checkconflicts', err);
-                                })
-                    // findAndReturnEmails(meeting.invitees, meeting.date,  meeting.subject, user.token, meeting.time);
-                        }
+                                }
+
+                            } else {
+                                console.log('THERE WERE CONFLICTS, SHOULD NOT CONFIRM MEETING');
+                                //TODO: NEED TO SEND MESSAGE WITH FREE TIMES TO HAVE HTEM SELECT FROM BUT PROBABLY SHOULDNT DO THAT IN HERE??
+                                res.send('There were conflicts with that meeting time and your invitees. Please choose another meeting time. FIGURE OUT HOW TO SEND THE MESSAGE');
+                            }
+                        }).catch((err) => {
+                            console.log('error with checkconflicts', err);
+                        })
+
+
                     })
                 }
             })
