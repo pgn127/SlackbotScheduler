@@ -149,7 +149,9 @@ function processMessage(message, rtm) {
         let inviteArr = [];
         data.result.parameters.invitees.forEach((user, index) => {
           let newUser = user.substr(2)
+          console.log(newUser)
           let userObj = rtm.dataStore.getUserById(newUser)
+          console.log(userObj);
           if(!index){
             inviteArr.push(userObj.name)
           }else{

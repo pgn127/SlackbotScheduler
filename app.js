@@ -325,7 +325,6 @@ function findAndReturnEmails (users, date, subject, tokens, time) {
   })
 
   Promise.all(promisArray).then((arr) => {
-    console.log(arr);
     createCalendarReminder(date, subject, tokens, arr, time);
   })
 }
