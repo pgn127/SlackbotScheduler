@@ -182,7 +182,7 @@ app.post('/slack/interactive', function(req,res){
                       time: meetingTime
                     }
                     // TODO: uncomment the following lines
-                    // if(checkConflicts(meeting, rtm)){
+                    // if(flicts(meeting, rtm)){
                     //   findAndReturnEmails(meeting.invitees, meeting.date,  meeting.subject, tokens, meeting.time);
                     // };
                       findAndReturnEmails(meeting.invitees, meeting.date,  meeting.subject, tokens, meeting.time);
