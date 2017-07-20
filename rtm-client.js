@@ -263,7 +263,7 @@ function processMessage(message, rtm, sender) {
 
         var subject = data.result.parameters.subject;
         var date = data.result.parameters.date;
-        var time = date.result.parameters.time;
+        var time = data.result.parameters.time;
         var channelId = message.channel;
         var userID=  'IDK';
         var invitees = invitesArr;
