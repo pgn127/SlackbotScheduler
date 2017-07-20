@@ -270,7 +270,7 @@ function checkConflicts(meeting, rtm){
                     resource:{items: [{id: 'primary', busy: 'Active'}],
                     // timeZone: "America/Los_Angeles",
                      timeMin: startTime,//timemin.toISOString(),//(new Date(2017, 06, 20)).toISOString(),
-                     timeMax: (Date.parse((new Date(endTime))) + 3*24*60*60*1000).toISOString()//timemax.toISOString(),//(new Date(2017, 06, 21)).toISOString()
+                     timeMax: new Date(Date.parse((new Date(endTime))) + 3*24*60*60*1000).toISOString()//timemax.toISOString(),//(new Date(2017, 06, 21)).toISOString()
                    }
                 }, function(err, schedule) {
                   if(err){
