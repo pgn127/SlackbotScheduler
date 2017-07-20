@@ -229,6 +229,7 @@ function processMessage(message, rtm) {
           ]
         });
     } else if(data.result.metadata.intentName === 'meeting.add'){
+        console.log('entered meeting.add intent in rtm client');
         //it is the meeting intent
         let inviteArr = [];
         var i = 0;
