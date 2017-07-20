@@ -52,24 +52,24 @@ let channel;
 var awaitingResponse = false;
 
 
-var pamtofrankie = {
-    userID: '596f927c2945b10011ad86b0',
-    invitees: ['fflores'],
-    subject: 'get some dinna',
-    channelID: 'D6ATM9WMU',
-    date: '2017-07-20',
-    time: '17:00:00'
-
-}
-
 // var pamtofrankie = {
-//     userID: '596f91760f86e7001144794d',
-//     invitees: ['pneedle'],
+//     userID: '596f927c2945b10011ad86b0',
+//     invitees: ['fflores'],
 //     subject: 'get some dinna',
-//     channelID: 'D6A33DH52',//'D6ASP325U',
-//     date: '2017-07-20', //equivalent to 07/20/2017
-//     time: '16:00:00'
+//     channelID: 'D6ATM9WMU',
+//     date: '2017-07-20',
+//     time: '17:00:00'
+//
 // }
+
+var pamtofrankie = {
+    userID: '596f91760f86e7001144794d',
+    invitees: ['pneedle'],
+    subject: 'get some dinna',
+    channelID: 'D6A33DH52',//'D6ASP325U',
+    date: '2017-07-20', //equivalent to 07/20/2017
+    time: '16:00:00'
+}
 
 rtm.on(CLIENT_EVENTS.RTM.AUTHENTICATED, (rtmStartData) => {
   // console.log(`Logged in as ${rtmStartData.self.name} of team ${rtmStartData.team.name}, but not yet connected to a channel`);
@@ -280,7 +280,7 @@ function checkConflicts(meeting, rtm){
 
                         // console.log('startTime new date(starttime)', startTime, new Date(startTime), '\n time.start new date of time.start \n', time.start, new Date(time.start));
                         // console.log('\n')
-
+                        var meetingDate = (new Date(Date.parse(startTime))).toDateString();
                         var meetingStartTime = (new Date(Date.parse(startTime))).toTimeString();
                         var meetingEndTime = (new Date(Date.parse(endTime))).toTimeString();
                         var userEventStartTime = (new Date(Date.parse(time.start))).toTimeString();
@@ -291,12 +291,12 @@ function checkConflicts(meeting, rtm){
                         if(Date.parse(startTime) >= Date.parse(time.start) && Date.parse(startTime) <= Date.parse(time.end) || Date.parse(endTime) >= Date.parse(time.start) && Date.parse(endTime) <= Date.parse(time.end)){
                         // if(new Date(startTime) >= new Date(time.start) && new Date(startTime) <= new Date(time.end) || new Date(endTime) >= new Date(time.start) && new Date(endTime) <= new Date(time.end)){
 
-                            rtm.sendMessage(`BUSY: the meeting you tried to schedule for day  ${startTime.substring(0, 10)} from \n ${meetingStartTime.slice(0,8)}-${meetingEndTime.slice(0,8)} \n conflicts with ${invitee}'s event on day ${time.start.substring(0,10)} from \n ${userEventStartTime}-${new Date(time.end).toLocaleTimeString(timezone)}.\n\n`,'D6ATM9WMU');
+                            rtm.sendMessage(`BUSY: the meeting you tried to schedule for day  ${meetingDate} from \n ${meetingStartTime.slice(0,8)}-${meetingEndTime.slice(0,8)} \n conflicts with ${invitee}'s event on day ${userEventDate} from \n ${userEventStartTime.slice(0,8)}-${userEventEndTime.slice(0,8)}.\n\n`,'D6ATM9WMU');
 
                         } else {
 
 
-                            rtm.sendMessage(`FREE: ${invitee} has no overlap with meeting on day ${startTime.substring(0, 10)} from \n ${meetingStartTime.slice(0,8)}-${meetingEndTime.slice(0,8)} \n and ${invitee}s event on day ${time.start.substring(0,10)} from \n ${new Date(time.start).toLocaleTimeString(timezone)}-${new Date(time.end).toLocaleTimeString(timezone)}.\n\n`,'D6ATM9WMU');
+                            rtm.sendMessage(`FREE: ${invitee} has no overlap with meeting on day ${startTime.substring(0, 10)} from \n ${meetingStartTime.slice(0,8)}-${meetingEndTime.slice(0,8)} \n and ${invitee}s event on day ${userEventDate} from \n ${userEventStartTime.slice(0,8)}-${userEventEndTime.slice(0,8)}.\n\n`,'D6ATM9WMU');
 
 
                         }
