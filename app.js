@@ -240,8 +240,9 @@ app.post('/slack/interactive', function(req,res){
                   time: meetingTime
                 }
                 console.log(meeting)
-                asyncConflicts(checkConflicts, meeting, rtm, function(freeTimeList) {
-                    console.log('freeimelist in callback is ISSSS', freeTimeList);
+                checkConflicts(meeting, rtm)
+                .then((freeTimeList)=>{
+                    console.log(freeTimeList);
                     if(freeTimeList && freeTimeList.length === 0){
                         findAndReturnEmails(meeting.invitees, meeting.date,  meeting.subject, user.token, meeting.time);
                         res.send('No conflicts with that time. Meeting confirmed');
@@ -249,9 +250,8 @@ app.post('/slack/interactive', function(req,res){
                         console.log('THERE WERE CONFLICTS, SHOULD NOT CONFIRM MEETING');
                         //TODO: NEED TO SEND MESSAGE WITH FREE TIMES TO HAVE HTEM SELECT FROM BUT PROBABLY SHOULDNT DO THAT IN HERE??
                         res.send('There were conflicts with that meeting time and your invitees. Please choose another meeting time. FIGURE OUT HOW TO SEND THE MESSAGE');
-
                     }
-                });
+                })
 
                 // findAndReturnEmails(meeting.invitees, meeting.date,  meeting.subject, user.token, meeting.time);
 
@@ -356,6 +356,7 @@ function checkConflicts(meeting, rtm){
     var conflictExists = false;
     var counterGoal = meeting.invitees.length;
     var invitee, user,sevenBusinessDays, meetingDate;
+    return new Promise((resolve, reject) => {
     meeting.invitees.forEach( function(invitee) {
         invitee = invitee;
         var inviteeuser = rtm.dataStore.getUserByName(invitee); //given the invitee slack name, find their slack user object
@@ -402,17 +403,20 @@ function checkConflicts(meeting, rtm){
                         reject(err);
                         // console.log("There was an error getting invitee calendar", err);
                         // throw new Error('couldnt find scheduke for user');
-
                     }
                 }
             )
         })
-
             } else {
                 throw new Error('couldnt find user');
             }
         })
         .then((schedule) => {
+            // console.log('scheudle was retunred', schedule);
+            if(false && !schedule){
+                console.log("schedule wasnt returned");
+                throw new Error('no schedule returns');
+            }else {
                 // console.log('schedule is ', schedule);
                 var busyList = schedule.calendars.primary.busy;
                 busySlots = busySlots.concat(busyList);
@@ -439,33 +443,30 @@ function checkConflicts(meeting, rtm){
                         console.log('FREE: No overlap between meeting at \n',convertedMeetingStartTime, ' - ', convertedMeetingEndTime, '\n and the users event at \n', convertedConflictStartTime, ' - ', convertedConflictEndTime, '\n');
                     }
                 })
-
+            }
             return;
         })
         .then( () => {
-            console.log('entered last return ~!!!!!!!');
             count+=1
             if(count === counterGoal){
                 var freetimelist = findFreeTimes(busySlots, meetingDate.toISOString(), sevenBusinessDays.toISOString());
                 // console.log('freetimelist', freetimelist);
                 if(conflictExists) {
                     console.log('conflcit exists reutrning free times list');
-                    return freetimelist;
+                     resolve(freetimelist);
                 } else {
-                    console.log('no conflcit exists not returning list ');
-                    return [];
+                    console.log('no conflcit exists not returning ');
+                    resolve([]);
                 }
                 // return freetimelist;
             }
         })
         .catch((err) => {
             counterGoal -= 1; //if you cant get a user, subtract from counter goal so your not waiting on a users info that will never come
-            console.log('there was an error in catch', err);
+            reject(err);
         })
-
-
-    }) //end of for each
-
+    })
+  }) //end of for each
 }
 
 function workingDaysBetweenDates(startDate, endDate) {
