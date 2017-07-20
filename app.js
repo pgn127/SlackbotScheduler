@@ -113,193 +113,93 @@ app.post('/slack/interactive', function(req,res){
         console.log(err);
         res.send('an error occured');
       } else if (user){
-        if(payload.original_message.text === "Would you like me to create a reminder for "){
-          //it was a reminder
-          var reminderSubject = payload.original_message.attachments[0].fields[0].value;
-          var reminderDate = Date.parse(payload.original_message.attachments[0].fields[1].value);
-        } else {
-          //it was a meeting
-          var meetingSubject = payload.original_message.attachments[0].fields[0].value;
-          var meetingDate = Date.parse(payload.original_message.attachments[0].fields[1].value);
-          var meetingTime = payload.original_message.attachments[0].fields[2].value;
-          var meetingInvitees = payload.original_message.attachments[0].fields[3].value.split(", ");
-          console.log('meeting invites', meetingInvitees);
-        }
-        if(Date.now() > user.token.expiry_date) {
-          oauth2Client = new OAuth2(
-            process.env.GOOGLE_CLIENT_ID,
-            process.env.GOOGLE_CLIENT_SECRET,
-            process.env.DOMAIN + '/connect/callback'
-          )
-          oauth2Client.setCredentials({
-            refresh_token: user.token.refresh_token
-          });
-          oauth2Client.refreshAccessToken(function(err, tokens) {
-            user.token = tokens;
-            user.save()
-            .then((user)=>{
-              if(payload.original_message.text === "Would you like me to create a reminder for "){
-                //it was a reminder
-                var newReminder = new Reminder({
-                  userID: user._id,
-                  channelID: payload.channel.id,
-                  subject: reminderSubject,
-                  date: reminderDate,
-                })
-                newReminder.save(function(err){
-                  if (err){
-                    res.status(400).json({error:err});
-                  }else{
-                    reminderDate = new Date(reminderDate);
-                    createCalendarReminder(reminderDate.toISOString().substring(0, 10), reminderSubject, user.token);
-                    res.send('Reminder Confirmed')
-                  }
-                })
-              } else {
-                // it was a meeting
-                var newMeeting = new Reminder({
-                  userID: user._id,
-                  channelID: payload.channel.id,
-                  subject: meetingSubject,
-                  date: meetingDate,
-                  time: meetingTime,
-                  invitees: meetingInvitees,
-                })
+          if(payload.original_message.text === "Would you like me to create a reminder for "){
+              //it was a reminder
+              var reminderSubject = payload.original_message.attachments[0].fields[0].value;
+              var reminderDate = Date.parse(payload.original_message.attachments[0].fields[1].value);
+          } else {
+              //it was a meeting
+              var meetingSubject = payload.original_message.attachments[0].fields[0].value;
+              var meetingDate = Date.parse(payload.original_message.attachments[0].fields[1].value);
+              var meetingTime = payload.original_message.attachments[0].fields[2].value;
+              var meetingInvitees = payload.original_message.attachments[0].fields[3].value.split(", ");
+              console.log('meeting invites', meetingInvitees);
+          }
+            oauth2Client = new OAuth2(
+                process.env.GOOGLE_CLIENT_ID,
+                process.env.GOOGLE_CLIENT_SECRET,
+                process.env.DOMAIN + '/connect/callback'
+            )
+            oauth2Client.setCredentials({
+                refresh_token: user.token.refresh_token
+            });
+            oauth2Client.refreshAccessToken(function(err, tokens) {
+                user.token = tokens;
+                user.save()
+                .then((user)=>{
+                    if(payload.original_message.text === "Would you like me to create a reminder for "){
+                        //it was a reminder
+                        var newReminder = new Reminder({
+                            userID: user._id,
+                            channelID: payload.channel.id,
+                            subject: reminderSubject,
+                            date: reminderDate,
+                        })
+                        newReminder.save(function(err){
+                            if (err){
+                                res.status(400).json({error:err});
+                            }else{
+                                reminderDate = new Date(reminderDate);
+                                createCalendarReminder(reminderDate.toISOString().substring(0, 10), reminderSubject, user.token);
+                                res.send('Reminder Confirmed')
+                            }
+                        })
+                    } else {
+                        //it was a meeting
+                        var newMeeting = new Meeting({
+                            userID: user._id,
+                            channelID: payload.channel.id,
+                            subject: meetingSubject,
+                            date: meetingDate,
+                            time: meetingTime,
+                            invitees: meetingInvitees,
+                        })
 
-                newMeeting.save(function(err){
-                  if (err){
-                    res.status(400).json({error:err});
-                  }else{
-                    meetingDate = new Date(meetingDate);
-                    // let dateTime = meetingDate.toISOString().substring(0, 11) + meetingTime + "-07:00"
-                    let dateTime = meetingDate.toISOString().substring(0, 10);
-                    // createCalendarReminder(dateTime, meetingSubject, user.token , meetingInvitees);
-                    var meeting = {
-                      userID: user._id, //mongodb user model _id
-                      invitees: meetingInvitees, // list of slack usernames invited
-                      subject: meetingSubject,
-                      channelID: 'D6ATM9WMU', //TODO: not sure where to get this from yet
-                      date: dateTime,
-                      time: meetingTime
-                    }
-                    // TODO: uncomment the following lines
-                    // if(flicts(meeting, rtm)){
-                    //   findAndReturnEmails(meeting.invitees, meeting.date,  meeting.subject, tokens, meeting.time);
-                    // };
-
-                    // this was before the commit, should I still call the funtion here as well?
-                    // TODO: implement function that sends invitiation messages
-                    console.log("about to call sendInvitations on line 192");
-                    console.log("this is meeting: ", meeting);
-                    console.log("this is user: ", user);
-                    sendInvitations(meeting, user);
-                    // findAndReturnEmails(meeting.invitees, meeting.date,  meeting.subject, tokens, meeting.time);
-
-                    res.send('Meeting Confirmed')
-                  }
-                })
-              }
+                        newMeeting.save(function(err){
+                            if (err){
+                                res.status(400).json({error:err});
+                            }else{
+                                meetingDate = new Date(meetingDate);
+                                let dateTime = meetingDate.toISOString().substring(0, 10);
+                                // createCalendarReminder(dateTime, meetingSubject, user.token , meetingInvitees);
+                                var meeting = {
+                                    userID: user._id, //mongodb user model _id
+                                    invitees: meetingInvitees, // list of slack usernames invited
+                                    subject: meetingSubject,
+                                    channelID: 'D6ATM9WMU', //TODO: not sure where to get this from yet
+                                    date: dateTime,
+                                    time: meetingTime
+                                }
+                                checkConflicts(meeting, rtm)
+                                .then((freeTimeList)=>{
+                                    console.log(freeTimeList);
+                                    if(freeTimeList && freeTimeList.length === 0){
+                                        findAndReturnEmails(meeting.invitees, meeting.date,  meeting.subject, user.token, meeting.time);
+                                        res.send('No conflicts with that time. Meeting confirmed');
+                                    } else {
+                                        console.log('THERE WERE CONFLICTS, SHOULD NOT CONFIRM MEETING');
+                                        //TODO: NEED TO SEND MESSAGE WITH FREE TIMES TO HAVE HTEM SELECT FROM BUT PROBABLY SHOULDNT DO THAT IN HERE??
+                                        res.send('There were conflicts with that meeting time and your invitees. Please choose another meeting time. FIGURE OUT HOW TO SEND THE MESSAGE');
+                                    }
+                                })
+                    // findAndReturnEmails(meeting.invitees, meeting.date,  meeting.subject, user.token, meeting.time);
+                        }
+                    })
+                }
             })
           });
           //ELSE STILL SAVE REMINDER EVEN IF THEIR TOKEN IS EXPIRED
-        } else {
-          if(payload.original_message.text === "Would you like me to create a reminder for "){
-            //it was a reminder
-            var newReminder = new Reminder({
-              userID: user._id,
-              channelID: payload.channel.id,
-              subject: reminderSubject,
-              date: reminderDate,
-            })
-            newReminder.save(function(err){
-              if (err){
-                res.status(400).json({error:err});
-              }else{
-                reminderDate = new Date(reminderDate);
-                createCalendarReminder(reminderDate.toISOString().substring(0, 10), reminderSubject, user.token);
-                res.send('Reminder Confirmed')
-              }
-            })
-          }
-          else {
-            //it was a meeting
-            var newMeeting = new Meeting({
-              userID: user._id,
-              channelID: payload.channel.id,
-              subject: meetingSubject,
-              date: meetingDate,
-              time: meetingTime,
-              invitees: meetingInvitees,
-            })
 
-            newMeeting.save(function(err){
-              if (err){
-                res.status(400).json({error:err});
-              }else{
-                meetingDate = new Date(meetingDate);
-                let dateTime = meetingDate.toISOString().substring(0, 10);
-                // createCalendarReminder(dateTime, meetingSubject, user.token , meetingInvitees);
-                var meeting = {
-                  userID: user._id, //mongodb user model _id
-                  invitees: meetingInvitees, // list of slack usernames invited
-                  subject: meetingSubject,
-                  channelID: 'D6ATM9WMU', //TODO: not sure where to get this from yet
-                  date: dateTime,
-                  time: meetingTime
-                }
-                console.log(meeting)
-                // TODO: uncomment the following lines
-                // var freeTimeList = checkConflicts(meeting, rtm);
-                asyncConflicts(checkConflicts, meeting, rtm, function(freeTimeList) {
-
-                    if(freeTimeList && freeTimeList.length === 0){
-
-                        //TODO write my own function that ultimimately calls findAndReturnEmails with the same parameters
-                        // sendInvitations(meeting, meeting.invitees, meeting.date, meeting.subject, user.token, meeting.time);
-                        sendInvitations(meeting, user);
-
-                        //find and return needs these criterias below. I pass in the meeting and User objects to sendInvitations, which will waterfall and call createCalendarReminder
-                        // findAndReturnEmails(meeting.invitees, meeting.date,  meeting.subject, user.token, meeting.time);
-                        res.send('No conflicts with that time. Meeting confirmed');
-                    } else {
-                        console.log('THERE WERE CONFLICTS, SHOULD NOT CONFIRM MEETING');
-                        //TODO: NEED TO SEND MESSAGE WITH FREE TIMES TO HAVE HTEM SELECT FROM BUT PROBABLY SHOULDNT DO THAT IN HERE??
-                        res.send('There were conflicts with that meeting time and your invitees. Please choose another meeting time. FIGURE OUT HOW TO SEND THE MESSAGE');
-                        // web.chat.postMessage(message.channel, `Would you like me to create the following meeting: ` , {
-                        //   "attachments": [
-                        //     {
-                        //       "fields": fields,
-                        //       "callback_id": "wopr_game",
-                        //       "color": "#3AA3E3",
-                        //       "attachment_type": "default",
-                        //       "actions": [
-                        //         {
-                        //           "name": "yes",
-                        //           "text": "Confirm",
-                        //           "type": "button",
-                        //           "value": "true"
-                        //         },
-                        //         {
-                        //           "name": "no",
-                        //           "text": "Cancel",
-                        //           "type": "button",
-                        //           "value": "false"
-                        //         }
-                        //       ]
-                        //     }
-                        //   ]
-                        // });
-                        //
-                    }
-                });
-
-                // findAndReturnEmails(meeting.invitees, meeting.date,  meeting.subject, user.token, meeting.time);
-
-
-              }
-            })
-          }
-        }
       }
     })
   } else {
@@ -384,12 +284,7 @@ function findAndReturnEmails (users, date, subject, tokens, time) {
   })
 }
 
-function asyncConflicts(fn, meeting, rtm, callback) {
-    setTimeout(function() {
-        fn(meeting, rtm);
-        if (callback) {callback();}
-    }, 0);
-}
+
 
 function checkConflicts(meeting, rtm){
     var busySlots = [];
@@ -397,6 +292,7 @@ function checkConflicts(meeting, rtm){
     var conflictExists = false;
     var counterGoal = meeting.invitees.length;
     var invitee, user,sevenBusinessDays, meetingDate;
+    return new Promise((resolve, reject) => {
     meeting.invitees.forEach( function(invitee) {
         invitee = invitee;
         var inviteeuser = rtm.dataStore.getUserByName(invitee); //given the invitee slack name, find their slack user object
@@ -443,12 +339,10 @@ function checkConflicts(meeting, rtm){
                         reject(err);
                         // console.log("There was an error getting invitee calendar", err);
                         // throw new Error('couldnt find scheduke for user');
-
                     }
                 }
             )
         })
-
             } else {
                 throw new Error('couldnt find user');
             }
@@ -495,22 +389,20 @@ function checkConflicts(meeting, rtm){
                 // console.log('freetimelist', freetimelist);
                 if(conflictExists) {
                     console.log('conflcit exists reutrning free times list');
-                    return freetimelist;
+                     resolve(freetimelist);
                 } else {
                     console.log('no conflcit exists not returning ');
-                    return [];
+                    resolve([]);
                 }
                 // return freetimelist;
             }
         })
         .catch((err) => {
             counterGoal -= 1; //if you cant get a user, subtract from counter goal so your not waiting on a users info that will never come
-            console.log('there was an error in catch', err);
+            reject(err);
         })
-
-
-    }) //end of for each
-
+    })
+  }) //end of for each
 }
 
 function workingDaysBetweenDates(startDate, endDate) {
