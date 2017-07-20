@@ -240,8 +240,6 @@ app.post('/slack/interactive', function(req,res){
                   time: meetingTime
                 }
                 console.log(meeting)
-                // TODO: uncomment the following lines
-                // var freeTimeList = checkConflicts(meeting, rtm);
                 asyncConflicts(checkConflicts, meeting, rtm, function(freeTimeList) {
                     console.log('freeimelist in callback is ISSSS', freeTimeList);
                     if(freeTimeList && freeTimeList.length === 0){
@@ -251,7 +249,7 @@ app.post('/slack/interactive', function(req,res){
                         console.log('THERE WERE CONFLICTS, SHOULD NOT CONFIRM MEETING');
                         //TODO: NEED TO SEND MESSAGE WITH FREE TIMES TO HAVE HTEM SELECT FROM BUT PROBABLY SHOULDNT DO THAT IN HERE??
                         res.send('There were conflicts with that meeting time and your invitees. Please choose another meeting time. FIGURE OUT HOW TO SEND THE MESSAGE');
-                
+
                     }
                 });
 
