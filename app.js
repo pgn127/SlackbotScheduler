@@ -3,6 +3,7 @@ var google = require('googleapis');
 var {User, Reminder, Meeting} = require('./models')
 var OAuth2 = google.auth.OAuth2;
 var mongoose = require('mongoose');
+var _ = require('underscore');
 var models = require('./models');
 var googleAuth = require('google-auth-library');
 var fs = require('fs');
