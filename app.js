@@ -113,17 +113,31 @@ app.post('/slack/interactive', function(req,res){
         console.log(err);
         res.send('an error occured');
       } else if (user){
+
+        var payloadArr = payload.original_message.attachments;
+
           if(payload.original_message.text === "Would you like me to create a reminder for "){
               //it was a reminder
-              var reminderSubject = payload.original_message.attachments[0].fields[0].value;
-              var reminderDate = Date.parse(payload.original_message.attachments[0].fields[1].value);
+              var reminderSubject = payloadArr[0].fields[0].value;
+              var reminderDate = Date.parse(payloadArr[0].fields[1].value);
           } else {
               //it was a meeting
-              var meetingSubject = payload.original_message.attachments[0].fields[0].value;
-              var meetingDate = Date.parse(payload.original_message.attachments[0].fields[1].value);
-              var meetingTime = payload.original_message.attachments[0].fields[2].value;
-              var meetingInvitees = payload.original_message.attachments[0].fields[3].value.split(", ");
-              console.log('meeting invites', meetingInvitees);
+
+              var meetingSubject = payloadArr[0].fields[0].value;
+              var meetingDate = Date.parse(payloadArr[0].fields[1].value);
+              var meetingTime = payloadArr[0].fields[2].value;
+              var meetingInvitees = payloadArr[0].fields[3].value.split(", ");
+              var meetingDuration = 60; //default meeting duration is 1 hour
+              if(payloadArr[0].fields[4]) {
+                //the duration field was provided
+                let durArr = payloadArr[0].fields[4].split(" ");
+                if(durArr[1] === "h") {
+                  meetingDuration = durArr[0] * 60;
+                } else {
+                  meetingDuration = durArr[0]
+                }
+              }
+
           }
             oauth2Client = new OAuth2(
                 process.env.GOOGLE_CLIENT_ID,
@@ -163,6 +177,7 @@ app.post('/slack/interactive', function(req,res){
                             date: meetingDate,
                             time: meetingTime,
                             invitees: meetingInvitees,
+                            duration: meetingDuration,
                         })
 
                         newMeeting.save(function(err){
