@@ -94,7 +94,7 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
         rtm.sendMessage('Please visit the following link to activate your account ' + process.env.DOMAIN + '/oauth?auth_id='+slackID, message.channel);
       } else {
           checkConflicts(pamtofrankie, rtm);
-        processMessage(message, rtm);
+          processMessage(message, rtm);
       }
     }
   })
@@ -255,6 +255,8 @@ function processMessage(message, rtm) {
 
 function checkConflicts(meeting, rtm){
     var busySlots = [];
+    var counter = 0;
+    var counterGoal = meeting.invitees.length;
     var invitee, user,sevenBusinessDays, meetingDate;
     meeting.invitees.forEach( function(invitee) {
         invitee = invitee;
@@ -286,13 +288,15 @@ function checkConflicts(meeting, rtm){
                 return calendar.freebusy.query({
                     auth: oauth2Client,
                     headers: { "content-type" : "application/json" },
-                    resource:{items: [{id: 'primary', busy: 'Active'}],
-                    timeMin: meetingDate.toISOString(),
-                    timeMax: sevenBusinessDays.toISOString() //first # controls # of days to check for conflicting events
-                }
-            })
+                    resource:{
+                        items: [{id: 'primary', busy: 'Active'}],
+                        timeMin: meetingDate.toISOString(),
+                        timeMax: sevenBusinessDays.toISOString() //first # controls # of days to check for conflicting events
+                    }
+                })
             } else {
-            // continue; //WILL THIS CONTINEU THE FOR EACH
+                // continue; //WILL THIS CONTINEU THE FOR EACHc
+
                 throw new Error('couldnt find user');
             }
         })
@@ -329,13 +333,63 @@ function checkConflicts(meeting, rtm){
                     }
                 })
             }
+            return;
+        })
+        .then( () => {
+            count+=1
+            if(count === counterGoal){
+                var freetimelist = findFreeTimes(busySlots, meetindDate.toISOString(), sevenBusinessDays.toISOString());
+                console.log('freetimelist', freetimelist);
+                return freetimelist;
+            }
         })
         .catch((err) => {
+            counterGoal -= 1; //if you cant get a user, subtract from counter goal so your not waiting on a users info that will never come
             console.log('there was an error in catch', err);
         })
 
 
     }) //end of for each
+}
+
+function reduceTimeIntervals(busyArray){
+    var intervalStack = [];
+    //sort the intervals based on increasing order of starting time
+    var sortedIntervals = _.sortBy(busyArray, 'start');
+    intervalStack.push(sortedIntervals[0]); //push the first interval on stack
+    sortedIntervals.forEach( (interval) => {
+        var stackTop = intervalStack[intervalStack.length - 1];
+        //If the current interval overlaps with stack top and ending
+        //        time of current interval is more than that of stack top,
+        //        update stack top with the ending  time of current interval.
+        if((Date.parse(interval.start) <= Date.parse(stackTop.start)&& Date.parse(interval.end) > Date.parse(stackTop.start)) || (Date.parse(interval.start) >= Date.parse(stackTop.start) && Date.parse(interval.start) <= Date.parse(stackTop.end))){
+            if(Date.parse(interval.end) > Date.parse(stackTop.end)){
+                var modifiedStackTop = Object.assign({}, intervalStack.pop(), {end: interval.end})
+                intervalStack.push(modifiedStackTop);
+            }
+        } else {
+            //if for some reason the busy interval has same start and end time, dont add it
+            if(Date.parse(interval.start) !== Date.parse(interval.end)){
+                intervalStack.push(interval);
+            }
+
+        }
+    })
+    return intervalStack;
+}
+
+function findFreeTimes(busyArray, meetingStartDate, sevenBusinessDays){
+    //meetingStartDate and sevenBusinessDays must be in format '2017-07-22T23:59:59Z'
+    var intervals = reduceTimeIntervals(busyArray);
+    var freeStart = meetingStartDate.slice(0,11)+'00:00:00Z'
+    var freeEnd = sevenBusinessDays.slice(0,11)+'23:59:59Z'
+    var freeStack = []
+    intervals.forEach((interval) => {
+        freeStack.push({start: freeStart, end: interval.start})
+        freeStart = interval.end;
+    })
+    freeStack.push({start: freeStart, end: freeEnd})
+    return freeStack;
 }
 
 //
