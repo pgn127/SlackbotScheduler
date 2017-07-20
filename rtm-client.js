@@ -146,15 +146,20 @@ function processMessage(message, rtm) {
       } else {
         //it is the meeting intent
         let inviteArr = [];
-        data.result.parameters.invitees.forEach((user, index) => {
-          let newUser = user.substr(2)
-          console.log(newUser)
-          let userObj = rtm.dataStore.getUserById(newUser)
-          console.log(userObj);
-          if(!index){
-            inviteArr.push(userObj.name)
-          }else{
-            inviteArr.push(" " + userObj.name)
+        var i = 0;
+        console.log('The invitees are: ', data.result.parameters.invitees);
+        data.result.parameters.invitees.forEach((user) => {
+          if(user.length > 1){
+            let newUser = user.substr(1)
+            console.log(newUser)
+            let userObj = rtm.dataStore.getUserById(newUser)
+            console.log(userObj);
+            if(!i){
+              inviteArr.push(userObj.name)
+            }else{
+              inviteArr.push(" " + userObj.name)
+            }
+            i++;
           }
         })
 
