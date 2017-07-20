@@ -292,14 +292,14 @@ function checkConflicts(meeting, rtm){
               }
             })
             } else {
-                continue; //WILL THIS CONTINEU THE FOR EACH
+                // continue; //WILL THIS CONTINEU THE FOR EACH
                 throw new Error('couldnt find user');
             }
         })
         .then((schedule) => {
             if(!schedule){
                 console.log("There was an error getting invitee calendar", err);
-                continue;
+                throw new Error('couldnt find scheduke for user');
             }else {
                 var busyList = schedule.calendars.primary.busy;
                 busySlots = busySlots.concat(busyList);
