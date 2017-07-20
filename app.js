@@ -180,10 +180,9 @@ app.post('/slack/interactive', function(req,res){
                       date: dateTime,
                       time: meetingTime
                     }
-                    console.log(meeting)
-                    // TODO: uncomment the following lines
-                    // var freeTimeList = checkConflicts(meeting, rtm);
-                    asyncConflicts(checkConflicts, meeting, rtm, function(freeTimeList) {
+                    checkConflicts(meeting, rtm)
+                    .then((freeTimeList)=>{
+                        console.log(freeTimeList);
                         if(freeTimeList && freeTimeList.length === 0){
                             findAndReturnEmails(meeting.invitees, meeting.date,  meeting.subject, user.token, meeting.time);
                             res.send('No conflicts with that time. Meeting confirmed');
@@ -192,7 +191,7 @@ app.post('/slack/interactive', function(req,res){
                             //TODO: NEED TO SEND MESSAGE WITH FREE TIMES TO HAVE HTEM SELECT FROM BUT PROBABLY SHOULDNT DO THAT IN HERE??
                             res.send('There were conflicts with that meeting time and your invitees. Please choose another meeting time. FIGURE OUT HOW TO SEND THE MESSAGE');
                         }
-                    });
+                    })
                     // findAndReturnEmails(meeting.invitees, meeting.date,  meeting.subject, user.token, meeting.time);
                   }
                 })
@@ -349,12 +348,7 @@ function findAndReturnEmails (users, date, subject, tokens, time) {
   })
 }
 
-function asyncConflicts(fn, meeting, rtm, callback) {
-    setTimeout(function() {
-        fn(meeting, rtm);
-        if (callback) {callback();}
-    }, 0);
-}
+
 
 function checkConflicts(meeting, rtm){
     var busySlots = [];
