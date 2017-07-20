@@ -78,7 +78,8 @@ app.get('/connect/callback', function(req, res) {
             token: tokens,
             slackID: slackID,
             auth_id: auth_id.auth_id,
-            email: tempEmail
+            email: tempEmail,
+            pendingInvites: []
           });
           newUser.save()
           .then( () => res.status(200).send("Your account was successfuly authenticated"))
@@ -465,3 +466,50 @@ function findFreeTimes(busyArray, meetingStartDate, sevenBusinessDays){
     freeStack.push({start: freeStart, end: freeEnd})
     return freeStack;
 }
+
+function sendInvitations(meeting, user){
+
+  //// old and redundant code
+  //// get the invitor's userObj from dataStore
+  //// var sender = rtm.dataStore.getUserById(meeting.userID)
+  //// find the user by his slackId in the mongodb
+  //// User.findOne({slackID: }).exec()
+  //// .then((user) => user.pendingInvites = meeting.invitees)
+
+  // 1. add invitees to invitor's pending invites array
+  //user that created event and is sending invitations's object gets passed into this function
+  user.pendingInvites = meeting.invitees;
+  console.log("this is updated pendingInvites", user.pendingInvites);
+  user.save()
+  .then( () => res.status(200).send("pendingInvites array updated"))
+  .catch((err) => {
+    console.log('error in saving pendinginvites array to mlabs');
+    res.status(400).json({error:err});
+  })
+
+// 2.  get UserId and DM ID from the slack usernames in meeting.invitees =>
+//     check link pam sent in general
+  let tempArr = [];
+  user.pendingInvites.forEach((invitee) => {
+    let xyz = rtm.dataStore.UserByName(invitee)
+    console.log("this is UserByName", xyz)
+  })
+
+
+
+    // var abc = rtm.dataStore.getDMByUserId()
+    // tempArr.push(abc);
+
+// 3. for each invitee send web.chat.postmessage invitation message
+
+// findAndReturnEmails(meeting.invitees, meeting.date,  meeting.subject, tokens, meeting.time);
+
+}
+
+//4,5,6 for other function...
+//when slack user confirms, write new route in /slack/interactive to receive that payload with the information in it
+//when they accept, remove their name from the pendingInvites array and check the array's length
+//if the array's length is 0, then call create the calendar event
+
+//TODO: how to handle invites who decline. just remove them from pending invites array, and send slack messages
+        //saying "usernameX declined to attend the meeting", then check array lenght and book calender event with those remaining
