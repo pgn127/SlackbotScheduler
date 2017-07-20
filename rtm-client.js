@@ -305,6 +305,7 @@ function checkConflicts(meeting, rtm){
                 console.log("There was an error getting invitee calendar", err);
                 throw new Error('couldnt find scheduke for user');
             }else {
+                console.log('schedule is ', schedule);
                 var busyList = schedule.calendars.primary.busy;
                 busySlots = busySlots.concat(busyList);
                 console.log(invitee);
