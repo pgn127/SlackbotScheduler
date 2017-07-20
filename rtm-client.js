@@ -75,6 +75,56 @@ rtm.on(CLIENT_EVENTS.RTM.AUTHENTICATED, (rtmStartData) => {
   // console.log(`Logged in as ${rtmStartData.self.name} of team ${rtmStartData.team.name}, but not yet connected to a channel`);
 });
 rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
+    web.chat.postMessage(message.channel, 'PLease select a time', {
+    "text": "Would you like to play a game?",
+    "response_type": "in_channel",
+    "attachments": [
+        {
+            "text": "Choose a game to play",
+            "fallback": "If you could read this message, you'd be choosing something fun to do right now.",
+            "color": "#3AA3E3",
+            "attachment_type": "default",
+            "callback_id": "game_selection",
+            "actions": [
+                {
+                    "name": "games_list",
+                    "text": "Pick a game...",
+                    "type": "select",
+                    "options": [
+                        {
+                            "text": "Hearts",
+                            "value": "hearts"
+                        },
+                        {
+                            "text": "Bridge",
+                            "value": "bridge"
+                        },
+                        {
+                            "text": "Checkers",
+                            "value": "checkers"
+                        },
+                        {
+                            "text": "Chess",
+                            "value": "chess"
+                        },
+                        {
+                            "text": "Poker",
+                            "value": "poker"
+                        },
+                        {
+                            "text": "Falken's Maze",
+                            "value": "maze"
+                        },
+                        {
+                            "text": "Global Thermonuclear War",
+                            "value": "war"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+})
     // console.log(message);
   var dm = rtm.dataStore.getDMByUserId(message.user); //gets the channel ID for the specific conversation between one user and bot
   slackID = message.user;
