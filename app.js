@@ -243,7 +243,7 @@ app.post('/slack/interactive', function(req,res){
                 // TODO: uncomment the following lines
                 // var freeTimeList = checkConflicts(meeting, rtm);
                 asyncConflicts(checkConflicts, meeting, rtm, function(freeTimeList) {
-
+                    console.log('freeimelist', freeTimeList);
                     if(freeTimeList && freeTimeList.length === 0){
                         findAndReturnEmails(meeting.invitees, meeting.date,  meeting.subject, user.token, meeting.time);
                         res.send('No conflicts with that time. Meeting confirmed');
