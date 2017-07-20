@@ -294,9 +294,15 @@ function checkConflicts(meeting, rtm){
                         timeMin: meetingDate.toISOString(),
                         timeMax: sevenBusinessDays.toISOString() //first # controls # of days to check for conflicting events
                     }
-                }, function(schedule) {
-                    console.log(schedule);
-                    return schedule
+                }, function(err, schedule) {
+                    if(err){
+                        console.log("There was an error getting invitee calendar");
+                        throw new Error('couldnt find scheduke for user');
+                    } else {
+
+                        console.log(schedule);
+                        return schedule
+                    }
                 })
             } else {
                 // continue; //WILL THIS CONTINEU THE FOR EACHc
