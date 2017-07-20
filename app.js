@@ -77,7 +77,8 @@ app.get('/connect/callback', function(req, res) {
             token: tokens,
             slackID: slackID,
             auth_id: auth_id.auth_id,
-            email: tempEmail
+            email: tempEmail,
+            pendingInvites: []
           });
           newUser.save()
           .then( () => res.status(200).send("Your account was successfuly authenticated"))
@@ -181,7 +182,11 @@ app.post('/slack/interactive', function(req,res){
                     // if(checkConflicts(meeting, rtm)){
                     //   findAndReturnEmails(meeting.invitees, meeting.date,  meeting.subject, tokens, meeting.time);
                     // };
-                      findAndReturnEmails(meeting.invitees, meeting.date,  meeting.subject, tokens, meeting.time);
+
+
+                    // TODO: implement function that sends invitiation messages
+                    sendInvitations(meeting.invitees, meeting.date, meeting.subject, tokens, meeting.time);
+                      // findAndReturnEmails(meeting.invitees, meeting.date,  meeting.subject, tokens, meeting.time);
 
                     res.send('Meeting Confirmed')
                   }
@@ -326,4 +331,8 @@ function findAndReturnEmails (users, date, subject, tokens, time) {
   Promise.all(promisArray).then((arr) => {
     createCalendarReminder(date, subject, tokens, arr, time);
   })
+}
+
+function sendInvitations(meeting.invitees, meeting.date,  meeting.subject, user.token, meeting.time){
+
 }
