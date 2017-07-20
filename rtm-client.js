@@ -61,7 +61,6 @@ var awaitingResponse = false;
 //     time: '17:00:00'
 //
 // }
-
 var pamtofrankie = {
     userID: '596f91760f86e7001144794d',
     invitees: ['pneedle'],
