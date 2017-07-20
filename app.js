@@ -243,7 +243,7 @@ app.post('/slack/interactive', function(req,res){
                 // TODO: uncomment the following lines
                 // var freeTimeList = checkConflicts(meeting, rtm);
                 asyncConflicts(checkConflicts, meeting, rtm, function(freeTimeList) {
-                    console.log('freeimelist', freeTimeList);
+                    console.log('freeimelist in callback is ISSSS', freeTimeList);
                     if(freeTimeList && freeTimeList.length === 0){
                         findAndReturnEmails(meeting.invitees, meeting.date,  meeting.subject, user.token, meeting.time);
                         res.send('No conflicts with that time. Meeting confirmed');
@@ -440,11 +440,6 @@ function checkConflicts(meeting, rtm){
             }
         })
         .then((schedule) => {
-            // console.log('scheudle was retunred', schedule);
-            if(false && !schedule){
-                console.log("schedule wasnt returned");
-                throw new Error('no schedule returns');
-            }else {
                 // console.log('schedule is ', schedule);
                 var busyList = schedule.calendars.primary.busy;
                 busySlots = busySlots.concat(busyList);
@@ -471,10 +466,11 @@ function checkConflicts(meeting, rtm){
                         console.log('FREE: No overlap between meeting at \n',convertedMeetingStartTime, ' - ', convertedMeetingEndTime, '\n and the users event at \n', convertedConflictStartTime, ' - ', convertedConflictEndTime, '\n');
                     }
                 })
-            }
+
             return;
         })
         .then( () => {
+            console.log('entered last return ~!!!!!!!');
             count+=1
             if(count === counterGoal){
                 var freetimelist = findFreeTimes(busySlots, meetingDate.toISOString(), sevenBusinessDays.toISOString());
@@ -483,7 +479,7 @@ function checkConflicts(meeting, rtm){
                     console.log('conflcit exists reutrning free times list');
                     return freetimelist;
                 } else {
-                    console.log('no conflcit exists not returning ');
+                    console.log('no conflcit exists not returning list ');
                     return [];
                 }
                 // return freetimelist;
