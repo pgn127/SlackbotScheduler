@@ -148,7 +148,7 @@ app.post('/slack/interactive', function(req,res){
                             }else{
                                 reminderDate = new Date(reminderDate);
                                 createCalendarReminder(reminderDate.toISOString().substring(0, 10), reminderSubject, user.token);
-                                res.send('Reminder Confirmed')
+                                res.send('Reminder Confirmed');
                             }
                         })
                     } else {
@@ -166,17 +166,6 @@ app.post('/slack/interactive', function(req,res){
                             if (err){
                                 res.status(400).json({error:err});
                             }else{
-                                // meetingDate = new Date(meetingDate);
-                                // let dateTime = meetingDate.toISOString().substring(0, 10);
-                                // createCalendarReminder(dateTime, meetingSubject, user.token , meetingInvitees);
-                                // var meeting = {
-                                //     userID: user._id, //mongodb user model _id
-                                //     invitees: meetingInvitees, // list of slack usernames invited
-                                //     subject: meetingSubject,
-                                //     channelID: 'D6ATM9WMU', //TODO: not sure where to get this from yet
-                                //     date: dateTime,
-                                //     time: meetingTime
-                                // }
                                 checkConflicts(meeting, rtm)
                                 .then((freeTimeList)=>{
                                     console.log(freeTimeList);
