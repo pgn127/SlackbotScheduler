@@ -119,7 +119,8 @@ app.post('/slack/interactive', function(req,res){
               var meetingDate = Date.parse(payload.original_message.attachments[0].fields[1].value);
               var meetingTime = payload.original_message.attachments[0].fields[2].value;
               var meetingInvitees = payload.original_message.attachments[0].fields[3].value.split(", ");
-              console.log('meeting invites', meetingInvitees);
+              console.log('meetingDate', meetingDate, 'meetingTime', meetingTime);
+            //   console.log('meeting invites', meetingInvitees);
           }
             oauth2Client = new OAuth2(
                 process.env.GOOGLE_CLIENT_ID,
@@ -187,6 +188,8 @@ app.post('/slack/interactive', function(req,res){
                                         //TODO: NEED TO SEND MESSAGE WITH FREE TIMES TO HAVE HTEM SELECT FROM BUT PROBABLY SHOULDNT DO THAT IN HERE??
                                         res.send('There were conflicts with that meeting time and your invitees. Please choose another meeting time. FIGURE OUT HOW TO SEND THE MESSAGE');
                                     }
+                                }).catch((err) => {
+                                    console.log('error with checkconflicts', err);
                                 })
                     // findAndReturnEmails(meeting.invitees, meeting.date,  meeting.subject, user.token, meeting.time);
                         }
