@@ -212,7 +212,8 @@ app.post('/slack/interactive', function(req,res){
                 res.send('Reminder Confirmed')
               }
             })
-          } else {
+          }
+          else {
             //it was a meeting
             var newMeeting = new Reminder({
               userID: user._id,
@@ -242,11 +243,14 @@ app.post('/slack/interactive', function(req,res){
                 var freeTimeList = checkConflicts(meeting, rtm);
                 if(freeTimeList.length === 0){
                     findAndReturnEmails(meeting.invitees, meeting.date,  meeting.subject, user.token, meeting.time);
+                    res.send('No conflicts with that time. Meeting confirmed')
+                } else {
+                    res.send('There were conflicts')
                 }
 
                 // findAndReturnEmails(meeting.invitees, meeting.date,  meeting.subject, user.token, meeting.time);
 
-                res.send('Meeting Confirmed')
+
               }
             })
           }
