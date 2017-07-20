@@ -295,6 +295,7 @@ function checkConflicts(meeting, rtm){
                         timeMax: sevenBusinessDays.toISOString() //first # controls # of days to check for conflicting events
                     }
                 }, function(schedule) {
+                    console.log(schedule);
                     return schedule
                 })
             } else {
