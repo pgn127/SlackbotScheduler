@@ -88,63 +88,63 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
     // console.log('MESSAGE WAS NOT SENT TOA  DM SO INGORING IT');
     return;
   }
-  web.chat.postMessage(message.channel, 'PLease select a time', {
-     "text": "Would you like to play a game?",
-  "response_type": "in_channel",
-  "attachments": [
-      {
-          "text": "Choose a game to play",
-          "fallback": "If you could read this message, you'd be choosing something fun to do right now.",
-          "color": "#3AA3E3",
-          "attachment_type": "default",
-          "callback_id": "game_selection",
-          "actions": [
-              {
-                  "name": "games_list",
-                  "text": "Select a new meeting time...",
-                  "type": "select",
-                  "options": [
-                      {
-                          "text": "Hearts",
-                          "value": "hearts"
-                      },
-                      {
-                          "text": "Bridge",
-                          "value": "bridge"
-                      },
-                      {
-                          "text": "Checkers",
-                          "value": "checkers"
-                      },
-                      {
-                          "text": "Chess",
-                          "value": "chess"
-                      },
-                      {
-                          "text": "Poker",
-                          "value": "poker"
-                      },
-                      {
-                          "text": "Falken's Maze",
-                          "value": "maze"
-                      },
-                      {
-                          "text": "Global Thermonuclear War",
-                          "value": "war"
-                      }
-                  ]
-              },
+  // web.chat.postMessage(message.channel, 'PLease select a time', {
+      "text": "Would you like to play a game?",
+      "response_type": "in_channel",
+      "attachments": [
+          {
+              "text": "Choose a game to play",
+              "fallback": "If you could read this message, you'd be choosing something fun to do right now.",
+              "color": "#3AA3E3",
+              "attachment_type": "default",
+              "callback_id": "game_selection",
+              "actions": [
                   {
-                    "name": "no",
-                    "text": "Cancel",
-                    "type": "button",
-                    "value": "false"
+                      "name": "games_list",
+                      "text": "Select a new meeting time...",
+                      "type": "select",
+                      "options": [
+                          {
+                              "text": "Hearts",
+                              "value": "hearts"
+                          },
+                          {
+                              "text": "Bridge",
+                              "value": "bridge"
+                          },
+                          {
+                              "text": "Checkers",
+                              "value": "checkers"
+                          },
+                          {
+                              "text": "Chess",
+                              "value": "chess"
+                          },
+                          {
+                              "text": "Poker",
+                              "value": "poker"
+                          },
+                          {
+                              "text": "Falken's Maze",
+                              "value": "maze"
+                          },
+                          {
+                              "text": "Global Thermonuclear War",
+                              "value": "war"
+                          }
+                      ]
+                  },
+                  {
+                      "name": "no",
+                      "text": "Cancel",
+                      "type": "button",
+                      "value": "false"
                   }
 
-          ]
-      }
-  ]
-})
+              ]
+          }
+      ]
+  })
 
 
   User.findOne({slackID: slackID}).exec(function(err, user){
