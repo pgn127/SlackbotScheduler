@@ -130,7 +130,7 @@ app.post('/slack/interactive', function(req,res){
               var meetingDuration = 60; //default meeting duration is 1 hour
               if(payloadArr[0].fields[4]) {
                 //the duration field was provided
-                let durArr = payloadArr[0].fields[4].split(" ");
+                let durArr = payloadArr[0].fields[4].value.split(" ");
                 if(durArr[1] === "h") {
                   meetingDuration = durArr[0] * 60;
                 } else {
@@ -193,13 +193,14 @@ app.post('/slack/interactive', function(req,res){
                                     subject: meetingSubject,
                                     channelID: 'D6ATM9WMU', //TODO: not sure where to get this from yet
                                     date: dateTime,
-                                    time: meetingTime
+                                    time: meetingTime,
+                                    duration: meetingDuration,
                                 }
                                 checkConflicts(meeting, rtm)
                                 .then((freeTimeList)=>{
                                     console.log(freeTimeList);
                                     if(freeTimeList && freeTimeList.length === 0){
-                                        findAndReturnEmails(meeting.invitees, meeting.date,  meeting.subject, user.token, meeting.time);
+                                        findAndReturnEmails(meeting.invitees, meeting.date,  meeting.subject, user.token, meeting.time, meeting.duration);
                                         res.send('No conflicts with that time. Meeting confirmed');
                                     } else {
                                         console.log('THERE WERE CONFLICTS, SHOULD NOT CONFIRM MEETING');
@@ -223,7 +224,7 @@ app.post('/slack/interactive', function(req,res){
 })
 app.listen(process.env.PORT || 3000);
 
-function createCalendarReminder(date, subject, tokens, invitees, time){
+function createCalendarReminder(date, subject, tokens, invitees, time, duration){
   if(!invitees){
     var event = {
       'summary': subject,
@@ -241,15 +242,19 @@ function createCalendarReminder(date, subject, tokens, invitees, time){
         'email' : invited
       })
     })
-    console.log(attendeesArr);
     let dateTime = date + "T" + time + "-07:00"
+
+    var endTime = new Date(dateTime);
+    endTime.setMinutes(endTime.getMinutes() + parseInt(duration))
+    let finalDate = new Date(Date.parse(endTime))
+
     var event = {
       'summary': subject,
       'start': {
         'dateTime': dateTime
       },
       'end': {
-        'dateTime': dateTime
+        'dateTime': finalDate,
       },
       'attendees': attendeesArr,
     };
@@ -277,7 +282,7 @@ function createCalendarReminder(date, subject, tokens, invitees, time){
 }
 
 
-function findAndReturnEmails (users, date, subject, tokens, time) {
+function findAndReturnEmails (users, date, subject, tokens, time, duration) {
 
   var slackIdArray = [];
 
@@ -295,7 +300,7 @@ function findAndReturnEmails (users, date, subject, tokens, time) {
   })
 
   Promise.all(promisArray).then((arr) => {
-    createCalendarReminder(date, subject, tokens, arr, time);
+    createCalendarReminder(date, subject, tokens, arr, time, duration);
   })
 }
 
@@ -329,7 +334,7 @@ function checkConflicts(meeting, rtm){
                 //AT THIS POINT YOU ARE AUTHENTICATED TO SEE THE INVITEE GOOGLE calendar
                 meetingDate = new Date(meeting.date + ' ' + meeting.time + "-07:00");
                 var meetingEnd = new Date(meeting.date + ' ' + meeting.time + "-07:00");
-                meetingEnd.setMinutes(meetingEnd.getMinutes() + 30);
+                meetingEnd.setMinutes(meetingEnd.getMinutes() + meeting.duration);
                 var n = 7;
                 while (workingDaysBetweenDates(meetingDate, new Date(Date.parse(meetingEnd) + n*24*60*60*1000)) < 7){
                     n++;
