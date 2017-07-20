@@ -286,7 +286,8 @@ function checkConflicts(meeting, rtm){
                     n++;
                 }
                 sevenBusinessDays = new Date(Date.parse(meetingEnd) + n*24*60*60*1000)
-                calendar.freebusy.query({
+                return new Promise((resolve, reject) => {
+                    calendar.freebusy.query({
                     auth: oauth2Client,
                     headers: { "content-type" : "application/json" },
                     resource:{
@@ -294,20 +295,22 @@ function checkConflicts(meeting, rtm){
                         timeMin: meetingDate.toISOString(),
                         timeMax: sevenBusinessDays.toISOString() //first # controls # of days to check for conflicting events
                     }
-                }
-                , function(err, schedule) {
+                }, function(err, schedule) {
                     // console.log(typeof schedule);
                     if(schedule){
                         console.log('returning schedule to next then');
-                        return schedule
+                        resolve(schedule)
                     } else {
                         console.log('INSIDE ELSE');
+                        reject(err);
                         // console.log("There was an error getting invitee calendar", err);
-                        throw new Error('couldnt find scheduke for user');
+                        // throw new Error('couldnt find scheduke for user');
 
                     }
                 }
             )
+        })
+
             } else {
                 throw new Error('couldnt find user');
             }
