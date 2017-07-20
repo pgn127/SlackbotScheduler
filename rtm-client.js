@@ -298,7 +298,7 @@ function checkConflicts(meeting, rtm){
                 , function(err, schedule) {
                     // console.log(typeof schedule);
                     if(schedule){
-                        // console.log(schedule);
+                        console.log('returning schedule to next then');
                         return schedule
                     } else {
                         console.log('INSIDE ELSE');
@@ -309,8 +309,6 @@ function checkConflicts(meeting, rtm){
                 }
             )
             } else {
-                // continue; //WILL THIS CONTINEU THE FOR EACHc
-
                 throw new Error('couldnt find user');
             }
         })
