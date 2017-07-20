@@ -296,13 +296,14 @@ function checkConflicts(meeting, rtm){
                     }
                 }
                 , function(err, schedule) {
-                    if(err){
+                    console.log(err, schedule);
+                    if(schedule){
+                        // console.log(schedule);
+                        return schedule
+                    } else {
                         console.log("There was an error getting invitee calendar", err);
                         throw new Error('couldnt find scheduke for user');
-                    } else {
 
-                        console.log(schedule);
-                        return schedule
                     }
                 }
             )
