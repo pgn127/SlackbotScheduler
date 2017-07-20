@@ -184,8 +184,7 @@ app.post('/slack/interactive', function(req,res){
                         })
 
 
-                    })
-                }
+                    }
             })
           });
       }
