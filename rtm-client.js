@@ -296,13 +296,13 @@ function checkConflicts(meeting, rtm){
                     }
                 }
                 , function(err, schedule) {
-                    console.log(typeof schedule);
+                    // console.log(typeof schedule);
                     if(schedule){
                         // console.log(schedule);
                         return schedule
                     } else {
                         console.log('INSIDE ELSE');
-                        console.log("There was an error getting invitee calendar", err);
+                        // console.log("There was an error getting invitee calendar", err);
                         throw new Error('couldnt find scheduke for user');
 
                     }
@@ -315,9 +315,10 @@ function checkConflicts(meeting, rtm){
             }
         })
         .then((schedule) => {
-            if(!schedule){
-                console.log("There was an error getting invitee calendar");
-                throw new Error('couldnt find scheduke for user');
+            console.log('scheudle was retunred', schedule);
+            if(false && !schedule){
+                console.log("schedule wasnt returned");
+                throw new Error('no schedule returns');
             }else {
                 // console.log('schedule is ', schedule);
                 var busyList = schedule.calendars.primary.busy;
