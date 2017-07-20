@@ -295,7 +295,7 @@ function checkConflicts(meeting, rtm){
                         timeMax: sevenBusinessDays.toISOString() //first # controls # of days to check for conflicting events
                     }
                 })
-                request.execute()
+                return Promise.resolve(request);
             } else {
                 // continue; //WILL THIS CONTINEU THE FOR EACHc
 
@@ -307,7 +307,7 @@ function checkConflicts(meeting, rtm){
                 console.log("There was an error getting invitee calendar");
                 throw new Error('couldnt find scheduke for user');
             }else {
-                console.log('schedule is ', schedule);
+                // console.log('schedule is ', schedule);
                 var busyList = schedule.calendars.primary.busy;
                 busySlots = busySlots.concat(busyList);
                 console.log(invitee);
