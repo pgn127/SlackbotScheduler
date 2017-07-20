@@ -256,7 +256,7 @@ function processMessage(message, rtm) {
 
 function checkConflicts(meeting, rtm){
     var busySlots = [];
-    var counter = 0;
+    var count = 0;
     var counterGoal = meeting.invitees.length;
     var invitee, user,sevenBusinessDays, meetingDate;
     meeting.invitees.forEach( function(invitee) {
@@ -316,7 +316,7 @@ function checkConflicts(meeting, rtm){
             }
         })
         .then((schedule) => {
-            console.log('scheudle was retunred', schedule);
+            // console.log('scheudle was retunred', schedule);
             if(false && !schedule){
                 console.log("schedule wasnt returned");
                 throw new Error('no schedule returns');
