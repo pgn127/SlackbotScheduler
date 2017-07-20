@@ -290,14 +290,13 @@ function checkConflicts(meeting, rtm){
                         if(Date.parse(startTime) >= Date.parse(time.start) && Date.parse(startTime) <= Date.parse(time.end) || Date.parse(endTime) >= Date.parse(time.start) && Date.parse(endTime) <= Date.parse(time.end)){
                         // if(new Date(startTime) >= new Date(time.start) && new Date(startTime) <= new Date(time.end) || new Date(endTime) >= new Date(time.start) && new Date(endTime) <= new Date(time.end)){
 
-                            rtm.sendMessage(`BUSY: the meeting you tried to schedule for day  ${meetingDate} from \n ${meetingStartTime.slice(0,8)}-${meetingEndTime.slice(0,8)} \n conflicts with ${invitee}'s event on day ${userEventDate} from \n ${userEventStartTime.slice(0,8)}-${userEventEndTime.slice(0,8)}.\n\n`,'D6ATM9WMU');
-                            rtm.sendMessage(`BUSY: the meeting you tried to schedule for day  ${meetingDate} from \n ${meetingStartTime.slice(0,8)}-${meetingEndTime.slice(0,8)} \n conflicts with ${invitee}'s event on day ${userEventDate} from \n ${userEventStartTime.slice(0,8)}-${userEventEndTime.slice(0,8)}.\n\n`,meeting.channelID);
+                            rtm.sendMessage(`BUSY: the meeting you tried to schedule for day  ${meetingDate} from \n ${meetingStartTime.slice(0,8)}-${meetingEndTime.slice(0,8)}UTC \n conflicts with ${invitee}'s event on day ${userEventDate} from \n ${userEventStartTime.slice(0,8)}-${userEventEndTime.slice(0,8)}UTC.\n\n`,'D6ATM9WMU');
+                            rtm.sendMessage(`BUSY: the meeting you tried to schedule for day  ${meetingDate} from \n ${meetingStartTime.slice(0,8)}-${meetingEndTime.slice(0,8)}UTC \n conflicts with ${invitee}'s event on day ${userEventDate} from \n ${userEventStartTime.slice(0,8)}-${userEventEndTime.slice(0,8)}UTC.\n\n`,meeting.channelID);
 
                         } else {
 
-
-                            rtm.sendMessage(`FREE: ${invitee} has no overlap with meeting on day ${startTime.substring(0, 10)} from \n ${meetingStartTime.slice(0,8)}-${meetingEndTime.slice(0,8)} \n and ${invitee}s event on day ${userEventDate} from \n ${userEventStartTime.slice(0,8)}-${userEventEndTime.slice(0,8)}.\n\n`,'D6ATM9WMU');
-                            rtm.sendMessage(`FREE: ${invitee} has no overlap with meeting on day ${startTime.substring(0, 10)} from \n ${meetingStartTime.slice(0,8)}-${meetingEndTime.slice(0,8)} \n and ${invitee}s event on day ${userEventDate} from \n ${userEventStartTime.slice(0,8)}-${userEventEndTime.slice(0,8)}.\n\n`,meeting.channelID);
+                            rtm.sendMessage(`FREE: ${invitee} has no overlap with meeting on day ${startTime.substring(0, 10)} from \n ${meetingStartTime.slice(0,8)}-${meetingEndTime.slice(0,8)}UTC \n and ${invitee}s event on day ${userEventDate} from \n ${userEventStartTime.slice(0,8)}-${userEventEndTime.slice(0,8)}UTC.\n\n`,'D6ATM9WMU');
+                            rtm.sendMessage(`FREE: ${invitee} has no overlap with meeting on day ${startTime.substring(0, 10)} from \n ${meetingStartTime.slice(0,8)}-${meetingEndTime.slice(0,8)}UTC \n and ${invitee}s event on day ${userEventDate} from \n ${userEventStartTime.slice(0,8)}-${userEventEndTime.slice(0,8)}UTC.\n\n`,meeting.channelID);
 
 
                         }
