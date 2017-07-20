@@ -100,10 +100,7 @@ app.post('/command', function(req, res) {
   res.send('Your ngrok tunnel is up and running!');
 });
 
-
-
 app.post('/slack/interactive', function(req,res){
-
   var payload = JSON.parse(req.body.payload);
   if(payload.actions[0].value === 'true') {
     slackID = payload.user.id;
@@ -164,21 +161,21 @@ app.post('/slack/interactive', function(req,res){
                             invitees: meetingInvitees,
                         })
 
-                        newMeeting.save(function(err){
+                        newMeeting.save(function(err, meeting){
                             if (err){
                                 res.status(400).json({error:err});
                             }else{
                                 meetingDate = new Date(meetingDate);
                                 let dateTime = meetingDate.toISOString().substring(0, 10);
                                 // createCalendarReminder(dateTime, meetingSubject, user.token , meetingInvitees);
-                                var meeting = {
-                                    userID: user._id, //mongodb user model _id
-                                    invitees: meetingInvitees, // list of slack usernames invited
-                                    subject: meetingSubject,
-                                    channelID: 'D6ATM9WMU', //TODO: not sure where to get this from yet
-                                    date: dateTime,
-                                    time: meetingTime
-                                }
+                                // var meeting = {
+                                //     userID: user._id, //mongodb user model _id
+                                //     invitees: meetingInvitees, // list of slack usernames invited
+                                //     subject: meetingSubject,
+                                //     channelID: 'D6ATM9WMU', //TODO: not sure where to get this from yet
+                                //     date: dateTime,
+                                //     time: meetingTime
+                                // }
                                 checkConflicts(meeting, rtm)
                                 .then((freeTimeList)=>{
                                     console.log(freeTimeList);
@@ -197,8 +194,6 @@ app.post('/slack/interactive', function(req,res){
                 }
             })
           });
-          //ELSE STILL SAVE REMINDER EVEN IF THEIR TOKEN IS EXPIRED
-
       }
     })
   } else {
