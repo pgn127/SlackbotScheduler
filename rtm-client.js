@@ -9,40 +9,6 @@ const timeZone = "2017-07-17T14:26:36-0700";
 const identifier = 20150910;
 var OAuth2 = google.auth.OAuth2;
 var googleAuth = require('google-auth-library');
-// var messageButtons = {
-//           "attachments": [
-//               {
-//                   "fields": [
-//                       {
-//                           "title": "Subject",
-//                           "value": `${data.result.parameters.subject}`
-//                       },
-//                       {
-//                           "title": "Date",
-//                           "value": `${data.result.parameters.date}`
-//                       }
-//                   ],
-//                   "fallback": "You are unable to choose a game",
-//                   "callback_id": "wopr_game",
-//                   "color": "#3AA3E3",
-//                   "attachment_type": "default",
-//                   "actions": [
-//                       {
-//                           "name": "yes",
-//                           "text": "Yes",
-//                           "type": "button",
-//                           "value": "true"
-//                       },
-//                       {
-//                           "name": "no",
-//                           "text": "No",
-//                           "type": "button",
-//                           "value": "false"
-//                       }
-//                   ]
-//               }
-//           ]
-//       }
 var {RtmClient, WebClient, CLIENT_EVENTS, RTM_EVENTS} = require('@slack/client');
 //same as var RtmClient = require('@slack/client').RtmClient
 var token = process.env.SLACK_API_TOKEN || '';
@@ -51,17 +17,6 @@ var web = new WebClient(token);
 let channel;
 var awaitingResponse = false;
 mongoose.Promise = global.Promise;
-
-
-// var pamtofrankie = {
-//     userID: '596f927c2945b10011ad86b0',
-//     invitees: ['fflores'],
-//     subject: 'get some dinna',
-//     channelID: 'D6ATM9WMU',
-//     date: '2017-07-20',
-//     time: '17:00:00'
-//
-// }
 var pamtofrankie = {
     userID: '596f91760f86e7001144794d',
     invitees: ['pneedle'],
