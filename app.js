@@ -116,9 +116,7 @@ app.post('/slack/interactive', function(req,res){
           } else {
               //it was a meeting
               var meetingSubject = payload.original_message.attachments[0].fields[0].value;
-              var meetingDate = Date.parse(payload.original_message.attachments[0].fields[1].value);
-            //   meetingDate = new Date(meetingDate);
-            //   let dateTime = meetingDate.toISOString().substring(0, 10);
+              var meetingDate = payload.original_message.attachments[0].fields[1].value; //NOTE: removed Date.parse because conflicts with how we deal with dates in the check conflcits and the date type should be String
               var meetingTime = payload.original_message.attachments[0].fields[2].value;
               var meetingInvitees = payload.original_message.attachments[0].fields[3].value.split(", ");
               console.log('meetingDate', meetingDate, 'meetingTime', meetingTime, payload.original_message.attachments[0].fields[1].value);
@@ -168,8 +166,8 @@ app.post('/slack/interactive', function(req,res){
                             if (err){
                                 res.status(400).json({error:err});
                             }else{
-                                meetingDate = new Date(meetingDate);
-                                let dateTime = meetingDate.toISOString().substring(0, 10);
+                                // meetingDate = new Date(meetingDate);
+                                // let dateTime = meetingDate.toISOString().substring(0, 10);
                                 // createCalendarReminder(dateTime, meetingSubject, user.token , meetingInvitees);
                                 // var meeting = {
                                 //     userID: user._id, //mongodb user model _id
