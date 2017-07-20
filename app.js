@@ -8,10 +8,7 @@ var googleAuth = require('google-auth-library');
 var fs = require('fs');
 var slackID;
 var url;
-//defining rtm in this document
-var {RtmClient, WebClient, CLIENT_EVENTS, RTM_EVENTS} = require('@slack/client');
-var token = process.env.SLACK_API_TOKEN || '';
-var rtm = new RtmClient(token);
+var {rtm} = require('./rtm-client')
 
 mongoose.connect(process.env.MONGODB_URI);
 mongoose.Promise = global.Promise;
@@ -121,7 +118,7 @@ app.post('/slack/interactive', function(req,res){
           var meetingSubject = payload.original_message.attachments[0].fields[0].value;
           var meetingDate = Date.parse(payload.original_message.attachments[0].fields[1].value);
           var meetingTime = payload.original_message.attachments[0].fields[2].value;
-          var meetingInvitees = payload.original_message.attachments[0].fields[1].value;
+          var meetingInvitees = payload.original_message.attachments[0].fields[3].value.split(", ");
 
         }
         if(Date.now() > user.token.expiry_date) {
@@ -181,9 +178,12 @@ app.post('/slack/interactive', function(req,res){
                       date: dateTime,
                       time: meetingTime
                     }
-                    if(checkConflicts(meeting, rtm)){
+                    // TODO: uncomment the following lines
+                    // if(checkConflicts(meeting, rtm)){
+                    //   findAndReturnEmails(meeting.invitees, meeting.date,  meeting.subject, tokens, meeting.time);
+                    // };
                       findAndReturnEmails(meeting.invitees, meeting.date,  meeting.subject, tokens, meeting.time);
-                    };
+
                     res.send('Meeting Confirmed')
                   }
                 })
@@ -234,9 +234,13 @@ app.post('/slack/interactive', function(req,res){
                   date: dateTime,
                   time: meetingTime
                 }
-                if(checkConflicts(meeting, rtm)){
-                  findAndReturnEmails(meeting.invitees, meeting.date,  meeting.subject, tokens, meeting.time);
-                };
+                console.log(meeting)
+                // TODO: uncomment the following lines
+                // if(checkConflicts(meeting, rtm)){
+                //   findAndReturnEmails(meeting.invitees, meeting.date,  meeting.subject, tokens, meeting.time);
+                // };
+                findAndReturnEmails(meeting.invitees, meeting.date,  meeting.subject, user.token, meeting.time);
+
                 res.send('Meeting Confirmed')
               }
             })
@@ -267,19 +271,17 @@ function createCalendarReminder(date, subject, tokens, invitees, time){
         'email' : invited
       })
     })
-
+    console.log(attendeesArr);
     let dateTime = date + "T" + time + "-07:00"
     var event = {
       'summary': subject,
       'start': {
-        'dateTime': date
+        'dateTime': dateTime
       },
       'end': {
         'dateTime': dateTime
       },
-      'attendees': [
-        {'email': 'ryan.clyde15@gmail.com'},
-      ],
+      'attendees': attendeesArr,
     };
   }
 
@@ -304,77 +306,6 @@ function createCalendarReminder(date, subject, tokens, invitees, time){
   })
 }
 
-function checkConflicts(meeting, rtm){
-  var dateSplit = meeting.date.split('-');
-  var timeSplit = meeting.time.split(':');
-  var inviteesAllAvailable = true;
-  meeting.invitees.forEach( function(invitee) {
-    var inviteeuser = rtm.dataStore.getUserByName(invitee); //given the invitee slack name, find their slack user object
-    var inviteeSlackID = inviteeuser.id; //get slack id from slack user
-
-    //find a user in our DB with that slack username
-    User.findOne({slackID: inviteeSlackID}, function(err, user) {
-      if(user) {
-        //save user tokens
-        var tokens = user.token;
-        oauth2Client = new OAuth2(
-          process.env.GOOGLE_CLIENT_ID,
-          process.env.GOOGLE_CLIENT_SECRET,
-          process.env.DOMAIN + '/connect/callback'
-        )
-        oauth2Client.setCredentials(tokens);
-        var calendar = google.calendar('v3');
-        //AT THIS POINT YOU ARE AUTHENTICATED TO SEE THE INVITEE GOOGLE calendar
-
-        //need to subtract one month because of weird time conversion shit idk
-        var timemin = new Date(dateSplit[0], (parseInt(dateSplit[1]) - 1).toString(), dateSplit[2], timeSplit[0], timeSplit[1], timeSplit[2]);
-        var timemax = new Date(dateSplit[0], (parseInt(dateSplit[1]) - 1).toString(), (parseInt(dateSplit[2]) + 2).toString(), timeSplit[0], timeSplit[1], timeSplit[2]);
-
-        calendar.freebusy.query({
-          auth: oauth2Client,
-          headers: { "content-type" : "application/json" },
-          resource:{items: [{id: 'primary', busy: 'Active'}],
-          // timeZone: "America/Los_Angeles",
-          timeMin: timemin.toISOString(),//(new Date(2017, 06, 20)).toISOString(),
-          timeMax: timemax.toISOString(),//(new Date(2017, 06, 21)).toISOString()
-        }
-      }, function(err, schedule) {
-        if(err){
-          console.log("There was an error getting invitee calendar", err);
-          return
-        }else {
-
-          var busyList = schedule.calendars.primary.busy;
-          //true when no vconflict exists between invitee events and meeting time and false otherwise
-
-          var inviteeFreeSlots = []; //array of time invertvals that this invitee is free
-          busyList.forEach((time) => {
-
-            //TIME WILL BE IN UTC --- UTC DATE OBJECT FOR BUSY TIME
-            var busyUTCstart = new Date(time.start);
-            var busyUTCend = new Date(time.end);
-
-            // //UTC DATE OBJECTS FOR MEETING START AND end (assume meeting is 1 horu long)
-            var meetingUTCstart = new Date(dateSplit[0], parseInt(dateSplit[1]) - 1, dateSplit[2], timeSplit[0], timeSplit[1], timeSplit[2]);
-            var meetingUTCend = new Date(dateSplit[0], parseInt(dateSplit[1]) - 1, dateSplit[2], (parseInt(timeSplit[0]) +1).toString(), timeSplit[1], timeSplit[2]);
-
-            //TEST FOR CONFLICT:
-            //1. meeting starts during the invitee's event OR 2. meeting ends during the invitee's event
-            if(meetingUTCstart >= busyUTCstart && meetingUTCstart <= busyUTCend || meetingUTCend >= busyUTCstart && meetingUTCend <= busyUTCend){
-
-              console.log('BUSY: The meeting time \n', meetingUTCstart.toUTCString(), ' - ', meetingUTCend.toUTCString(), '\n conflicts with user event at \n', busyUTCstart.toUTCString(), ' - ', busyUTCend.toUTCString(), '\n');
-              inviteesAllAvailable = false;
-            } else {
-              console.log('FREE: No overlap between meeting at \n',meetingUTCstart.toUTCString(), ' - ', meetingUTCend.toUTCString(), '\n and the users event at \n', busyUTCstart.toUTCString(), ' - ', busyUTCend.toUTCString(), '\n');
-
-            }
-          })
-        }
-      })
-
-    }
-  })
-})
 return inviteesAllAvailable;
 }
 
@@ -388,15 +319,15 @@ function findAndReturnEmails (users, date, subject, tokens, time) {
   })
 
   var emailArray = [];
-  emailArray.length = slackIdArray.length;
+  var promisArray = [];
 
   slackIdArray.forEach((slackId) => {
-    User.findOne({slackID: slackId}).exec(function(err, user){
-      emailArray.push(user.email)
-    })
-  })
-  Promise.all(emailArray).then(() => {
-    createCalendarReminder(meeting.date, meeting.subject, tokens, emailArray, meeting.time);
+    promisArray.push(User.findOne({slackID: slackId}).exec()
+  .then((user) => user.email))
   })
 
+  Promise.all(promisArray).then((arr) => {
+    console.log(arr);
+    createCalendarReminder(date, subject, tokens, arr, time);
+  })
 }

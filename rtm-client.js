@@ -147,11 +147,14 @@ function processMessage(message, rtm) {
         //it is the meeting intent
 
         let inviteArr = [];
-        data.result.parameters.invitees.forEach((user) => {
+        data.result.parameters.invitees.forEach((user, index) => {
           let newUser = user.substr(2)
           let userObj = rtm.dataStore.getUserById(newUser)
-          console.log(userObj)
-          inviteArr.push(userObj.profile.first_name)
+          if(!index){
+            inviteArr.push(userObj.name)
+          }else{
+            inviteArr.push(" " + userObj.name)
+          }
         })
 
         var fields = [
@@ -209,4 +212,8 @@ function processMessage(message, rtm) {
   // rtm.sendMessage(messageText, message.channel, function() {
   //   // getAndSendCurrentWeather(locationName, query, message.channel, rtm);
   // });
+}
+
+module.exports = {
+  rtm : rtm
 }
