@@ -109,7 +109,7 @@ app.post('/slack/interactive', function(req,res){
   //     var selectedMeeting =
   // }
   //if the user selects confirm button
-  else if(payload.actions[0].type === "button" && payload.actions[0].value === 'true') {
+  if(payload.actions[0].type === "button" && payload.actions[0].value === 'true') {
     //   console.log('PAYLOAD ACTIONS', payload.actions.selected_options);
     slackID = payload.user.id;
     User.findOne({slackID: slackID}).exec(function(err, user){
