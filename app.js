@@ -191,37 +191,9 @@ app.post('/slack/interactive', function(req,res){
                             console.log('THERE WERE CONFLICTS, SHOULD NOT CONFIRM MEETING');
                             //TODO: NEED TO SEND MESSAGE WITH FREE TIMES TO HAVE HTEM SELECT FROM BUT PROBABLY SHOULDNT DO THAT IN HERE??
                             res.send('There were conflicts with that meeting time and your invitees. Please choose another meeting time. FIGURE OUT HOW TO SEND THE MESSAGE');
-                            // web.chat.postMessage(message.channel, `Would you like me to create the following meeting: ` , {
-                            //   "attachments": [
-                            //     {
-                            //       "fields": fields,
-                            //       "callback_id": "wopr_game",
-                            //       "color": "#3AA3E3",
-                            //       "attachment_type": "default",
-                            //       "actions": [
-                            //         {
-                            //           "name": "yes",
-                            //           "text": "Confirm",
-                            //           "type": "button",
-                            //           "value": "true"
-                            //         },
-                            //         {
-                            //           "name": "no",
-                            //           "text": "Cancel",
-                            //           "type": "button",
-                            //           "value": "false"
-                            //         }
-                            //       ]
-                            //     }
-                            //   ]
-                            // });
-                            //
                         }
                     });
-
                     // findAndReturnEmails(meeting.invitees, meeting.date,  meeting.subject, user.token, meeting.time);
-
-
                   }
                 })
               }
