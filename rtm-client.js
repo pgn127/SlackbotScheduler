@@ -252,8 +252,6 @@ function processMessage(message, rtm) {
 }
 
 
-
-
 function checkConflicts(meeting, rtm){
     var busySlots = [];
     var count = 0;
@@ -353,7 +351,7 @@ function checkConflicts(meeting, rtm){
         .then( () => {
             count+=1
             if(count === counterGoal){
-                var freetimelist = findFreeTimes(busySlots, meetindDate.toISOString(), sevenBusinessDays.toISOString());
+                var freetimelist = findFreeTimes(busySlots, meetingDate.toISOString(), sevenBusinessDays.toISOString());
                 console.log('freetimelist', freetimelist);
                 return freetimelist;
             }
