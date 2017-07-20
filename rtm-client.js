@@ -263,14 +263,14 @@ function checkConflicts(meeting, rtm){
                 //need to subtract one month because of weird time conversion shit idk
                 var timemin = new Date(dateSplit[0], (parseInt(dateSplit[1]) - 1).toString(), dateSplit[2], timeSplit[0], timeSplit[1], timeSplit[2]);
                 var timemax = new Date(dateSplit[0], (parseInt(dateSplit[1]) - 1).toString(), (parseInt(dateSplit[2]) + 2).toString(), timeSplit[0], timeSplit[1], timeSplit[2]);
-
+                console.log('endtime', endTime);
                 calendar.freebusy.query({
                     auth: oauth2Client,
                     headers: { "content-type" : "application/json" },
                     resource:{items: [{id: 'primary', busy: 'Active'}],
                     // timeZone: "America/Los_Angeles",
                      timeMin: startTime,//timemin.toISOString(),//(new Date(2017, 06, 20)).toISOString(),
-                     timeMax: (new Date(endTime).getMilliseconds() + 3*24*60*60*1000).toISOString()//timemax.toISOString(),//(new Date(2017, 06, 21)).toISOString()
+                     timeMax: ((new Date(endTime)).getMilliseconds() + 3*24*60*60*1000).toISOString()//timemax.toISOString(),//(new Date(2017, 06, 21)).toISOString()
                    }
                 }, function(err, schedule) {
                   if(err){
