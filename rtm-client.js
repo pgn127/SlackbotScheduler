@@ -302,11 +302,11 @@ function checkConflicts(meeting, rtm){
         })
         .then((schedule) => {
             if(!schedule){
-                console.log("There was an error getting invitee calendar";
+                console.log("There was an error getting invitee calendar");
                 throw new Error('couldnt find scheduke for user');
             }else {
                 console.log('schedule is ', schedule, schedule.groups);
-                var busyList = schedule.groups.calendars.primary.busy;
+                var busyList = schedule.calendars.primary.busy;
                 busySlots = busySlots.concat(busyList);
                 console.log(invitee);
                 busyList.forEach((time) => {
