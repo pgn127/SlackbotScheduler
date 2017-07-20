@@ -105,11 +105,11 @@ app.post('/slack/interactive', function(req,res){
   var payload = JSON.parse(req.body.payload);
   console.log('PAYLOAD ACTIONS', payload.actions);
   //if the user selects a new meeting time from list of meetings
-  // if(payload.actions[0].type === "select"){
-  //     var selectedMeeting =
-  // }
+  if(payload.actions[0].type === "select"){
+      console.log('the intervative message was a select');
+  }
   //if the user selects confirm button
-  if(payload.actions[0].type === "button" && payload.actions[0].value !== 'false') {
+  else if(payload.actions[0].type === "button" && payload.actions[0].value !== 'false') {
     //   console.log('PAYLOAD ACTIONS', payload.actions.selected_options);
     slackID = payload.user.id;
     User.findOne({slackID: slackID}).exec(function(err, user){
