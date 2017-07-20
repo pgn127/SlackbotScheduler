@@ -250,9 +250,7 @@ function processMessage(message, rtm) {
   })
 }
 
-module.exports = {
-  rtm : rtm
-}
+
 
 
 function checkConflicts(meeting, rtm){
@@ -424,3 +422,6 @@ function checkConflicts(meeting, rtm){
 //     })
 //     return inviteesAllAvailable;
 // }
+module.exports = {
+  rtm : rtm
+}
