@@ -264,7 +264,7 @@ function checkConflicts(meeting, rtm){
         var inviteeuser = rtm.dataStore.getUserByName(invitee); //given the invitee slack name, find their slack user object
         var inviteeSlackID = inviteeuser.id; //get slack id from slack user
         //find a user in our DB with that slack username
-        User.findOne({slackID: inviteeSlackID})
+        User.findOne({slackID: inviteeSlackID}).exec()
         .then((user) =>{
             if(user) {
                 user = user;
