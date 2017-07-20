@@ -106,6 +106,7 @@ app.post('/command', function(req, res) {
 app.post('/slack/interactive', function(req,res){
 
   var payload = JSON.parse(req.body.payload);
+  console.log("This is payload", payload);
   if(payload.actions[0].value === 'true') {
     slackID = payload.user.id;
     User.findOne({slackID: slackID}).exec(function(err, user){
@@ -489,6 +490,12 @@ function findFreeTimes(busyArray, meetingStartDate, sevenBusinessDays){
 
 function sendInvitations(meeting, user){
   // console.log("entering sendinvitations");
+  console.log("this is passed in user: ", user);
+  let abc;
+  abc = rtm.dataStore.getUserById(user.slackID);
+  let host;
+  host = abc.name;
+  console.log("this is host", host);
 
   // 1. add invitees to invitor's pending invites array
   //user that created event and is sending invitations's object gets passed into this function
@@ -518,16 +525,15 @@ function sendInvitations(meeting, user){
 
   // 3. for each invitee send web.chat.postmessage invitation message
   for(var i = 0; i < slackDmArray.length; i++){
-    // console.log("entering forloop");
     var tempName = slackUserArray[i].name;
-    console.log("this is tempName", tempName)
+    // console.log("this is tempName", tempName)
     web.chat.postMessage(slackDmArray[i], "Will you attend the following meeting?", {
       "attachments": [
         {
           "fields": [
             {
               "title": "Host",
-              "value": `${tempName}`
+              "value": `${host}`
             },
             {
               "title": "Subject",
@@ -555,13 +561,13 @@ function sendInvitations(meeting, user){
               "name": "yes",
               "text": "Confirm",
               "type": "button",
-              "value": "true"
+              "value": `${tempName}`
             },
             {
               "name": "no",
               "text": "Cancel",
               "type": "button",
-              "value": "false"
+              "value": `${tempName}`
             }
           ]
         }
