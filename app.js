@@ -160,7 +160,7 @@ app.post('/slack/interactive', function(req,res){
                             time: meetingTime,
                             invitees: meetingInvitees,
                         })
-                        checkConflicts(meeting, rtm)
+                        checkConflicts(newMeeting, rtm)
                         .then((freeTimeList)=>{
                             console.log(freeTimeList);
                             if(freeTimeList && freeTimeList.length === 0){
