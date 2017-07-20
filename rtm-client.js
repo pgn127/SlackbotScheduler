@@ -150,10 +150,13 @@ function processMessage(message, rtm) {
         console.log('The invitees are: ', data.result.parameters.invitees);
         data.result.parameters.invitees.forEach((user) => {
           if(user.length > 1){
-            let newUser = user.substr(1)
+            if(user.charAt(0) === "<"){
+              var newUser = user.substr(2)
+            } else {
+              var newUser = user.substr(1)
+            }
             console.log(newUser)
             let userObj = rtm.dataStore.getUserById(newUser)
-            console.log(userObj);
             if(!i){
               inviteArr.push(userObj.name)
             }else{
@@ -181,6 +184,13 @@ function processMessage(message, rtm) {
             "value": `${inviteArr}`
           }
         ];
+
+        if(data.result.parameters.duration !== "") {
+          fields.push({
+            "title": "Duration",
+            "value": `${data.result.parameters.duration.amount} ${data.result.parameters.duration.unit}`
+          })
+        }
 
         web.chat.postMessage(message.channel, `Would you like me to create the following meeting: ` , {
           "attachments": [
