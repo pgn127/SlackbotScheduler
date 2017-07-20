@@ -120,8 +120,6 @@ app.post('/slack/interactive', function(req,res){
               var meetingDate = payload.original_message.attachments[0].fields[1].value; //NOTE: removed Date.parse because conflicts with how we deal with dates in the check conflcits and the date type should be String
               var meetingTime = payload.original_message.attachments[0].fields[2].value;
               var meetingInvitees = payload.original_message.attachments[0].fields[3].value.split(", ");
-              console.log('meetingDate', meetingDate, 'meetingTime', meetingTime, payload.original_message.attachments[0].fields[1].value);
-            //   console.log('meeting invites', meetingInvitees);
           }
             oauth2Client = new OAuth2(
                 process.env.GOOGLE_CLIENT_ID,
