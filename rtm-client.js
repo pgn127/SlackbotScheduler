@@ -266,6 +266,7 @@ function checkConflicts(meeting, rtm){
         //find a user in our DB with that slack username
         User.findOne({slackID: inviteeSlackID}).exec()
         .then((user) =>{
+            console.log('user isss', user);
             if(user) {
                 user = user;
                 //save user tokens
