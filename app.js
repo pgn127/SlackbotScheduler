@@ -187,10 +187,13 @@ app.post('/slack/interactive', function(req,res){
                     //   findAndReturnEmails(meeting.invitees, meeting.date,  meeting.subject, tokens, meeting.time);
                     // };
 
-
+                    // this was before the commit, should I still call the funtion here as well?
                     // TODO: implement function that sends invitiation messages
-                    sendInvitations(meeting.invitees, meeting.date, meeting.subject, tokens, meeting.time);
-                      // findAndReturnEmails(meeting.invitees, meeting.date,  meeting.subject, tokens, meeting.time);
+                    console.log("about to call sendInvitations on line 192");
+                    console.log("this is meeting: ", meeting);
+                    console.log("this is user: ", user);
+                    sendInvitations(meeting, user);
+                    // findAndReturnEmails(meeting.invitees, meeting.date,  meeting.subject, tokens, meeting.time);
 
                     res.send('Meeting Confirmed')
                   }
@@ -250,7 +253,13 @@ app.post('/slack/interactive', function(req,res){
                 asyncConflicts(checkConflicts, meeting, rtm, function(freeTimeList) {
 
                     if(freeTimeList && freeTimeList.length === 0){
-                        findAndReturnEmails(meeting.invitees, meeting.date,  meeting.subject, user.token, meeting.time);
+
+                        //TODO write my own function that ultimimately calls findAndReturnEmails with the same parameters
+                        // sendInvitations(meeting, meeting.invitees, meeting.date, meeting.subject, user.token, meeting.time);
+                        sendInvitations(meeting, user);
+
+                        //find and return needs these criterias below. I pass in the meeting and User objects to sendInvitations, which will waterfall and call createCalendarReminder
+                        // findAndReturnEmails(meeting.invitees, meeting.date,  meeting.subject, user.token, meeting.time);
                         res.send('No conflicts with that time. Meeting confirmed');
                     } else {
                         console.log('THERE WERE CONFLICTS, SHOULD NOT CONFIRM MEETING');
@@ -578,3 +587,50 @@ function findFreeTimes(busyArray, meetingStartDate, sevenBusinessDays){
     freeStack.push({start: freeStart, end: freeEnd})
     return freeStack;
 }
+
+function sendInvitations(meeting, user){
+
+  //// old and redundant code
+  //// get the invitor's userObj from dataStore
+  //// var sender = rtm.dataStore.getUserById(meeting.userID)
+  //// find the user by his slackId in the mongodb
+  //// User.findOne({slackID: }).exec()
+  //// .then((user) => user.pendingInvites = meeting.invitees)
+
+  // 1. add invitees to invitor's pending invites array
+  //user that created event and is sending invitations's object gets passed into this function
+  user.pendingInvites = meeting.invitees;
+  console.log("this is updated pendingInvites", user.pendingInvites);
+  user.save()
+  .then( () => res.status(200).send("pendingInvites array updated"))
+  .catch((err) => {
+    console.log('error in saving pendinginvites array to mlabs');
+    res.status(400).json({error:err});
+  })
+
+// 2.  get UserId and DM ID from the slack usernames in meeting.invitees =>
+//     check link pam sent in general
+  let tempArr = [];
+  user.pendingInvites.forEach((invitee) => {
+    let xyz = rtm.dataStore.UserByName(invitee)
+    console.log("this is UserByName", xyz)
+  })
+
+
+
+    // var abc = rtm.dataStore.getDMByUserId()
+    // tempArr.push(abc);
+
+// 3. for each invitee send web.chat.postmessage invitation message
+
+// findAndReturnEmails(meeting.invitees, meeting.date,  meeting.subject, tokens, meeting.time);
+
+}
+
+//4,5,6 for other function...
+//when slack user confirms, write new route in /slack/interactive to receive that payload with the information in it
+//when they accept, remove their name from the pendingInvites array and check the array's length
+//if the array's length is 0, then call create the calendar event
+
+//TODO: how to handle invites who decline. just remove them from pending invites array, and send slack messages
+        //saying "usernameX declined to attend the meeting", then check array lenght and book calender event with those remaining
