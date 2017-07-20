@@ -157,6 +157,7 @@ function processMessage(message, rtm) {
             }
             console.log(newUser)
             let userObj = rtm.dataStore.getUserById(newUser)
+            console.log(userObj)
             if(!i){
               inviteArr.push(userObj.name)
             }else{
