@@ -171,7 +171,8 @@ app.post('/slack/interactive', function(req,res){
                                     }else{
                                         findAndReturnEmails(meeting.invitees, meeting.date,  meeting.subject, user.token, meeting.time);
                                         res.send('No conflicts with that time. Meeting confirmed');
-                                }
+                                    }
+                                })
 
                             } else {
                                 console.log('THERE WERE CONFLICTS, SHOULD NOT CONFIRM MEETING');
