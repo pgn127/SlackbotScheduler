@@ -266,7 +266,7 @@ function processMessage(message, rtm, sender) {
         var time = data.result.parameters.time;
         var channelId = message.channel;
         var userID=  'IDK';
-        var invitees = invitesArr;
+        var invitees = inviteArr;
         console.log('subject date and time', subject, date, time, invitees);
 
         // var newMeeting = new Meeting({
