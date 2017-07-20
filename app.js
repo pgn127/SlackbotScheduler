@@ -48,7 +48,6 @@ app.get('/oauth', function(req, res){
   res.redirect(url);
 })
 app.get('/connect/callback', function(req, res) {
-  console.log("hit /connect/callback");
   const code = req.query.code;
   oauth2Client = new OAuth2(
     process.env.GOOGLE_CLIENT_ID,
