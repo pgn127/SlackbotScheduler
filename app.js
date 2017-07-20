@@ -104,9 +104,13 @@ app.post('/command', function(req, res) {
 app.post('/slack/interactive', function(req,res){
   var payload = JSON.parse(req.body.payload);
   console.log('PAYLOAD ACTIONS', payload.actions);
-  //if the user does not select cancel...(need to test for cancel because for meeting buttons the value will not be true)
-  if(payload.actions[0].value !== 'false') {
-      console.log('PAYLOAD ACTIONS', payload.actions.selected_options);
+  //if the user selects a new meeting time from list of meetings
+  if(payload.actions[0].type === "select"){
+      var selectedMeeting =
+  }
+  //if the user selects confirm button
+  else if(payload.actions[0].type === "button" && payload.actions[0].value === 'true') {
+    //   console.log('PAYLOAD ACTIONS', payload.actions.selected_options);
     slackID = payload.user.id;
     User.findOne({slackID: slackID}).exec(function(err, user){
       if(err || !user){

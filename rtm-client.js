@@ -190,7 +190,7 @@ function processMessage(message, rtm) {
       rtm.sendMessage(data.result.fulfillment.speech, message.channel)
     } else if(Object.keys(data.result.parameters).length !== 0){
       awaitingResponse = true;
-
+      console.log('intentname', data.result.metadata.intentName);
       if(data.result.metadata.intentName === "Setting a Reminder"){
         //remind intent
         web.chat.postMessage(message.channel, `Would you like me to create a reminder for ` , {
@@ -227,7 +227,7 @@ function processMessage(message, rtm) {
             }
           ]
         });
-      } else {
+    } else if(true){
         //it is the meeting intent
         let inviteArr = [];
         var i = 0;
