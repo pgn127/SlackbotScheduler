@@ -143,7 +143,7 @@ app.post('/slack/interactive', function(req,res){
                 }
               }
               var meetingSubject = payload.original_message.attachments[0].fields[0].value;
-              var meetingInvitees = payload.original_message.attachments[0].fields[1].value.split(", ");
+              var meetingInvitees = payload.original_message.attachments[0].fields[1].value.split(",");
               if(payload.actions[0].type === "select"){ //meeting with conflicts with select list
                  var meetingTime = payload.actions[0].selected_options[0].value.slice(11,19);
                  var meetingDate = payload.actions[0].selected_options[0].value.slice(0,10);

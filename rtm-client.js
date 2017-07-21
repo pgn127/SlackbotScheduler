@@ -127,13 +127,8 @@ function processMessage(message, rtm, sender) {
             // console.log(' new user is ', newUser)
             let userObj = rtm.dataStore.getUserById(newUser)
             if(userObj){
-                // console.log('user found', userObj);
-                if(!i){
-                  inviteArr.push(userObj.name)
-                }else{
-                  inviteArr.push(" " + userObj.name)
-                }
-                i++;
+                inviteArr.push(userObj.name)
+
             } else {
                 console.log('no user found with name ', newUser);
             }
