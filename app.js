@@ -221,10 +221,10 @@ function createCalendarReminder(date, subject, tokens, invitees, time, duration)
     var event = {
       'summary': subject,
       'start': {
-        'date': dateTime,
+        'date': date,//Time,
       },
       'end': {
-        'date': dateTime
+        'date': date,//Time
       }
     };
   } else {
@@ -292,7 +292,11 @@ function findAndReturnEmails (users, date, subject, tokens, time, duration) {
   })
 
   Promise.all(promisArray).then((arr) => {
-    createCalendarReminder(date, subject, tokens, arr, time, duration);
+      if(arr) {
+          createCalendarReminder(date, subject, tokens, arr, time, duration);
+      } else {
+          console.log('in find and return emails, invitees came to be falsy so not calling createCalendarReminder', arr);
+      }
   })
 }
 
