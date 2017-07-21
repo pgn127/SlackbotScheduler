@@ -261,44 +261,87 @@ function processMessage(message, rtm, sender) {
         })
 
 
-        var subject = data.result.parameters.subject;
-        var date = data.result.parameters.date;
-        var time = data.result.parameters.time;
+        var meetingSubject = data.result.parameters.subject[0];
+        var meetingDate = data.result.parameters.date;
+        var meetingTime = data.result.parameters.time;
         var channelId = message.channel;
         var userID=  'IDK';
         var invitees = inviteArr;
         console.log('subject date and time', subject, date, time, invitees);
 
-        // var newMeeting = new Meeting({
-        //     userID: userID,
-        //     channelID: channelId,
-        //     subject: subject,
-        //     date: date,
-        //     time: time,
-        //     invitees: invitees,
-        // })
-        // checkConflicts(newMeeting, rtm)
-        // .then((freeTimeList)=>{
-        //     console.log(freeTimeList);
-        //     if(freeTimeList && freeTimeList.length === 0){
-        //         //only save new meeting if there are no conflicts
-        //         newMeeting.save(function(err, meeting){
-        //             if (err){
-        //                 res.status(400).json({error:err});
-        //             }else{
-        //                 findAndReturnEmails(meeting.invitees, meeting.date,  meeting.subject, user.token, meeting.time);
-        //                 res.send('No conflicts with that time. Meeting confirmed');
-        //             }
-        //         })
-        //
-        //     } else {
-        //         console.log('THERE WERE CONFLICTS, SHOULD NOT CONFIRM MEETING');
-        //         //TODO: NEED TO SEND MESSAGE WITH FREE TIMES TO HAVE HTEM SELECT FROM BUT PROBABLY SHOULDNT DO THAT IN HERE??
-        //         res.send('There were conflicts with that meeting time and your invitees. Please choose another meeting time. FIGURE OUT HOW TO SEND THE MESSAGE');
-        //     }
-        // }).catch((err) => {
-        //     console.log('error with checkconflicts', err);
-        // })
+        var newMeeting = new Meeting({
+            userID: userID,
+            channelID: channelId,
+            subject: meetingSubject,
+            date: meetingDate,
+            time: meetingTime,
+            invitees: invitees,
+        })
+
+        checkConflicts(newMeeting, rtm)
+        .then((freeTimeList)=>{
+            if(freeTimeList && freeTimeList.length === 0){
+                console.log('no conflicts');
+                rtm.sendMessage('no conflcits will confirm and save meeting', message.channel)
+                //only save new meeting if there are no conflicts
+                // newMeeting.save(function(err, meeting){
+                //     if (err){
+                //         res.status(400).json({error:err});
+                //     }else{
+                //         // findAndReturnEmails(meeting.invitees, meeting.date,  meeting.subject, user.token, meeting.time);
+                //         res.send('No conflicts with that time. Meeting confirmed');
+                //     }
+                // })
+
+            } else {
+                console.log('THERE WERE CONFLICTS, SHOULD NOT CONFIRM MEETING');
+                web.chat.postMessage(message.channel, 'PLease select a time', {
+                    "text": "Would you like to play a game?",
+                    "response_type": "in_channel",
+                    "attachments": [
+                        {
+                            "text": "Choose a game to play",
+                            "fallback": "If you could read this message, you'd be choosing something fun to do right now.",
+                            "color": "#3AA3E3",
+                            "attachment_type": "default",
+                            "callback_id": "game_selection",
+                            "actions": [
+                                {
+                                    "name": "games_list",
+                                    "text": "Select a new meeting time...",
+                                    "type": "select",
+                                    "options": [
+                                        {
+                                            "text": `1${ meetingDate} ${meetingTime}`,
+                                            "value": "{ start: '2017-07-21T00:00:00Z', end: '2017-07-21T00:00:00Z' }"
+                                        },
+                                        {
+                                            "text": `2${meetingDate} ${meetingTime}`,
+                                            "value": "{ start2: '2017-07-21T00:00:00Z', end2: '2017-07-21T00:00:00Z' }"
+                                        },
+                                        {
+                                            "text": `3${meetingDate} ${meetingTime}`,
+                                            "value": "{ start3: '2017-07-21T00:00:00Z', end3: '2017-07-21T00:00:00Z' }"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "no",
+                                    "text": "Cancel",
+                                    "type": "button",
+                                    "value": "false"
+                                }
+
+                            ]
+                        }
+                    ]
+                })
+
+                // res.send('There were conflicts with that meeting time and your invitees. Please choose another meeting time. FIGURE OUT HOW TO SEND THE MESSAGE');
+            }
+        }).catch((err) => {
+            console.log('error with checkconflicts', err);
+        })
 
         var fields = [
           {
@@ -326,30 +369,31 @@ function processMessage(message, rtm, sender) {
           })
         }
 
-        web.chat.postMessage(message.channel, `Would you like me to create the following meeting: ` , {
-          "attachments": [
-            {
-              "fields": fields,
-              "callback_id": "wopr_game",
-              "color": "#3AA3E3",
-              "attachment_type": "default",
-              "actions": [
-                {
-                  "name": "yes",
-                  "text": "Confirm",
-                  "type": "button",
-                  "value": "true"
-                },
-                {
-                  "name": "no",
-                  "text": "Cancel",
-                  "type": "button",
-                  "value": "false"
-                }
-              ]
-            }
-          ]
-        });
+        // web.chat.postMessage(message.channel, `Would you like me to create the following meeting: ` , {
+        //   "attachments": [
+        //     {
+        //       "fields": fields,
+        //       "callback_id": "wopr_game",
+        //       "color": "#3AA3E3",
+        //       "attachment_type": "default",
+        //       "actions": [
+        //         {
+        //           "name": "yes",
+        //           "text": "Confirm",
+        //           "type": "button",
+        //           "value": "true"
+        //         },
+        //         {
+        //           "name": "no",
+        //           "text": "Cancel",
+        //           "type": "button",
+        //           "value": "false"
+        //         }
+        //       ]
+        //     }
+        //   ]
+        // });
+
       }
     }
     else {
