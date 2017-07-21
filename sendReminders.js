@@ -28,7 +28,7 @@ function postMessage( msg, channelId) {
     })
 }
 
-var promisifiedPostMessage = bluebird.promisfiy(rtm.sendMessage.bind(rtm)) //USE EITHER THIS OR MY DEFINITION OF POSTMESSAGE
+var promisifiedPostMessage = bluebird.promisify(rtm.sendMessage.bind(rtm)) //USE EITHER THIS OR MY DEFINITION OF POSTMESSAGE
 
 function findReminders(rtm){
   var now = Date.now();
