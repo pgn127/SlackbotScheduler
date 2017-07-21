@@ -128,8 +128,10 @@ app.post('/slack/interactive', function(req,res){
 
           if(payload.original_message.text === "Would you like me to create a reminder for "){
               //it was a reminder
+              console.log('reminder message payload', payload.original_message.attachments[0]);
               var reminderSubject = payload.original_message.attachments[0].fields[0].value;
               var reminderDate = Date.parse(payload.original_message.attachments[0].fields[1].value);
+              console.log('rEMINDER DATE IS ', reminderDate, payload.original_message.attachments[0].fields[1].value);
           }
           else{
               var meetingDuration = 60; //default meeting duration is 1 hour
