@@ -113,29 +113,24 @@ app.post('/slack/interactive', function(req,res){
         console.log(err);
         res.send('an error occured');
       } else if (user){
-          if(payload.actions[0].type === "select"){
-              //meeting with conflicts with select list
-              var selectedMeeting = payload.actions[0].selected_options[0].value;
-              var meetingTime = selectedMeeting.slice(11,19);
-              var meetingDate = selectedMeeting.slice(0,10);
-              console.log('conflcit meeting time and date', meetingTime, meetingDate);
-              var meetingSubject = payload.original_message.attachments[0].fields[0].value;
-              var meetingInvitees = payload.original_message.attachments[0].fields[1].value.split(", ");
-          }
-
-          else if(payload.original_message.text === "Would you like me to create a reminder for "){
+          if(payload.original_message.text === "Would you like me to create a reminder for "){
               //it was a reminder
               var reminderSubject = payload.original_message.attachments[0].fields[0].value;
               var reminderDate = Date.parse(payload.original_message.attachments[0].fields[1].value);
           }
-
-          else {
-              //it was a meeting that had no conflicts
+          else{
               var meetingSubject = payload.original_message.attachments[0].fields[0].value;
-              var meetingDate = payload.original_message.attachments[0].fields[2].value;
-              var meetingTime = payload.original_message.attachments[0].fields[3].value;
               var meetingInvitees = payload.original_message.attachments[0].fields[1].value.split(", ");
+              if(payload.actions[0].type === "select"){ //meeting with conflicts with select list
+                 var meetingTime = payload.actions[0].selected_options[0].value.slice(11,19);
+                 var meetingDate = payload.actions[0].selected_options[0].value.slice(0,10);
+             }
+             else { //it was a meeting that had no conflicts
+                 var meetingDate = payload.original_message.attachments[0].fields[2].value;
+                 var meetingTime = payload.original_message.attachments[0].fields[3].value;
+             }
           }
+
             oauth2Client = new OAuth2(
                 process.env.GOOGLE_CLIENT_ID,
                 process.env.GOOGLE_CLIENT_SECRET,
