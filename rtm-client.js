@@ -445,8 +445,8 @@ function reduceTimeIntervals(busyArray){
 function findFreeTimes(busyArray, meetingStartDate, sevenBusinessDays, meetingDuration){
     //meetingStartDate and sevenBusinessDays must be in format '2017-07-22T23:59:59Z'
     var intervals = reduceTimeIntervals(busyArray);
-    var freeStart = meetingStartDate.slice(0,11)+'00:00:00Z' //TODO: CHANGE TO BE 9AM ON THE DAY YOU REQUESTED THE MEETING OR DATE.NOW
-    var freeEnd = sevenBusinessDays.slice(0,11)+'23:59:59Z'
+    var freeStart = meetingStartDate//.slice(0,11)+'00:00:00Z' //TODO: CHANGE TO BE 9AM ON THE DAY YOU REQUESTED THE MEETING OR DATE.NOW
+    var freeEnd = sevenBusinessDays.slice(0,11)+'06:59:59Z'
     var freeStack = []
     var duration = meetingDuration * 60 * 1000; //meeting duration in milliseconds
     intervals.forEach((interval) => {
