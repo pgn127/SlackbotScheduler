@@ -107,10 +107,11 @@ app.post('/slack/interactive', function(req,res){
   //if the user selects a new meeting time from list of meetings
   if(payload.actions[0].type === "select"){
       console.log('the intervative message was a select');
-      console.log('selected options', payload.actions[0].selected_options[0].value);
+
       var selectedMeeting = payload.actions[0].selected_options[0].value;
       var meetStartTime = selectedMeeting.slice(0,10);
       var meetDate = selectedMeeting.slice(11,19);
+      console.log('selected options attachemnts', payload.original_message.attachments[0].fields);
     //   var invitees = payload.original_message.attachments[0].fields[3].value.split(", ");
 
     //   var newMeeting = new Meeting({
@@ -124,7 +125,8 @@ app.post('/slack/interactive', function(req,res){
 
   }
   //if the user selects confirm button
-  else if(payload.actions[0].type === "button" && payload.actions[0].value !== 'false') {
+  else if(payload.actions[0].value !== 'false') {
+  // else if(payload.actions[0].type === "button" && payload.actions[0].value !== 'false') {
     //   console.log('PAYLOAD ACTIONS', payload.actions.selected_options);
     slackID = payload.user.id;
     User.findOne({slackID: slackID}).exec(function(err, user){
@@ -132,12 +134,24 @@ app.post('/slack/interactive', function(req,res){
         console.log(err);
         res.send('an error occured');
       } else if (user){
-          if(payload.original_message.text === "Would you like me to create a reminder for "){
+          if(payload.actions[0].type === "select"){
+              //meeting with conflicts with select list
+              console.log('the intervative message was a select');
+              console.log('selected options', payload.actions[0].selected_options[0].value);
+              var selectedMeeting = payload.actions[0].selected_options[0].value;
+              var meetStartTime = selectedMeeting.slice(0,10);
+              var meetDate = selectedMeeting.slice(11,19);
+            //   var meetingInvitees = payload.original_message.attachments[0].fields[3].value.split(", ");
+          }
+
+          else if(payload.original_message.text === "Would you like me to create a reminder for "){
               //it was a reminder
               var reminderSubject = payload.original_message.attachments[0].fields[0].value;
               var reminderDate = Date.parse(payload.original_message.attachments[0].fields[1].value);
-          } else {
-              //it was a meeting
+          }
+
+          else {
+              //it was a meeting that had no conflicts
               var meetingSubject = payload.original_message.attachments[0].fields[0].value;
               var meetingDate = payload.original_message.attachments[0].fields[1].value; //NOTE: removed Date.parse because conflicts with how we deal with dates in the check conflcits and the date type should be String
               var meetingTime = payload.original_message.attachments[0].fields[2].value;
