@@ -287,7 +287,7 @@ function processMessage(message, rtm, sender) {
             time: meetingTime,
             invitees: invitees,
         })
-
+        console.log('MEETINDATE, MEETINGTIME', meetingDate, meetingTime);
         checkConflicts(newMeeting, rtm)
         .then((freeTimeList)=>{
             if(freeTimeList && freeTimeList.length === 0){
@@ -299,6 +299,7 @@ function processMessage(message, rtm, sender) {
                         "title": "Time",
                         "value": `${meetingTime}`
                     }])
+                    console.log('FIELDS FOR NON CONFLICT METING', fields);
                     if(data.result.parameters.duration !== "") {
                       fields.push({
                         "title": "Duration",
@@ -340,7 +341,7 @@ function processMessage(message, rtm, sender) {
                     "value": `${data.result.parameters.duration.amount} ${data.result.parameters.duration.unit}`
                   })
                 }
-                
+
                 freeTimeList.forEach((time) => {
                     options.push({
                         "text": `${time.start.slice(0,10)} ${time.start.slice(11,19)} ${time.end.slice(11,19)}`,
