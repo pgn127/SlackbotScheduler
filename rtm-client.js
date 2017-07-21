@@ -76,7 +76,6 @@ rtm.on(CLIENT_EVENTS.RTM.AUTHENTICATED, (rtmStartData) => {
 });
 rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
 
-    // console.log(message);
   var dm = rtm.dataStore.getDMByUserId(message.user); //gets the channel ID for the specific conversation between one user and bot
   slackID = message.user;
   const userId = message.user;
@@ -85,68 +84,8 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
     return;
   }
   if( !dm || dm.id !== message.channel || message.type !== 'message') {
-    // console.log('MESSAGE WAS NOT SENT TOA  DM SO INGORING IT');
     return;
   }
-  // web.chat.postMessage(message.channel, 'PLease select a time', {
-  //     "text": "Would you like to play a game?",
-  //     "response_type": "in_channel",
-  //     "attachments": [
-  //         {
-  //             "text": "Choose a game to play",
-  //             "fallback": "If you could read this message, you'd be choosing something fun to do right now.",
-  //             "color": "#3AA3E3",
-  //             "attachment_type": "default",
-  //             "callback_id": "game_selection",
-  //             "actions": [
-  //                 {
-  //                     "name": "games_list",
-  //                     "text": "Select a new meeting time...",
-  //                     "type": "select",
-  //                     "options": [
-  //                         {
-  //                             "text": "Hearts",
-  //                             "value": "hearts"
-  //                         },
-  //                         {
-  //                             "text": "Bridge",
-  //                             "value": "bridge"
-  //                         },
-  //                         {
-  //                             "text": "Checkers",
-  //                             "value": "checkers"
-  //                         },
-  //                         {
-  //                             "text": "Chess",
-  //                             "value": "chess"
-  //                         },
-  //                         {
-  //                             "text": "Poker",
-  //                             "value": "poker"
-  //                         },
-  //                         {
-  //                             "text": "Falken's Maze",
-  //                             "value": "maze"
-  //                         },
-  //                         {
-  //                             "text": "Global Thermonuclear War",
-  //                             "value": "war"
-  //                         }
-  //                     ]
-  //                 },
-  //                 {
-  //                     "name": "no",
-  //                     "text": "Cancel",
-  //                     "type": "button",
-  //                     "value": "false"
-  //                 }
-  //
-  //             ]
-  //         }
-  //     ]
-  // })
-
-
   User.findOne({slackID: slackID}).exec(function(err, user){
     if(err){
       console.log(err)
@@ -154,7 +93,6 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
       if(!user){
         rtm.sendMessage('Please visit the following link to activate your account ' + process.env.DOMAIN + '/oauth?auth_id='+slackID, message.channel);
       } else {
-        //   checkConflicts(pamtofrankie, rtm);
           processMessage(message, rtm, user);
       }
     }
@@ -169,7 +107,6 @@ rtm.on(RTM_EVENTS.REACTION_REMOVED, function handleRtmReactionRemoved(reaction) 
 rtm.start();
 
 function processMessage(message, rtm, sender) {
-  // console.log('entered process message');
   axios.get('https://api.api.ai/api/query', {
     params: {
       v: identifier,
@@ -183,7 +120,6 @@ function processMessage(message, rtm, sender) {
     }
   })
   .then(function({data}) {
-    // console.log('data.result', data.result);
     if(awaitingResponse) {
       rtm.sendMessage('Please accept or decline the previous reminder', message.channel);
     }
@@ -191,7 +127,6 @@ function processMessage(message, rtm, sender) {
       rtm.sendMessage(data.result.fulfillment.speech, message.channel)
     } else if(Object.keys(data.result.parameters).length !== 0){
       awaitingResponse = true;
-      console.log('intentname', data.result.metadata.intentName);
       if(data.result.metadata.intentName === "Setting a Reminder"){
         //remind intent
         web.chat.postMessage(message.channel, `Would you like me to create a reminder for ` , {
@@ -256,15 +191,6 @@ function processMessage(message, rtm, sender) {
 
           }
         })
-
-        // var meetingSubject = data.result.parameters.subject[0];
-        // var meetingDate = data.result.parameters.date;
-        // var meetingTime = data.result.parameters.time;
-        // var channelId = message.channel;
-        // var invitees = inviteArr;
-        // console.log('subject date and time', subject, date, time, invitees);
-
-
         var newMeeting = new Meeting({
             userID: sender._id,//'596f927c2945b10011ad86b0',
             channelID: message.channel,
@@ -284,22 +210,16 @@ function processMessage(message, rtm, sender) {
             "value": `${newMeeting.invitees}`
           }
         ];
+        var duration;
+        if(data.result.parameters.duration !== "") {
+            duration = {"title": "Duration", "value": `${data.result.parameters.duration.amount} ${data.result.parameters.duration.unit}`}
+        }
         checkConflicts(newMeeting, rtm)
         .then((freeTimeList)=>{
             if(freeTimeList && freeTimeList.length === 0){
-
                 fields.push({"title": "Date", "value": `${newMeeting.date}`})
                 fields.push({"title": "Time", "value": `${newMeeting.time}`})
-                    console.log('FIELDS FOR NON CONFLICT METING', fields);
-
-                    if(data.result.parameters.duration !== "") {
-                      fields.push({
-                        "title": "Duration",
-                        "value": `${data.result.parameters.duration.amount} ${data.result.parameters.duration.unit}`
-                      })
-                    }
-
-                // rtm.sendMessage('no conflcits will confirm and save meeting', message.channel)
+                if(duration) { fields.push(duration)}
                 web.chat.postMessage(message.channel, `Would you like me to create the following meeting: ` , {
                   "attachments": [
                     {
@@ -326,14 +246,8 @@ function processMessage(message, rtm, sender) {
                 });
 
             } else {
+                if(duration) { fields.push(duration)}
                 var options = []
-                if(data.result.parameters.duration !== "") {
-                  fields.push({
-                    "title": "Duration",
-                    "value": `${data.result.parameters.duration.amount} ${data.result.parameters.duration.unit}`
-                  })
-                }
-
                 freeTimeList.forEach((time) => {
                     options.push({
                         "text": `${time.start.slice(0,10)} ${time.start.slice(11,19)} ${time.end.slice(11,19)}`,
@@ -375,12 +289,6 @@ function processMessage(message, rtm, sender) {
         }).catch((err) => {
             console.log('error with checkconflicts', err);
         })
-
-
-
-
-
-
       }
     }
     else {
