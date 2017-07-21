@@ -270,7 +270,7 @@ function processMessage(message, rtm, sender) {
         // console.log('subject date and time', subject, date, time, invitees);
 
         var newMeeting = new Meeting({
-            userID: userID,
+            userID: '596f927c2945b10011ad86b0',
             channelID: channelId,
             subject: meetingSubject,
             date: meetingDate,
