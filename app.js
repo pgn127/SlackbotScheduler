@@ -204,7 +204,7 @@ app.post('/slack/interactive', function(req,res){
                                 // res.status(400).json({error:err});
                                 res.send('Error saving meeting');
                             }else{
-                                findAndReturnEmails(newMeeting.invitees, newMeeting.date,  newMeeting.subject, user.token, newMeeting.time);
+                                findAndReturnEmails(meetingInvitees, meetingDate,  meetingSubject, user.token, meetingTime);
                                 res.send('Meeting confirmed');
                             }
                         })
@@ -223,6 +223,7 @@ app.post('/slack/interactive', function(req,res){
 app.listen(process.env.PORT || 3000);
 
 function createCalendarReminder(date, subject, tokens, invitees, time){
+    console.log('in create calendar date, time', date, time);
   if(!invitees){
     var event = {
       'summary': subject,
@@ -277,7 +278,6 @@ function createCalendarReminder(date, subject, tokens, invitees, time){
 
 
 function findAndReturnEmails (users, date, subject, tokens, time) {
-
   var slackIdArray = [];
 
   users.forEach((username) => {

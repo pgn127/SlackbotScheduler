@@ -331,9 +331,7 @@ function processMessage(message, rtm, sender) {
                   ]
                 });
 
-
             } else {
-                console.log('THERE WERE CONFLICTS, SHOULD NOT CONFIRM MEETING');
                 var options = []
                 freeTimeList.forEach((time) => {
                     options.push({
