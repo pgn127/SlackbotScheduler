@@ -108,9 +108,19 @@ app.post('/slack/interactive', function(req,res){
   if(payload.actions[0].type === "select"){
       console.log('the intervative message was a select');
       console.log('selected options', payload.actions[0].selected_options[0].value);
-    //   var selectedMeeting = payload.actions[0].selected_options[0].value.split('-');
-    //   var meetStartTime = selectedMeeting[0];
-    //   var meetDate = selectedMeeting[0];
+      var selectedMeeting = payload.actions[0].selected_options[0].value;
+      var meetStartTime = selectedMeeting.slice(0,10);
+      var meetDate = selectedMeeting.slice(11,19);
+
+    //   var newMeeting = new Meeting({
+    //       userID: user._id,
+    //       channelID: payload.channel.id,
+    //       subject: meetingSubject,
+    //       date: meetingDate,
+    //       time: meetingTime,
+    //       invitees: meetingInvitees,
+    //   })
+
   }
   //if the user selects confirm button
   else if(payload.actions[0].type === "button" && payload.actions[0].value !== 'false') {

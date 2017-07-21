@@ -268,7 +268,30 @@ function processMessage(message, rtm, sender) {
         var userID=  'IDK';
         var invitees = inviteArr;
         // console.log('subject date and time', subject, date, time, invitees);
-
+        var fields = [
+          {
+            "title": "Subject",
+            "value": `${meetingSubject}`
+          },
+          {
+            "title": "Date",
+            "value": `${meetingDate}`
+          },
+          {
+            "title": "Time",
+            "value": `${meetingTime}`
+          },
+          {
+            "title": "Invitees",
+            "value": `${invitees}`
+          }
+        ];
+        if(data.result.parameters.duration !== "") {
+          fields.push({
+            "title": "Duration",
+            "value": `${data.result.parameters.duration.amount} ${data.result.parameters.duration.unit}`
+          })
+        }
         var newMeeting = new Meeting({
             userID: '596f927c2945b10011ad86b0',
             channelID: channelId,
@@ -280,26 +303,11 @@ function processMessage(message, rtm, sender) {
 
         checkConflicts(newMeeting, rtm)
         .then((freeTimeList)=>{
+
+
             if(freeTimeList && freeTimeList.length === 0){
                 console.log('no conflicts');
-                var fields = [
-                  {
-                    "title": "Subject",
-                    "value": `${data.result.parameters.subject}`
-                  },
-                  {
-                    "title": "Date",
-                    "value": `${data.result.parameters.date}`
-                  },
-                  {
-                    "title": "Time",
-                    "value": `${data.result.parameters.time}`
-                  },
-                  {
-                    "title": "Invitees",
-                    "value": `${inviteArr}`
-                  }
-                ];
+
 
                 rtm.sendMessage('no conflcits will confirm and save meeting', message.channel)
                 //only save new meeting if there are no conflicts
@@ -329,6 +337,7 @@ function processMessage(message, rtm, sender) {
                     "attachments": [
                         {
                             "text": "Choose a game to play",
+                            "fields": fields,
                             "fallback": "If you could read this message, you'd be choosing something fun to do right now.",
                             "color": "#3AA3E3",
                             "attachment_type": "default",
@@ -359,12 +368,7 @@ function processMessage(message, rtm, sender) {
         })
 
 
-        if(data.result.parameters.duration !== "") {
-          fields.push({
-            "title": "Duration",
-            "value": `${data.result.parameters.duration.amount} ${data.result.parameters.duration.unit}`
-          })
-        }
+
 
         // web.chat.postMessage(message.channel, `Would you like me to create the following meeting: ` , {
         //   "attachments": [
