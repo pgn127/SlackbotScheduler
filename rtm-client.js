@@ -232,7 +232,7 @@ function processMessage(message, rtm, sender) {
                 var options = []
                 console.log('FREELIST IS', freeTimeList);
 
-                freeList.forEach((time)=> {
+                freeTimeList.forEach((time)=> {
                     var startTime = new Date(time.start)
                     var newTime = new Date(startTime.toDateString() + ' ' + startTime.toTimeString() + "+07:00").toLocaleString()
                     options.push({"text": newTime, "value": time.start})
