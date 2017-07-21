@@ -107,6 +107,59 @@ app.post('/slack/interactive', function(req,res){
 
   var payload = JSON.parse(req.body.payload);
   console.log("This is payload", payload);
+  if(payload.callback_id === 'inviteResponse'){
+    User.findOne({slackId: payload.user.id})
+    .then((user) => {
+      if(payload.actions.name === 'yes'){
+        let index = usr.pendingInvites.indexOf(payload.actions.value);
+        if(index > -1){
+          usr.pendingInvites.splice(index, 1);
+          if(usr.pendingInvites.length === 0){
+            //TODO: need to pass in a bunch of arguments to this thing
+            findAndReturnEmails();
+          }
+        }
+      } else {
+        //person declined the invitiation
+        let ind = usr.pendingInvites.indexOf(payload.actions.value);
+        if(ind > -1){
+          usr.pendingInvites.splice(ind, 1);
+          if(usr.pendingInvites.length === 0){
+            //TODO: need to pass in a bunch of arguments to this thing
+            findAndReturnEmails();
+          }
+        }
+      }
+    })
+
+
+    if(payload.actions.name === 'yes'){
+      //person accepted the invitation
+      User.findOne({slackId: payload.user.id})
+      .then((usr) => {
+        let index = usr.pendingInvites.indexOf(payload.actions.value)
+        if (index > -1) {
+          usr.pendingInvites.splice(index, 1);
+          if(usr.pendingInvites.length === 0){
+            //call the findAndReturnEmails function
+          }
+        } else {
+          console.log("ERROR: invited user was not in pending invites array")
+        }
+      })
+      .catch((err) => {
+          console.log("Error could not find user in mongodb with slackId", err);
+      })
+    } else {
+      //person declined the invitation
+    }
+
+    .catch((err) => {
+        console.log("Error could not find user in mongodb with slackId", err);
+    })
+  }
+
+
   if(payload.actions[0].value === 'true') {
     slackID = payload.user.id;
     User.findOne({slackID: slackID}).exec(function(err, user){
@@ -188,7 +241,7 @@ app.post('/slack/interactive', function(req,res){
 
                                         //M5 branch work
                                         console.log("calling sendInvitations");
-                                        console.log("this is meeting", meeting);
+                                        // console.log("this is meeting", meeting);
                                         // console.log("this is user (tokens too)", user);
                                         sendInvitations(meeting, user);
                                         //commment findandreturn out to call sendInvitations instead first
@@ -490,12 +543,12 @@ function findFreeTimes(busyArray, meetingStartDate, sevenBusinessDays){
 
 function sendInvitations(meeting, user){
   // console.log("entering sendinvitations");
-  console.log("this is passed in user: ", user);
+  // console.log("this is passed in user: ", user);
   let abc;
   abc = rtm.dataStore.getUserById(user.slackID);
   let host;
   host = abc.name;
-  console.log("this is host", host);
+  // console.log("this is host", host);
 
   // 1. add invitees to invitor's pending invites array
   //user that created event and is sending invitations's object gets passed into this function
@@ -576,6 +629,7 @@ function sendInvitations(meeting, user){
   }
 
  // 4. call findandreturn emails i guess
+ //this is only temporary ===> calling this function will be moved to /slack/interactive logic
   console.log("calling findAndReturnEmails");
   findAndReturnEmails(meeting.invitees, meeting.date,  meeting.subject, user.token, meeting.time);
 }
