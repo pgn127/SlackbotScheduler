@@ -473,7 +473,7 @@ function findFreeTimes(busyArray, meetingStartDate, sevenBusinessDays, meetingDu
         if(currentFreeTime !== nextBusyTime){
             while(currentFreeTime + duration <= nextBusyTime) {
                 currentFreeTime = currentFreeTime + duration;
-                console.log("First compare", new Date(previousDate).toISOString().substring(0,19)+"+07:00".getDate() ,
+                console.log("First compare", new Date(new Date(previousDate).toISOString().substring(0,19)+"+07:00").getDate() ,
                 new Date(new Date(currentFreeTime).toISOString().substring(0,19)+"+07:00").getDate(),
                 new Date(new Date(previousDate).toISOString().substring(0,19)+"+07:00").getDate() != new Date(new Date(currentFreeTime).toISOString().substring(0,19)+"+07:00").getDate());
 
