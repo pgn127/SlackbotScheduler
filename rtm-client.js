@@ -455,8 +455,8 @@ function findFreeTimes(busyArray, meetingStartDate, sevenBusinessDays, meetingDu
         if(currentFreeTime !== nextBusyTime){
             while(currentFreeTime + duration <= nextBusyTime) {
                 currentFreeTime = currentFreeTime + duration;
-                freeStack.push({start: freeStart, end: new Date(currentFreeTime).toISOString})
-                freeStart = new Date(currentFreeTime).toISOString;
+                freeStack.push({start: freeStart, end: new Date(currentFreeTime).toISOString()})
+                freeStart = new Date(currentFreeTime).toISOString();
 
             }
 
@@ -469,10 +469,6 @@ function findFreeTimes(busyArray, meetingStartDate, sevenBusinessDays, meetingDu
 
     //make sure you only provide 30 minute/duration selected_options
     //max 3 meetings offered per day
-
-    var duration = 30;
-
-
 
     return freeStack;
 }
