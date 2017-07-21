@@ -292,13 +292,8 @@ function processMessage(message, rtm, sender) {
         .then((freeTimeList)=>{
             if(freeTimeList && freeTimeList.length === 0){
 
-                fields.concat([{
-                    "title": "Date",
-                    "value": `${meetingDate}`
-                    }, {
-                        "title": "Time",
-                        "value": `${meetingTime}`
-                    }])
+                fields.push({"title": "Date", "value": `${meetingDate}`})
+                fields.push({"title": "Time", "value": `${meetingTime}`})
                     console.log('FIELDS FOR NON CONFLICT METING', fields);
                     if(data.result.parameters.duration !== "") {
                       fields.push({
