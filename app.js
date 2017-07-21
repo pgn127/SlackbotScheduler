@@ -225,13 +225,14 @@ app.listen(process.env.PORT || 3000);
 function createCalendarReminder(date, subject, tokens, invitees, time){
     console.log('in create calendar date, time', date, time);
   if(!invitees){
+      let dateTime = date + "T" + time + "-07:00"
     var event = {
       'summary': subject,
       'start': {
-        'date': date,
+        'date': dateTime,
       },
       'end': {
-        'date': date
+        'date': dateTime
       }
     };
   } else {
