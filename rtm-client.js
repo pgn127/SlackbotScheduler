@@ -130,7 +130,8 @@ function processMessage(message, rtm, sender) {
                 inviteArr.push(userObj.name)
 
             } else {
-                console.log('no user found with name ', newUser);
+                throw new Error(`Unable to find that user with id`)
+                console.log('no user found with id ', newUser);
             }
 
 
@@ -237,7 +238,7 @@ function processMessage(message, rtm, sender) {
 
             }
         }).catch((err) => {
-            rtm.sendMessage(`Sorry there was an error with that request. ${err}`, meeting.channelID);
+            rtm.sendMessage(`Sorry there was an error with that request. ${err}`, message.channel);
             console.log('CHECKCONFLCITS PROMISE ERROR: error with checkconflicts', err);
             // rtm.sendMessage
         })
