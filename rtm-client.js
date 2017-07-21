@@ -234,8 +234,10 @@ function processMessage(message, rtm, sender) {
 
                 freeTimeList.forEach((time)=> {
                     var startTime = new Date(time.start)
-                    var newTime = new Date(startTime.toDateString() + ' ' + startTime.toTimeString() + "+07:00").toLocaleString()
-                    options.push({"text": newTime, "value": time.start})
+                    var endTime = new Date(time.end)
+                    var newStartTime = new Date(startTime.toDateString() + ' ' + startTime.toTimeString() + "+07:00").toLocaleString()
+                    var newEndTime = new Date(endTime.toDateString() + ' ' + endTime.toTimeString() + "+07:00").toLocaleString()
+                    options.push({"text": `${newStartTime}-${newEndTime}`, "value": time.start})
                 })
                 // freeTimeList.forEach((time) => {
                 //     options.push({
