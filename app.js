@@ -86,7 +86,7 @@ app.get('/connect/callback', function(req, res) {
           let auth_id = JSON.parse(decodeURIComponent(req.query.state));
           var newUser = new User({
             token: tokens,
-            slackID: slackID,
+            slackID: slackID, //TODO: ALSO store slackname so that you can easily add your own meetings to your calendars too
             auth_id: auth_id.auth_id,
             email: tempEmail,
             pendingInvites: []
@@ -200,7 +200,16 @@ app.post('/slack/interactive', function(req,res){
                             if (err){
                                 res.send('Error saving meeting');
                             }else{
-                                findAndReturnEmails(meetingInvitees, meetingDate,  meetingSubject, user.token, meetingTime, meeting.duration);
+                                //TODO: instead of first finding the requestors slackname, correctly save it in their mongo object so u dont need to do  find (since inside find email function you need the user not just the name, so pretty uncesssary to do a find name here)
+                                //meetingInvitees.concat([user.slackName])
+                                let requester = rtm.dataStore.getUserById(user._id);
+                                if(requester) {
+
+                                    findAndReturnEmails(meetingInvitees.concat([requester.name]), meetingDate,  meetingSubject, user.token, meetingTime, meeting.duration);
+                                } else { //if for some reason we cant retrieve the infromation about the requestor
+                                    console.log('couldnt get information about the user requesting the meeting');
+                                    findAndReturnEmails(meetingInvitees, meetingDate,  meetingSubject, user.token, meetingTime, meeting.duration);
+                                }
                                 res.send('Meeting confirmed');
                             }
                         })
