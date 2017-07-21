@@ -289,6 +289,7 @@ function checkConflicts(meeting, rtm){
                         oauth2Client.setCredentials(tokens);
                         var calendar = google.calendar('v3');
                         //AT THIS POINT YOU ARE AUTHENTICATED TO SEE THE INVITEE GOOGLE calendar
+                        console.log("DATE: ",meeting.date, "TIME: ", meeting.time);
                         meetingDate = new Date(meeting.date + ' ' + meeting.time + "-07:00");
                         var meetingEnd = new Date(meeting.date + ' ' + meeting.time + "-07:00");
                         meetingEnd.setMinutes(meetingEnd.getMinutes() + meeting.duration);
