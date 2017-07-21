@@ -295,6 +295,7 @@ function findAndReturnEmails (users, date, subject, tokens, time, duration) {
       if(arr) {
           createCalendarReminder(date, subject, tokens, arr, time, duration);
       } else {
+          //idk when this happened but it did once
           console.log('in find and return emails, invitees came to be falsy so not calling createCalendarReminder', arr);
       }
   })
