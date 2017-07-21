@@ -32,7 +32,7 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
     return;
   }
   if( !dm || dm.id !== message.channel || message.type !== 'message') {
-      console.log('!dm || dm.id !== message.channel || mesage.type !== message is true', 'dm: ', dm, ' dm.id: ', dm.id, message.channel, 'message.type',  message.type);
+      console.log('!dm || dm.id !== message.channel || mesage.type !== message is true. printing message and dm', message, dm)//, 'dm: ', dm, ' dm.id: ', dm.id, message.channel, 'message.type',  message.type);
     return;
   }
   User.findOne({slackID: slackID}).exec(function(err, user){
