@@ -482,9 +482,16 @@ function findFreeTimes(busyArray, meetingStartDate, sevenBusinessDays){
     var freeEnd = sevenBusinessDays.slice(0,11)+'23:59:59Z'
     var freeStack = []
     intervals.forEach((interval) => {
-        freeStack.push({start: freeStart, end: interval.start})
+
+
+
+        if(Date.parse(freeStart) !== Date.parse(interval.start)){
+            freeStack.push({start: freeStart, end: interval.start})
+        }
         freeStart = interval.end;
     })
+
+    
     freeStack.push({start: freeStart, end: freeEnd})
 
     //make sure you only provide 30 minute selected_options
