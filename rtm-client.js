@@ -309,122 +309,115 @@ function checkConflicts(meeting, rtm){
     var counterGoal = meeting.invitees.length;
     var invitee, user,sevenBusinessDays, meetingDate;
     return new Promise((resolve, reject) => {
-    meeting.invitees.forEach( function(meetinginvitee) {
-        invitee = meetinginvitee;
-        var inviteeuser = rtm.dataStore.getUserByName(invitee); //given the invitee slack name, find their slack user object
-        if(!inviteeuser) {
-            console.log(' user not found with that name');
-        } else {
-
-
-        var inviteeSlackID = inviteeuser.id; //get slack id from slack user
-        //find a user in our DB with that slack username
-        User.findOne({slackID: inviteeSlackID}).exec()
-        .then((user) =>{
-            if(user) {
-                user = user;
-                //save user tokens
-                var tokens = user.token;
-                oauth2Client = new OAuth2(
-                    process.env.GOOGLE_CLIENT_ID,
-                    process.env.GOOGLE_CLIENT_SECRET,
-                    process.env.DOMAIN + '/connect/callback'
-                )
-                oauth2Client.setCredentials(tokens);
-                var calendar = google.calendar('v3');
-                //AT THIS POINT YOU ARE AUTHENTICATED TO SEE THE INVITEE GOOGLE calendar
-                meetingDate = new Date(meeting.date + ' ' + meeting.time + "-07:00");
-                var meetingEnd = new Date(meeting.date + ' ' + meeting.time + "-07:00");
-                meetingEnd.setMinutes(meetingEnd.getMinutes() + 30);
-                var n = 7;
-                while (workingDaysBetweenDates(meetingDate, new Date(Date.parse(meetingEnd) + n*24*60*60*1000)) < 7){
-                    n++;
-                }
-                sevenBusinessDays = new Date(Date.parse(meetingEnd) + n*24*60*60*1000)
-                return new Promise((resolve, reject) => {
-                    calendar.freebusy.query({
-                    auth: oauth2Client,
-                    headers: { "content-type" : "application/json" },
-                    resource:{
-                        items: [{id: 'primary', busy: 'Active'}],
-                        timeMin: meetingDate.toISOString(),
-                        timeMax: sevenBusinessDays.toISOString() //first # controls # of days to check for conflicting events
-                    }
-                }, function(err, schedule) {
-                    // console.log(typeof schedule);
-                    if(schedule){
-                        console.log('returning schedule to next then');
-                        resolve(schedule)
-                    } else {
-                        console.log('INSIDE ELSE');
-                        reject(err);
-                        // console.log("There was an error getting invitee calendar", err);
-                        // throw new Error('couldnt find scheduke for user');
-                    }
-                }
-            )
-        })
+        meeting.invitees.forEach( function(meetinginvitee) {
+            invitee = meetinginvitee;
+            var inviteeuser = rtm.dataStore.getUserByName(invitee); //given the invitee slack name, find their slack user object
+            if(!inviteeuser) {
+                console.log(' user not found with that name');
             } else {
-                throw new Error('couldnt find user');
-            }
-        })
-        .then((schedule) => {
-            // console.log('scheudle was retunred', schedule);
-            if(false && !schedule){
-                console.log("schedule wasnt returned");
-                throw new Error('no schedule returns');
-            }else {
-                // console.log('schedule is ', schedule);
-                var busyList = schedule.calendars.primary.busy;
-                busySlots = busySlots.concat(busyList);
-                console.log(invitee);
-                busyList.forEach((time) => {
-                    var meetingStartTime = new Date(meeting.date + ' ' + meeting.time + "-07:00");;
-                    meetingStartTime.setDate(meetingStartTime.getDate());
-                    var meetingEndTime = new Date(meeting.date + ' ' + meeting.time + "-07:00");
-                    meetingEndTime.setDate(meetingEndTime.getDate());
-                    meetingEndTime.setMinutes(meetingEndTime.getMinutes() + 30);
-                    var conflictStartTime = new Date(time.start);
-                    // conflictStartTime.setDate(conflictStartTime.getDate());
-                    var conflictEndTime = new Date(time.end);
-                    // conflictEndTime.setDate(conflictEndTime.getDate());
-                    var convertedMeetingStartTime = new Date(meetingStartTime.toDateString() + ' ' + meetingStartTime.toTimeString() + "+07:00").toLocaleString();
-                    var convertedMeetingEndTime = new Date(meetingEndTime.toDateString() + ' ' + meetingEndTime.toTimeString() + "+07:00").toLocaleString();
-                    var convertedConflictStartTime = new Date(conflictStartTime.toDateString() + ' ' + conflictStartTime.toTimeString() + "+07:00").toLocaleString();
-                    var convertedConflictEndTime = new Date(conflictEndTime.toDateString() + ' ' + conflictEndTime.toTimeString() + "+07:00").toLocaleString();
-                    if((meetingStartTime <= conflictStartTime && meetingEndTime > conflictStartTime) || (meetingStartTime >= conflictStartTime && meetingStartTime <= conflictEndTime)){
-                        console.log('BUSY: The meeting time \n', convertedMeetingStartTime, ' - ', convertedMeetingEndTime, '\n conflicts with user event at \n', convertedConflictStartTime, ' - ', convertedConflictEndTime, '\n');
-                        conflictExists = true;
-                    } else {
-                        console.log(meetingEndTime >= conflictStartTime && meetingEndTime <= conflictEndTime);
-                        console.log('FREE: No overlap between meeting at \n',convertedMeetingStartTime, ' - ', convertedMeetingEndTime, '\n and the users event at \n', convertedConflictStartTime, ' - ', convertedConflictEndTime, '\n');
-                    }
-                })
-            }
-            return;
-        })
-        .then( () => {
-            count+=1
-            if(count === counterGoal){
-                var freetimelist = findFreeTimes(busySlots, meetingDate.toISOString(), sevenBusinessDays.toISOString());
-                // console.log('freetimelist', freetimelist);
-                if(conflictExists) {
-                    console.log('conflcit exists reutrning free times list');
-                     resolve(freetimelist);
+                var inviteeSlackID = inviteeuser.id;
+                User.findOne({slackID: inviteeSlackID}).exec()
+                .then((user) =>{
+                    if(user) {
+                        user = user;
+                        //save user tokens
+                        var tokens = user.token;
+                        oauth2Client = new OAuth2(
+                            process.env.GOOGLE_CLIENT_ID,
+                            process.env.GOOGLE_CLIENT_SECRET,
+                            process.env.DOMAIN + '/connect/callback'
+                        )
+                        oauth2Client.setCredentials(tokens);
+                        var calendar = google.calendar('v3');
+                        //AT THIS POINT YOU ARE AUTHENTICATED TO SEE THE INVITEE GOOGLE calendar
+                        meetingDate = new Date(meeting.date + ' ' + meeting.time + "-07:00");
+                        var meetingEnd = new Date(meeting.date + ' ' + meeting.time + "-07:00");
+                        meetingEnd.setMinutes(meetingEnd.getMinutes() + 30);
+                        var n = 7;
+                        while (workingDaysBetweenDates(meetingDate, new Date(Date.parse(meetingEnd) + n*24*60*60*1000)) < 7){
+                            n++;
+                        }
+                        sevenBusinessDays = new Date(Date.parse(meetingEnd) + n*24*60*60*1000)
+                        return new Promise((resolve, reject) => {
+                            calendar.freebusy.query({
+                                auth: oauth2Client,
+                                headers: { "content-type" : "application/json" },
+                                resource:{
+                                    items: [{id: 'primary', busy: 'Active'}],
+                                    timeMin: meetingDate.toISOString(),
+                                    timeMax: sevenBusinessDays.toISOString() //first # controls # of days to check for conflicting events
+                                }
+                            }, function(err, schedule) {
+                                // console.log(typeof schedule);
+                                if(schedule){
+                                    console.log('returning schedule to next then');
+                                    resolve(schedule)
+                                } else {
+                                    console.log('INSIDE ELSE');
+                                    reject(err);
+                                    // console.log("There was an error getting invitee calendar", err);
+                                    // throw new Error('couldnt find scheduke for user');
+                                }
+                            }
+                        )
+                    })
                 } else {
-                    console.log('no conflcit exists not returning ');
-                    resolve([]);
+                    throw new Error('couldnt find user');
                 }
-                // return freetimelist;
-            }
-        })
-        .catch((err) => {
-            counterGoal -= 1; //if you cant get a user, subtract from counter goal so your not waiting on a users info that will never come
-            reject(err);
-        })
-    // })
-    }
-  }) //end of for each
+            })
+            .then((schedule) => {
+                // console.log('scheudle was retunred', schedule);
+                if(false && !schedule){
+                    console.log("schedule wasnt returned");
+                    throw new Error('no schedule returns');
+                }else {
+                    // console.log('schedule is ', schedule);
+                    var busyList = schedule.calendars.primary.busy;
+                    busySlots = busySlots.concat(busyList);
+                    console.log(invitee);
+                    busyList.forEach((time) => {
+                        var meetingStartTime = new Date(meeting.date + ' ' + meeting.time + "-07:00");;
+                        meetingStartTime.setDate(meetingStartTime.getDate());
+                        var meetingEndTime = new Date(meeting.date + ' ' + meeting.time + "-07:00");
+                        meetingEndTime.setDate(meetingEndTime.getDate());
+                        meetingEndTime.setMinutes(meetingEndTime.getMinutes() + 30);
+                        var conflictStartTime = new Date(time.start);
+                        // conflictStartTime.setDate(conflictStartTime.getDate());
+                        var conflictEndTime = new Date(time.end);
+                        // conflictEndTime.setDate(conflictEndTime.getDate());
+                        var convertedMeetingStartTime = new Date(meetingStartTime.toDateString() + ' ' + meetingStartTime.toTimeString() + "+07:00").toLocaleString();
+                        var convertedMeetingEndTime = new Date(meetingEndTime.toDateString() + ' ' + meetingEndTime.toTimeString() + "+07:00").toLocaleString();
+                        var convertedConflictStartTime = new Date(conflictStartTime.toDateString() + ' ' + conflictStartTime.toTimeString() + "+07:00").toLocaleString();
+                        var convertedConflictEndTime = new Date(conflictEndTime.toDateString() + ' ' + conflictEndTime.toTimeString() + "+07:00").toLocaleString();
+                        if((meetingStartTime <= conflictStartTime && meetingEndTime > conflictStartTime) || (meetingStartTime >= conflictStartTime && meetingStartTime <= conflictEndTime)){
+                            console.log('BUSY: The meeting time \n', convertedMeetingStartTime, ' - ', convertedMeetingEndTime, '\n conflicts with user event at \n', convertedConflictStartTime, ' - ', convertedConflictEndTime, '\n');
+                            conflictExists = true;
+                        } else {
+                            console.log(meetingEndTime >= conflictStartTime && meetingEndTime <= conflictEndTime);
+                            console.log('FREE: No overlap between meeting at \n',convertedMeetingStartTime, ' - ', convertedMeetingEndTime, '\n and the users event at \n', convertedConflictStartTime, ' - ', convertedConflictEndTime, '\n');
+                        }
+                    })
+                }
+                return;
+            })
+            .then( () => {
+                count+=1
+                if(count === counterGoal){
+                    var freetimelist = findFreeTimes(busySlots, meetingDate.toISOString(), sevenBusinessDays.toISOString());
+                    // console.log('freetimelist', freetimelist);
+                    if(conflictExists) {
+                        resolve(freetimelist);
+                    } else {
+                        resolve([]);
+                    }
+                }
+            })
+            .catch((err) => {
+                counterGoal -= 1; //if you cant get a user, subtract from counter goal so your not waiting on a users info that will never come
+                reject(err);
+            })
+        }
+    }) //end of for each
 })
 }
 
