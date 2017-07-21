@@ -111,6 +111,7 @@ app.post('/slack/interactive', function(req,res){
       var selectedMeeting = payload.actions[0].selected_options[0].value;
       var meetStartTime = selectedMeeting.slice(0,10);
       var meetDate = selectedMeeting.slice(11,19);
+      var invitees = payload.original_message.attachments[0].fields[3].value.split(", ");
 
     //   var newMeeting = new Meeting({
     //       userID: user._id,

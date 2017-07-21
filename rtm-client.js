@@ -274,14 +274,6 @@ function processMessage(message, rtm, sender) {
             "value": `${meetingSubject}`
           },
           {
-            "title": "Date",
-            "value": `${meetingDate}`
-          },
-          {
-            "title": "Time",
-            "value": `${meetingTime}`
-          },
-          {
             "title": "Invitees",
             "value": `${invitees}`
           }
@@ -308,8 +300,39 @@ function processMessage(message, rtm, sender) {
             if(freeTimeList && freeTimeList.length === 0){
                 console.log('no conflicts');
 
+                fields.concat([{
+                    "title": "Date",
+                    "value": `${meetingDate}`
+                    }, {
+                        "title": "Time",
+                        "value": `${meetingTime}`
+                    }])
 
-                rtm.sendMessage('no conflcits will confirm and save meeting', message.channel)
+                // rtm.sendMessage('no conflcits will confirm and save meeting', message.channel)
+                web.chat.postMessage(message.channel, `Would you like me to create the following meeting: ` , {
+                  "attachments": [
+                    {
+                      "fields": fields,
+                      "callback_id": "wopr_game",
+                      "color": "#3AA3E3",
+                      "attachment_type": "default",
+                      "actions": [
+                        {
+                          "name": "yes",
+                          "text": "Confirm",
+                          "type": "button",
+                          "value": "true"
+                        },
+                        {
+                          "name": "no",
+                          "text": "Cancel",
+                          "type": "button",
+                          "value": "false"
+                        }
+                      ]
+                    }
+                  ]
+                });
                 //only save new meeting if there are no conflicts
                 // newMeeting.save(function(err, meeting){
                 //     if (err){
@@ -331,12 +354,12 @@ function processMessage(message, rtm, sender) {
                     })
                 })
 
-                web.chat.postMessage(message.channel, 'PLease select a time', {
-                    "text": "Would you like to play a game?",
+                web.chat.postMessage(message.channel, 'Sorry! There was a scheduling conflict with your requested meeting time!', {
+                    // "text": "Would you like to play a game?",
                     "response_type": "in_channel",
                     "attachments": [
                         {
-                            "text": "Choose a game to play",
+                            "text": "Please select a new meeting time from the list.",
                             "fields": fields,
                             "fallback": "If you could read this message, you'd be choosing something fun to do right now.",
                             "color": "#3AA3E3",
@@ -370,30 +393,7 @@ function processMessage(message, rtm, sender) {
 
 
 
-        // web.chat.postMessage(message.channel, `Would you like me to create the following meeting: ` , {
-        //   "attachments": [
-        //     {
-        //       "fields": fields,
-        //       "callback_id": "wopr_game",
-        //       "color": "#3AA3E3",
-        //       "attachment_type": "default",
-        //       "actions": [
-        //         {
-        //           "name": "yes",
-        //           "text": "Confirm",
-        //           "type": "button",
-        //           "value": "true"
-        //         },
-        //         {
-        //           "name": "no",
-        //           "text": "Cancel",
-        //           "type": "button",
-        //           "value": "false"
-        //         }
-        //       ]
-        //     }
-        //   ]
-        // });
+
 
       }
     }
