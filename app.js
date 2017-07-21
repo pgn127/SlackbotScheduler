@@ -121,7 +121,7 @@ app.post('/slack/interactive', function(req,res){
               //it was a meeting
 
               var meetingSubject = payloadArr[0].fields[0].value;
-              var meetingDate = Date.parse(payloadArr[0].fields[1].value);
+              var meetingDate = (payloadArr[0].fields[1].value);
               var meetingTime = payloadArr[0].fields[2].value;
               var meetingInvitees = payloadArr[0].fields[3].value.split(", ");
               var meetingDuration = 60; //default meeting duration is 1 hour
