@@ -314,6 +314,15 @@ function processMessage(message, rtm, sender) {
 
             } else {
                 console.log('THERE WERE CONFLICTS, SHOULD NOT CONFIRM MEETING');
+                var options = []
+
+                freeTimeList.forEach((time) => {
+                    options.push({
+                        "text": `1${time.start} ${time.end}`,
+                        "value": `${time.start}-${time.end}`
+                    })
+                })
+
                 web.chat.postMessage(message.channel, 'PLease select a time', {
                     "text": "Would you like to play a game?",
                     "response_type": "in_channel",
@@ -329,20 +338,7 @@ function processMessage(message, rtm, sender) {
                                     "name": "games_list",
                                     "text": "Select a new meeting time...",
                                     "type": "select",
-                                    "options": [
-                                        {
-                                            "text": `1${ meetingDate} ${meetingTime}`,
-                                            "value": "{ start: '2017-07-21T00:00:00Z', end: '2017-07-21T00:00:00Z' }"
-                                        },
-                                        {
-                                            "text": `2${meetingDate} ${meetingTime}`,
-                                            "value": "{ start2: '2017-07-21T00:00:00Z', end2: '2017-07-21T00:00:00Z' }"
-                                        },
-                                        {
-                                            "text": `3${meetingDate} ${meetingTime}`,
-                                            "value": "{ start3: '2017-07-21T00:00:00Z', end3: '2017-07-21T00:00:00Z' }"
-                                        }
-                                    ]
+                                    "options": options
                                 },
                                 {
                                     "name": "no",
