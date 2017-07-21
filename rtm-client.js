@@ -391,9 +391,9 @@ function checkConflicts(meeting, rtm){
 
 function workingDaysBetweenDates(startOfMeeting, endDate) {
   // Validate input
-  console.log("START MEETING", startOfMeeting);
+
   var startDate = new Date(startOfMeeting);
-  console.log("WORKING CONVERT" , startDate);
+
   if (endDate < startDate)
   return 0;
 
@@ -461,16 +461,29 @@ function findFreeTimes(busyArray, meetingStartDate, sevenBusinessDays, meetingDu
     var freeStart = meetingStartDate//.slice(0,11)+'00:00:00Z' //TODO: CHANGE TO BE 9AM ON THE DAY YOU REQUESTED THE MEETING OR DATE.NOW
     var freeEnd = sevenBusinessDays.slice(0,11)+'06:59:59Z'
     var freeStack = []
+    counter = 0;
     var duration = meetingDuration * 60 * 1000; //meeting duration in milliseconds
+    var previousDate = (new Date(meetingStartDate)).setDate(new Date(meetingStartDate).getDate()-1)
+    console.log("Initial Prev", previousDate);
     intervals.forEach((interval) => {
         var currentFreeTime = Date.parse(freeStart);
         var nextBusyTime = Date.parse(interval.start);
+
+
         if(currentFreeTime !== nextBusyTime){
             while(currentFreeTime + duration <= nextBusyTime) {
                 currentFreeTime = currentFreeTime + duration;
-                freeStack.push({start: freeStart, end: new Date(currentFreeTime).toISOString()})
+                console.log("First compare", new Date(previousDate).getDate() ,new Date(currentFreeTime).getDate(), new Date(previousDate).getDate() !== new Date(currentFreeTime).getDate());
+                if (new Date(previousDate).getDate() !== new Date(currentFreeTime).getDate()){
+                    counter = 0;
+                }
+                if (counter < 3 ){
+                    console.log("Adding to freestack");
+                    freeStack.push({start: freeStart, end: new Date(currentFreeTime).toISOString()})
+                    counter++;
+                }
                 freeStart = new Date(currentFreeTime).toISOString();
-
+                previousDate = currentFreeTime;
             }
         }
         freeStart = interval.end;
