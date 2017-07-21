@@ -418,6 +418,11 @@ function checkConflicts(meeting, rtm){
     meeting.invitees.forEach( function(invitee) {
         invitee = invitee;
         var inviteeuser = rtm.dataStore.getUserByName(invitee); //given the invitee slack name, find their slack user object
+        if(!inviteeuser) {
+            console.log(' user not found with that name');
+        } else {
+
+
         var inviteeSlackID = inviteeuser.id; //get slack id from slack user
         //find a user in our DB with that slack username
         User.findOne({slackID: inviteeSlackID}).exec()
@@ -523,8 +528,10 @@ function checkConflicts(meeting, rtm){
             counterGoal -= 1; //if you cant get a user, subtract from counter goal so your not waiting on a users info that will never come
             reject(err);
         })
-    })
+    // })
+    }
   }) //end of for each
+})
 }
 
 function workingDaysBetweenDates(startDate, endDate) {
