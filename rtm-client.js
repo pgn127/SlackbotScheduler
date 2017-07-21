@@ -295,6 +295,7 @@ function processMessage(message, rtm, sender) {
                 fields.push({"title": "Date", "value": `${meetingDate}`})
                 fields.push({"title": "Time", "value": `${meetingTime}`})
                     console.log('FIELDS FOR NON CONFLICT METING', fields);
+                    
                     if(data.result.parameters.duration !== "") {
                       fields.push({
                         "title": "Duration",
