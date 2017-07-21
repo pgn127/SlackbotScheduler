@@ -206,15 +206,8 @@ function processMessage(message, rtm, sender) {
                 })
                 console.log('FREELIST IS', freeTimeList);
                 console.log('OPTIONS IS', options);
-                // freeTimeList.forEach((time) => {
-                //     options.push({
-                //         "text": `${time.start.slice(0,10)} ${time.start.slice(11,19)} ${time.end.slice(11,19)}`,
-                //         "value": `${time.start}-${time.end}`
-                //     })
-                // })
 
                 web.chat.postMessage(message.channel, 'Sorry! There was a scheduling conflict with your requested meeting time!', {
-                    // "text": "Would you like to play a game?",
                     "response_type": "in_channel",
                     "attachments": [
                         {
@@ -456,8 +449,12 @@ function findFreeTimes(busyArray, meetingStartDate, sevenBusinessDays){
 
     freeStack.push({start: freeStart, end: freeEnd})
 
-    //make sure you only provide 30 minute selected_options
+    //make sure you only provide 30 minute/duration selected_options
     //max 3 meetings offered per day
+    var duration = 30;
+    
+
+
     return freeStack;
 }
 
