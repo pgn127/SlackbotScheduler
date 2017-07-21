@@ -278,12 +278,7 @@ function processMessage(message, rtm, sender) {
             "value": `${invitees}`
           }
         ];
-        if(data.result.parameters.duration !== "") {
-          fields.push({
-            "title": "Duration",
-            "value": `${data.result.parameters.duration.amount} ${data.result.parameters.duration.unit}`
-          })
-        }
+
         var newMeeting = new Meeting({
             userID: sender._id,//'596f927c2945b10011ad86b0',
             channelID: channelId,
@@ -304,6 +299,12 @@ function processMessage(message, rtm, sender) {
                         "title": "Time",
                         "value": `${meetingTime}`
                     }])
+                    if(data.result.parameters.duration !== "") {
+                      fields.push({
+                        "title": "Duration",
+                        "value": `${data.result.parameters.duration.amount} ${data.result.parameters.duration.unit}`
+                      })
+                    }
 
                 // rtm.sendMessage('no conflcits will confirm and save meeting', message.channel)
                 web.chat.postMessage(message.channel, `Would you like me to create the following meeting: ` , {
@@ -333,6 +334,13 @@ function processMessage(message, rtm, sender) {
 
             } else {
                 var options = []
+                if(data.result.parameters.duration !== "") {
+                  fields.push({
+                    "title": "Duration",
+                    "value": `${data.result.parameters.duration.amount} ${data.result.parameters.duration.unit}`
+                  })
+                }
+                
                 freeTimeList.forEach((time) => {
                     options.push({
                         "text": `${time.start.slice(0,10)} ${time.start.slice(11,19)} ${time.end.slice(11,19)}`,
