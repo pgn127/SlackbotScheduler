@@ -461,7 +461,7 @@ function findFreeTimes(busyArray, meetingStartDate, sevenBusinessDays, meetingDu
     var freeStart = meetingStartDate//.slice(0,11)+'00:00:00Z' //TODO: CHANGE TO BE 9AM ON THE DAY YOU REQUESTED THE MEETING OR DATE.NOW
     var freeEnd = sevenBusinessDays.slice(0,11)+'06:59:59Z'
     var freeStack = []
-    counter = 0;
+    counter = 1;
     var duration = meetingDuration * 60 * 1000; //meeting duration in milliseconds
     var previousDate = (new Date(meetingStartDate)).setDate(new Date(meetingStartDate).getDate()-1)
     console.log("Initial Prev", previousDate);
@@ -473,9 +473,9 @@ function findFreeTimes(busyArray, meetingStartDate, sevenBusinessDays, meetingDu
         if(currentFreeTime !== nextBusyTime){
             while(currentFreeTime + duration <= nextBusyTime) {
                 currentFreeTime = currentFreeTime + duration;
-                console.log("First compare", new Date(new Date(previousDate).toISOString().substring(0,19)+"+07:00").getDate() ,
-                new Date(new Date(currentFreeTime).toISOString().substring(0,19)+"+07:00").getDate(),
-                new Date(new Date(previousDate).toISOString().substring(0,19)+"+07:00").getDate() != new Date(new Date(currentFreeTime).toISOString().substring(0,19)+"+07:00").getDate());
+                // console.log("First compare", new Date(new Date(previousDate).toISOString().substring(0,19)+"+07:00").getDate() ,
+                // new Date(new Date(currentFreeTime).toISOString().substring(0,19)+"+07:00").getDate(),
+                // new Date(new Date(previousDate).toISOString().substring(0,19)+"+07:00").getDate() != new Date(new Date(currentFreeTime).toISOString().substring(0,19)+"+07:00").getDate());
 
                 if (new Date(new Date(previousDate).toISOString().substring(0,19)+"+07:00").getDate() != new Date(new Date(currentFreeTime).toISOString().substring(0,19)+"+07:00").getDate()){
                     counter = 0;
