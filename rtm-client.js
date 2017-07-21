@@ -1,7 +1,7 @@
 var mongoose = require('mongoose');
 var models = require('./models');
 var google = require('googleapis');
-var {User, Reminder} = require('./models');
+var {User, Reminder, Meeting} = require('./models');
 var slackID;
 var _ = require('underscore')
 var axios = require('axios');
@@ -282,6 +282,25 @@ function processMessage(message, rtm, sender) {
         .then((freeTimeList)=>{
             if(freeTimeList && freeTimeList.length === 0){
                 console.log('no conflicts');
+                var fields = [
+                  {
+                    "title": "Subject",
+                    "value": `${data.result.parameters.subject}`
+                  },
+                  {
+                    "title": "Date",
+                    "value": `${data.result.parameters.date}`
+                  },
+                  {
+                    "title": "Time",
+                    "value": `${data.result.parameters.time}`
+                  },
+                  {
+                    "title": "Invitees",
+                    "value": `${inviteArr}`
+                  }
+                ];
+
                 rtm.sendMessage('no conflcits will confirm and save meeting', message.channel)
                 //only save new meeting if there are no conflicts
                 // newMeeting.save(function(err, meeting){
@@ -343,24 +362,6 @@ function processMessage(message, rtm, sender) {
             console.log('error with checkconflicts', err);
         })
 
-        var fields = [
-          {
-            "title": "Subject",
-            "value": `${data.result.parameters.subject}`
-          },
-          {
-            "title": "Date",
-            "value": `${data.result.parameters.date}`
-          },
-          {
-            "title": "Time",
-            "value": `${data.result.parameters.time}`
-          },
-          {
-            "title": "Invitees",
-            "value": `${inviteArr}`
-          }
-        ];
 
         if(data.result.parameters.duration !== "") {
           fields.push({
