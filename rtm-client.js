@@ -264,7 +264,8 @@ function checkConflicts(meeting, rtm){
             invitee = meetinginvitee;
             var inviteeuser = rtm.dataStore.getUserByName(invitee); //given the invitee slack name, find their slack user object
             if(!inviteeuser) {
-                console.log(' user not found with that name');
+                console.log('CHECKCONFLICTS: user not found with that name', invitee);
+                rtm.sendMessage(`user not found with name ${invitee}`, meeting.channelID)
             } else {
                 var inviteeSlackID = inviteeuser.id;
                 User.findOne({slackID: inviteeSlackID}).exec()
@@ -452,7 +453,7 @@ function findFreeTimes(busyArray, meetingStartDate, sevenBusinessDays){
     //make sure you only provide 30 minute/duration selected_options
     //max 3 meetings offered per day
     var duration = 30;
-    
+
 
 
     return freeStack;
