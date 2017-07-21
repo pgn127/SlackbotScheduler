@@ -285,7 +285,7 @@ function processMessage(message, rtm, sender) {
           })
         }
         var newMeeting = new Meeting({
-            userID: '596f927c2945b10011ad86b0',
+            userID: sender._id,//'596f927c2945b10011ad86b0',
             channelID: channelId,
             subject: meetingSubject,
             date: meetingDate,
@@ -295,10 +295,7 @@ function processMessage(message, rtm, sender) {
 
         checkConflicts(newMeeting, rtm)
         .then((freeTimeList)=>{
-
-
             if(freeTimeList && freeTimeList.length === 0){
-                console.log('no conflicts');
 
                 fields.concat([{
                     "title": "Date",
@@ -333,23 +330,14 @@ function processMessage(message, rtm, sender) {
                     }
                   ]
                 });
-                //only save new meeting if there are no conflicts
-                // newMeeting.save(function(err, meeting){
-                //     if (err){
-                //         res.status(400).json({error:err});
-                //     }else{
-                //         // findAndReturnEmails(meeting.invitees, meeting.date,  meeting.subject, user.token, meeting.time);
-                //         res.send('No conflicts with that time. Meeting confirmed');
-                //     }
-                // })
+
 
             } else {
                 console.log('THERE WERE CONFLICTS, SHOULD NOT CONFIRM MEETING');
                 var options = []
-
                 freeTimeList.forEach((time) => {
                     options.push({
-                        "text": `1${time.start} ${time.end}`,
+                        "text": `${time.start.slice(11,19)} ${time.start.slice(0,10)} ${time.end.slice(0,10)}`,
                         "value": `${time.start}-${time.end}`
                     })
                 })
