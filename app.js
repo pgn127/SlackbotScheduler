@@ -47,6 +47,16 @@ app.get('/oauth', function(req, res){
   slackID = req.query.auth_id
   res.redirect(url);
 })
+
+
+// ASYNC SHIT NEED NODE 7 OR 8
+// app.get(
+//     '/connectcallback', async function(req,res) {
+//         var tokens = await getToken(req.query.code)
+//         var mongoUser = await User.findById(wejf)
+//     }
+// )
+
 app.get('/connect/callback', function(req, res) {
   const code = req.query.code;
   oauth2Client = new OAuth2(

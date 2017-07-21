@@ -67,6 +67,9 @@ function findFreeTimes(busyArray, meetingStartDate, sevenBusinessDays){
         freeStart = interval.end;
     })
     freeStack.push({start: freeStart, end: freeEnd})
+
+
+    
     return freeStack;
 }
 

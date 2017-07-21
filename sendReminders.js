@@ -16,7 +16,7 @@ rtm.start();
 findReminders(rtm);
 
 
-function postMessage(channelId, msg) {
+function postMessage( msg, channelId) {
     return new Promise(function(resolve, reject){
         rtm.sendMessage('message body',channelId, function(err) {
             if(err) {
@@ -53,7 +53,7 @@ function findReminders(rtm){
           })
           // console.log('sending remidner string to user ', reminderString);
           // console.log('rtm issss', rtm);
-          return promisifiedPostMessage(channel, reminderString); //ORRR JUST CALL MY POSTMESSAGES
+          return promisifiedPostMessage(reminderString, channel); //ORRR JUST CALL MY POSTMESSAGES
       })
       return Promise.all(promises);
   })
