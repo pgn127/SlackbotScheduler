@@ -229,13 +229,10 @@ function processMessage(message, rtm, sender) {
           ]
         });
     } else if(data.result.metadata.intentName === 'meeting.add'){
-        console.log('entered meeting.add intent in rtm client');
         //it is the meeting intent
         let inviteArr = [];
         var i = 0;
-        console.log('The invitees are: ', data.result.parameters.invitees);
         data.result.parameters.invitees.forEach((user) => {
-            console.log('current invitee is ', user);
           if(user.length > 1){
             if(user.charAt(0) === "<"){
               var newUser = user.substr(2)
@@ -260,24 +257,13 @@ function processMessage(message, rtm, sender) {
           }
         })
 
-
         var meetingSubject = data.result.parameters.subject[0];
         var meetingDate = data.result.parameters.date;
         var meetingTime = data.result.parameters.time;
         var channelId = message.channel;
-        var userID=  'IDK';
         var invitees = inviteArr;
         // console.log('subject date and time', subject, date, time, invitees);
-        var fields = [
-          {
-            "title": "Subject",
-            "value": `${meetingSubject}`
-          },
-          {
-            "title": "Invitees",
-            "value": `${invitees}`
-          }
-        ];
+
 
         var newMeeting = new Meeting({
             userID: sender._id,//'596f927c2945b10011ad86b0',
@@ -287,15 +273,25 @@ function processMessage(message, rtm, sender) {
             time: meetingTime,
             invitees: invitees,
         })
-        console.log('MEETINDATE, MEETINGTIME', meetingDate, meetingTime);
+
+        var fields = [
+          {
+            "title": "Subject",
+            "value": `${newMeeting.subject}`
+          },
+          {
+            "title": "Invitees",
+            "value": `${newMeeting.invitees}`
+          }
+        ];
         checkConflicts(newMeeting, rtm)
         .then((freeTimeList)=>{
             if(freeTimeList && freeTimeList.length === 0){
 
-                fields.push({"title": "Date", "value": `${meetingDate}`})
-                fields.push({"title": "Time", "value": `${meetingTime}`})
+                fields.push({"title": "Date", "value": `${newMeeting.date}`})
+                fields.push({"title": "Time", "value": `${newMeeting.time}`})
                     console.log('FIELDS FOR NON CONFLICT METING', fields);
-                    
+
                     if(data.result.parameters.duration !== "") {
                       fields.push({
                         "title": "Duration",
