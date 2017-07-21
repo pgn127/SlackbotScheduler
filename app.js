@@ -135,6 +135,7 @@ app.post('/slack/interactive', function(req,res){
           }
           else{
               var meetingDuration = 60; //default meeting duration is 1 hour
+              console.log('meeting duration field was ', payloadArr[0].fields[4]);
               if(payloadArr[0].fields[4]) {
                 //the duration field was provided
                 let durArr = payloadArr[0].fields[4].value.split(" ");
@@ -144,6 +145,7 @@ app.post('/slack/interactive', function(req,res){
                   meetingDuration = durArr[0]
                 }
               }
+              console.log('meeting duration after some stuff idk what its doing ', meetingDuration);
               var meetingSubject = payload.original_message.attachments[0].fields[0].value;
               var meetingInvitees = payload.original_message.attachments[0].fields[1].value.split(",");
               if(payload.actions[0].type === "select"){ //meeting with conflicts with select list
