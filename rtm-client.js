@@ -9,7 +9,6 @@ const timeZone = "2017-07-17T14:26:36-0700";
 const identifier = 20150910;
 var OAuth2 = google.auth.OAuth2;
 var googleAuth = require('google-auth-library');
-
 var {RtmClient, WebClient, CLIENT_EVENTS, RTM_EVENTS} = require('@slack/client');
 //same as var RtmClient = require('@slack/client').RtmClient
 var token = process.env.SLACK_API_TOKEN || '';
@@ -18,7 +17,6 @@ var web = new WebClient(token);
 let channel;
 var awaitingResponse = false;
 mongoose.Promise = global.Promise;
-
 
 rtm.on(CLIENT_EVENTS.RTM.AUTHENTICATED, (rtmStartData) => {
   // console.log(`Logged in as ${rtmStartData.self.name} of team ${rtmStartData.team.name}, but not yet connected to a channel`);

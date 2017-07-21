@@ -28,6 +28,7 @@ var meetingSchema = new Schema({
   date: String,
   invitees: Array,
   time: String,
+  duration: Number,
 })
 
 var Meeting = mongoose.model('Meeting', meetingSchema);

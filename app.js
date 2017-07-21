@@ -113,12 +113,25 @@ app.post('/slack/interactive', function(req,res){
         console.log(err);
         res.send('an error occured');
       } else if (user){
+
+        var payloadArr = payload.original_message.attachments;
+
           if(payload.original_message.text === "Would you like me to create a reminder for "){
               //it was a reminder
               var reminderSubject = payload.original_message.attachments[0].fields[0].value;
               var reminderDate = Date.parse(payload.original_message.attachments[0].fields[1].value);
           }
           else{
+              var meetingDuration = 60; //default meeting duration is 1 hour
+              if(payloadArr[0].fields[4]) {
+                //the duration field was provided
+                let durArr = payloadArr[0].fields[4].value.split(" ");
+                if(durArr[1] === "h") {
+                  meetingDuration = durArr[0] * 60;
+                } else {
+                  meetingDuration = durArr[0]
+                }
+              }
               var meetingSubject = payload.original_message.attachments[0].fields[0].value;
               var meetingInvitees = payload.original_message.attachments[0].fields[1].value.split(", ");
               if(payload.actions[0].type === "select"){ //meeting with conflicts with select list
@@ -169,12 +182,13 @@ app.post('/slack/interactive', function(req,res){
                             date: meetingDate,
                             time: meetingTime,
                             invitees: meetingInvitees,
+                            duration: meetingDuration,
                         })
                         newMeeting.save(function(err, meeting){
                             if (err){
                                 res.send('Error saving meeting');
                             }else{
-                                findAndReturnEmails(meetingInvitees, meetingDate,  meetingSubject, user.token, meetingTime);
+                                findAndReturnEmails(meetingInvitees, meetingDate,  meetingSubject, user.token, meetingTime, meeting.duration);
                                 res.send('Meeting confirmed');
                             }
                         })
@@ -189,8 +203,7 @@ app.post('/slack/interactive', function(req,res){
 })
 app.listen(process.env.PORT || 3000);
 
-function createCalendarReminder(date, subject, tokens, invitees, time){
-    console.log('in create calendar date, time', date, time);
+function createCalendarReminder(date, subject, tokens, invitees, time, duration){
   if(!invitees){
       let dateTime = date + "T" + time + "-07:00"
     var event = {
@@ -209,15 +222,19 @@ function createCalendarReminder(date, subject, tokens, invitees, time){
         'email' : invited
       })
     })
-    console.log(attendeesArr);
     let dateTime = date + "T" + time + "-07:00"
+
+    var endTime = new Date(dateTime);
+    endTime.setMinutes(endTime.getMinutes() + parseInt(duration))
+    let finalDate = new Date(Date.parse(endTime))
+
     var event = {
       'summary': subject,
       'start': {
         'dateTime': dateTime
       },
       'end': {
-        'dateTime': dateTime
+        'dateTime': finalDate,
       },
       'attendees': attendeesArr,
     };
@@ -245,7 +262,8 @@ function createCalendarReminder(date, subject, tokens, invitees, time){
 }
 
 
-function findAndReturnEmails (users, date, subject, tokens, time) {
+function findAndReturnEmails (users, date, subject, tokens, time, duration) {
+
   var slackIdArray = [];
 
   users.forEach((username) => {
@@ -262,7 +280,7 @@ function findAndReturnEmails (users, date, subject, tokens, time) {
   })
 
   Promise.all(promisArray).then((arr) => {
-    createCalendarReminder(date, subject, tokens, arr, time);
+    createCalendarReminder(date, subject, tokens, arr, time, duration);
   })
 }
 
