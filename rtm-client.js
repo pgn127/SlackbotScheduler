@@ -292,7 +292,7 @@ function checkConflicts(meeting, rtm){
                         //AT THIS POINT YOU ARE AUTHENTICATED TO SEE THE INVITEE GOOGLE calendar
                         meetingDate = new Date(meeting.date + ' ' + meeting.time + "-07:00");
                         var meetingEnd = new Date(meeting.date + ' ' + meeting.time + "-07:00");
-                        meetingEnd.setMinutes(meetingEnd.getMinutes() + 30);
+                        meetingEnd.setMinutes(meetingEnd.getMinutes() + meeting.duration);
                         var n = 7;
                         while (workingDaysBetweenDates(meetingDate, new Date(Date.parse(meetingEnd) + n*24*60*60*1000)) < 7){
                             n++;
@@ -340,7 +340,7 @@ function checkConflicts(meeting, rtm){
                         meetingStartTime.setDate(meetingStartTime.getDate());
                         var meetingEndTime = new Date(meeting.date + ' ' + meeting.time + "-07:00");
                         meetingEndTime.setDate(meetingEndTime.getDate());
-                        meetingEndTime.setMinutes(meetingEndTime.getMinutes() + 30);
+                        meetingEndTime.setMinutes(meetingEndTime.getMinutes() + meeting.duration);
                         var conflictStartTime = new Date(time.start);
                         // conflictStartTime.setDate(conflictStartTime.getDate());
                         var conflictEndTime = new Date(time.end);
@@ -363,7 +363,7 @@ function checkConflicts(meeting, rtm){
             .then( () => {
                 count+=1
                 if(count === counterGoal){
-                    var freetimelist = findFreeTimes(busySlots, meetingDate.toISOString(), sevenBusinessDays.toISOString());
+                    var freetimelist = findFreeTimes(busySlots, meetingDate.toISOString(), sevenBusinessDays.toISOString(), meeting.duration);
                     // console.log('freetimelist', freetimelist);
                     if(conflictExists) {
                         resolve(freetimelist);
@@ -443,7 +443,7 @@ function reduceTimeIntervals(busyArray){
     return intervalStack;
 }
 
-function findFreeTimes(busyArray, meetingStartDate, sevenBusinessDays){
+function findFreeTimes(busyArray, meetingStartDate, sevenBusinessDays, meetingDuration){
     //meetingStartDate and sevenBusinessDays must be in format '2017-07-22T23:59:59Z'
     var intervals = reduceTimeIntervals(busyArray);
     var freeStart = meetingStartDate.slice(0,11)+'00:00:00Z'
