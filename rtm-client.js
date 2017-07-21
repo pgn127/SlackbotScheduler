@@ -444,6 +444,8 @@ function reduceTimeIntervals(busyArray){
 
 function findFreeTimes(busyArray, meetingStartDate, sevenBusinessDays, meetingDuration){
     //meetingStartDate and sevenBusinessDays must be in format '2017-07-22T23:59:59Z'
+    console.log(meetingStartDate);
+    console.log(sevenBusinessDays);
     var intervals = reduceTimeIntervals(busyArray);
     var freeStart = meetingStartDate//.slice(0,11)+'00:00:00Z' //TODO: CHANGE TO BE 9AM ON THE DAY YOU REQUESTED THE MEETING OR DATE.NOW
     var freeEnd = sevenBusinessDays.slice(0,11)+'06:59:59Z'
@@ -459,18 +461,15 @@ function findFreeTimes(busyArray, meetingStartDate, sevenBusinessDays, meetingDu
                 freeStart = new Date(currentFreeTime).toISOString();
 
             }
-
         }
         freeStart = interval.end;
     })
-
-
     freeStack.push({start: freeStart, end: freeEnd})
 
     //make sure you only provide 30 minute/duration selected_options
     //max 3 meetings offered per day
 
-    return freeStack;
+    return freeStack.slice(0,10);
 }
 
 
