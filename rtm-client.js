@@ -131,7 +131,7 @@ function processMessage(message, rtm, sender) {
 
             } else {
                 console.log('no user found with id ', newUser);
-                throw new Error(`Unable to find that user with id`)
+                throw new Error(`Unable to find slack user: ${newUser}`)
             }
 
 
@@ -270,9 +270,9 @@ function checkConflicts(meeting, rtm){
             if(!inviteeuser) {
                 // console.log('CHECKCONFLICTS: user not found with that name', invitee);
                 // reject('err')
-                console.log(`Couldnt find slack user ${invitee}.`);
+                console.log(`Couldnt find slack user with name ${invitee}.`);
                 // rtm.sendMessage(`user not found with name ${invitee}`, meeting.channelID);
-                reject(`Couldnt find slack user ${invitee}.`)
+                reject(`Couldnt find slack user with name ${invitee}.`)
                 // throw new Error(`Couldnt find slack user ${invitee}.`);
             } else {
                 var inviteeSlackID = inviteeuser.id;
