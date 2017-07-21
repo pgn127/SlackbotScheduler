@@ -27,10 +27,12 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
   slackID = message.user;
   const userId = message.user;
   if(message.subtype && message.subtype === 'message_changed') {
+     console.log('User has answered interactive message, awaitingResponse set to false- message.subtype is message_changed. Their response was', message);
     awaitingResponse = false;
     return;
   }
   if( !dm || dm.id !== message.channel || message.type !== 'message') {
+      console.log('!dm || dm.id !== message.channel || mesage.type !== message is true', 'dm: ', dm, ' dm.id: ', dm.id, message.channel, 'message.type',  message.type);
     return;
   }
   User.findOne({slackID: slackID}).exec(function(err, user){
@@ -73,9 +75,10 @@ function processMessage(message, rtm, sender) {
     else if(data.result.actionIncomplete) {
       rtm.sendMessage(data.result.fulfillment.speech, message.channel)
     } else if(Object.keys(data.result.parameters).length !== 0){
-      awaitingResponse = true;
+
       if(data.result.metadata.intentName === "Setting a Reminder"){
         //remind intent
+        awaitingResponse = true;
         web.chat.postMessage(message.channel, `Would you like me to create a reminder for ` , {
           "attachments": [
             {
@@ -167,6 +170,7 @@ function processMessage(message, rtm, sender) {
                 fields.push({"title": "Date", "value": `${newMeeting.date}`})
                 fields.push({"title": "Time", "value": `${newMeeting.time}`})
                 if(duration) { fields.push(duration)}
+                awaitingResponse = true;
                 web.chat.postMessage(message.channel, `Would you like me to create the following meeting: ` , {
                   "attachments": [
                     {
@@ -206,7 +210,7 @@ function processMessage(message, rtm, sender) {
                 })
                 console.log('FREELIST IS', freeTimeList);
                 console.log('OPTIONS IS', options);
-
+                awaitingResponse = true;
                 web.chat.postMessage(message.channel, 'Sorry! There was a scheduling conflict with your requested meeting time!', {
                     "response_type": "in_channel",
                     "attachments": [
@@ -238,7 +242,8 @@ function processMessage(message, rtm, sender) {
 
             }
         }).catch((err) => {
-            console.log('error with checkconflicts', err);
+            console.log('CHECKCONFLCITS PROMISE ERROR: error with checkconflicts', err);
+            // rtm.sendMessage
         })
       }
     }
@@ -265,7 +270,9 @@ function checkConflicts(meeting, rtm){
             var inviteeuser = rtm.dataStore.getUserByName(invitee); //given the invitee slack name, find their slack user object
             if(!inviteeuser) {
                 console.log('CHECKCONFLICTS: user not found with that name', invitee);
+                // reject('err')
                 rtm.sendMessage(`user not found with name ${invitee}`, meeting.channelID);
+                throw new Error(`THROWN ERROR: Couldnt find user ${invitee}`);
             } else {
                 var inviteeSlackID = inviteeuser.id;
                 User.findOne({slackID: inviteeSlackID}).exec()
