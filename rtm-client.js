@@ -53,24 +53,6 @@ var awaitingResponse = false;
 mongoose.Promise = global.Promise;
 
 
-// var pamtofrankie = {
-//     userID: '596f927c2945b10011ad86b0',
-//     invitees: ['fflores'],
-//     subject: 'get some dinna',
-//     channelID: 'D6ATM9WMU',
-//     date: '2017-07-20',
-//     time: '17:00:00'
-//
-// }
-var pamtofrankie = {
-    userID: '596f91760f86e7001144794d',
-    invitees: ['pneedle'],
-    subject: 'get some dinna',
-    channelID: 'D6A33DH52',//'D6ASP325U',
-    date: '2017-07-20', //equivalent to 07/20/2017
-    time: '16:00:00'
-}
-
 rtm.on(CLIENT_EVENTS.RTM.AUTHENTICATED, (rtmStartData) => {
   // console.log(`Logged in as ${rtmStartData.self.name} of team ${rtmStartData.team.name}, but not yet connected to a channel`);
 });
@@ -249,12 +231,18 @@ function processMessage(message, rtm, sender) {
                 if(duration) { fields.push(duration)}
                 var options = []
                 console.log('FREELIST IS', freeTimeList);
-                freeTimeList.forEach((time) => {
-                    options.push({
-                        "text": `${time.start.slice(0,10)} ${time.start.slice(11,19)} ${time.end.slice(11,19)}`,
-                        "value": `${time.start}-${time.end}`
-                    })
+
+                freeList.forEach((time)=> {
+                    var startTime = new Date(time.start)
+                    var newTime = new Date(startTime.toDateString() + ' ' + startTime.toTimeString() + "+07:00").toLocaleString()
+                    options.push({"text": newTime, "value": time.start})
                 })
+                // freeTimeList.forEach((time) => {
+                //     options.push({
+                //         "text": `${time.start.slice(0,10)} ${time.start.slice(11,19)} ${time.end.slice(11,19)}`,
+                //         "value": `${time.start}-${time.end}`
+                //     })
+                // })
 
                 web.chat.postMessage(message.channel, 'Sorry! There was a scheduling conflict with your requested meeting time!', {
                     // "text": "Would you like to play a game?",
@@ -494,6 +482,9 @@ function findFreeTimes(busyArray, meetingStartDate, sevenBusinessDays){
         freeStart = interval.end;
     })
     freeStack.push({start: freeStart, end: freeEnd})
+
+    //make sure you only provide 30 minute selected_options
+    //max 3 meetings offered per day
     return freeStack;
 }
 
