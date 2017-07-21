@@ -257,21 +257,21 @@ function processMessage(message, rtm, sender) {
           }
         })
 
-        var meetingSubject = data.result.parameters.subject[0];
-        var meetingDate = data.result.parameters.date;
-        var meetingTime = data.result.parameters.time;
-        var channelId = message.channel;
-        var invitees = inviteArr;
+        // var meetingSubject = data.result.parameters.subject[0];
+        // var meetingDate = data.result.parameters.date;
+        // var meetingTime = data.result.parameters.time;
+        // var channelId = message.channel;
+        // var invitees = inviteArr;
         // console.log('subject date and time', subject, date, time, invitees);
 
 
         var newMeeting = new Meeting({
             userID: sender._id,//'596f927c2945b10011ad86b0',
-            channelID: channelId,
-            subject: meetingSubject,
-            date: meetingDate,
-            time: meetingTime,
-            invitees: invitees,
+            channelID: message.channel,
+            subject: data.result.parameters.subject[0],
+            date: data.result.parameters.date,
+            time: data.result.parameters.time,
+            invitees: inviteArr,
         })
 
         var fields = [
@@ -371,7 +371,6 @@ function processMessage(message, rtm, sender) {
                     ]
                 })
 
-                // res.send('There were conflicts with that meeting time and your invitees. Please choose another meeting time. FIGURE OUT HOW TO SEND THE MESSAGE');
             }
         }).catch((err) => {
             console.log('error with checkconflicts', err);
