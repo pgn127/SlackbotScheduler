@@ -248,6 +248,7 @@ function processMessage(message, rtm, sender) {
             } else {
                 if(duration) { fields.push(duration)}
                 var options = []
+                console.log('FREELIST IS', freeTimeList);
                 freeTimeList.forEach((time) => {
                     options.push({
                         "text": `${time.start.slice(0,10)} ${time.start.slice(11,19)} ${time.end.slice(11,19)}`,
