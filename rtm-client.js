@@ -243,6 +243,7 @@ function processMessage(message, rtm, sender) {
             }
         }).catch((err) => {
             console.log('CHECKCONFLCITS PROMISE ERROR: error with checkconflicts', err);
+            rtm.sendMessage(`Sorry there was an error with that request. ${err}`, meeting.channelID);
             // rtm.sendMessage
         })
       }
@@ -269,10 +270,10 @@ function checkConflicts(meeting, rtm){
             invitee = meetinginvitee;
             var inviteeuser = rtm.dataStore.getUserByName(invitee); //given the invitee slack name, find their slack user object
             if(!inviteeuser) {
-                console.log('CHECKCONFLICTS: user not found with that name', invitee);
+                // console.log('CHECKCONFLICTS: user not found with that name', invitee);
                 // reject('err')
-                rtm.sendMessage(`user not found with name ${invitee}`, meeting.channelID);
-                throw new Error(`THROWN ERROR: Couldnt find user ${invitee}`);
+                // rtm.sendMessage(`user not found with name ${invitee}`, meeting.channelID);
+                throw new Error(`Couldnt find slack user ${invitee}.`);
             } else {
                 var inviteeSlackID = inviteeuser.id;
                 User.findOne({slackID: inviteeSlackID}).exec()
@@ -317,15 +318,16 @@ function checkConflicts(meeting, rtm){
                         )
                     })
                 } else {
-                    rtm.sendMessage(`I do not have the correct permissions invite ${invitee} to this meeting.`, meeting.channelID);
-                    throw new Error('couldnt find user');
+                    // rtm.sendMessage(`I do not have the correct permissions invite ${invitee} to this meeting.`, meeting.channelID);
+                    // throw new Error('couldnt find user');
+                    throw new Error(`There was an error scheduling a meeting with ${invitee}. I may not have the correct permissions. Tell them to message me!`);
                 }
             })
             .then((schedule) => {
                 // console.log('scheudle was retunred', schedule);
                 if(false && !schedule){
                     console.log("schedule wasnt returned");
-                    throw new Error('no schedule returns');
+                    throw new Error(`I was not able to locate ${invitee}'s schedule to create the meeting.`);
                 }else {
                     // console.log('schedule is ', schedule);
                     var busyList = schedule.calendars.primary.busy;
