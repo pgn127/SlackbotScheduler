@@ -260,6 +260,7 @@ function processMessage(message, rtm, sender) {
 
 
 function checkConflicts(meeting, rtm){
+    console.log('inside check conflcits and the meeting is ', meeting);
     var busySlots = [];
     var count = 0;
     var conflictExists = false;
@@ -272,8 +273,10 @@ function checkConflicts(meeting, rtm){
             if(!inviteeuser) {
                 // console.log('CHECKCONFLICTS: user not found with that name', invitee);
                 // reject('err')
+                console.log(`Couldnt find slack user ${invitee}.`);
                 // rtm.sendMessage(`user not found with name ${invitee}`, meeting.channelID);
-                throw new Error(`Couldnt find slack user ${invitee}.`);
+                reject(`Couldnt find slack user ${invitee}.`)
+                // throw new Error(`Couldnt find slack user ${invitee}.`);
             } else {
                 var inviteeSlackID = inviteeuser.id;
                 User.findOne({slackID: inviteeSlackID}).exec()
@@ -312,7 +315,7 @@ function checkConflicts(meeting, rtm){
                                 if(schedule){
                                     resolve(schedule)
                                 } else {
-                                    console.log('REJECTING PROMISE');
+                                    console.log('REJECTING PROMISE', err);
                                     reject(err);
                                 }
                             }
@@ -327,8 +330,9 @@ function checkConflicts(meeting, rtm){
             .then((schedule) => {
                 // console.log('scheudle was retunred', schedule);
                 if(false && !schedule){
-                    console.log("schedule wasnt returned");
-                    throw new Error(`I was not able to locate ${invitee}'s schedule to create the meeting.`);
+                    console.log(`rejectig: I was not able to locate ${invitee}'s schedule to create the meeting.`);
+                    reject(`I was not able to locate ${invitee}'s schedule to create the meeting.`)
+                    // throw new Error(`I was not able to locate ${invitee}'s schedule to create the meeting.`);
                 }else {
                     // console.log('schedule is ', schedule);
                     var busyList = schedule.calendars.primary.busy;
