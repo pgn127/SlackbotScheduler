@@ -140,8 +140,8 @@ app.post('/slack/interactive', function(req,res){
             //   console.log('the intervative message was a select');
             //   console.log('selected options', payload.actions[0].selected_options[0].value);
               var selectedMeeting = payload.actions[0].selected_options[0].value;
-              var meetingTime = selectedMeeting.slice(0,10);
-              var meetingDate = selectedMeeting.slice(11,19);
+              var meetingTime = selectedMeeting.slice(11,19);
+              var meetingDate = selectedMeeting.slice(0,10);
               console.log('conflcit meeting time and date', meetingTime, meetingDate);
               var meetingSubject = payload.original_message.attachments[0].fields[0].value;
               var meetingInvitees = payload.original_message.attachments[0].fields[1].value.split(", ");
