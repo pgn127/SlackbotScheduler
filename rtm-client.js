@@ -230,7 +230,7 @@ function processMessage(message, rtm, sender) {
             } else {
                 if(duration) { fields.push(duration)}
                 var options = []
-                console.log('FREELIST IS', freeTimeList);
+
 
                 freeTimeList.forEach((time)=> {
                     var startTime = new Date(time.start)
@@ -239,6 +239,8 @@ function processMessage(message, rtm, sender) {
                     var newEndTime = new Date(endTime.toDateString() + ' ' + endTime.toTimeString() + "+07:00").toLocaleString()
                     options.push({"text": `${newStartTime}-${newEndTime}`, "value": time.start})
                 })
+                console.log('FREELIST IS', freeTimeList);
+                console.log('OPTIONS IS', options);
                 // freeTimeList.forEach((time) => {
                 //     options.push({
                 //         "text": `${time.start.slice(0,10)} ${time.start.slice(11,19)} ${time.end.slice(11,19)}`,
@@ -365,7 +367,7 @@ function checkConflicts(meeting, rtm){
                     // console.log('schedule is ', schedule);
                     var busyList = schedule.calendars.primary.busy;
                     busySlots = busySlots.concat(busyList);
-                    console.log(invitee);
+                    // console.log(invitee);
                     busyList.forEach((time) => {
                         var meetingStartTime = new Date(meeting.date + ' ' + meeting.time + "-07:00");;
                         meetingStartTime.setDate(meetingStartTime.getDate());
