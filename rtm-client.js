@@ -298,7 +298,7 @@ function checkConflicts(meeting, rtm){
                         var meetingEnd = new Date(meeting.date + ' ' + meeting.time + "-07:00");
                         meetingEnd.setMinutes(meetingEnd.getMinutes() + meeting.duration);
                         var n = 7;
-                        while (workingDaysBetweenDates(meetingDate, new Date(Date.parse(meetingEnd) + n*24*60*60*1000)) < 7){
+                        while (workingDaysBetweenDates(meetingDate.toString(), new Date(Date.parse(meetingEnd) + n*24*60*60*1000)) < 7){
                             n++;
                         }
                         sevenBusinessDays = new Date(Date.parse(meetingEnd) + n*24*60*60*1000)
@@ -389,8 +389,11 @@ function checkConflicts(meeting, rtm){
 })
 }
 
-function workingDaysBetweenDates(startDate, endDate) {
+function workingDaysBetweenDates(startOfMeeting, endDate) {
   // Validate input
+  console.log("START MEETING", startOfMeeting);
+  var startDate = new Date(startOfMeeting);
+  console.log("WORKING CONVERT" , startDate);
   if (endDate < startDate)
   return 0;
 
