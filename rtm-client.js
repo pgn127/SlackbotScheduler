@@ -291,6 +291,10 @@ function checkConflicts(meeting, rtm){
                         //AT THIS POINT YOU ARE AUTHENTICATED TO SEE THE INVITEE GOOGLE calendar
                         console.log("DATE: ",meeting.date, "TIME: ", meeting.time);
                         meetingDate = new Date(meeting.date + ' ' + meeting.time + "-07:00");
+                        console.log("MEETING:", meetingDate);
+                        console.log("MEETING ISO", meetingDate.toISOString());
+                        console.log("ALT", new Date(meeting.date + ' ' + meeting.time))
+                        console.log("ALTISO", new Date(meeting.date + ' ' + meeting.time).toISOString());
                         var meetingEnd = new Date(meeting.date + ' ' + meeting.time + "-07:00");
                         meetingEnd.setMinutes(meetingEnd.getMinutes() + meeting.duration);
                         var n = 7;
