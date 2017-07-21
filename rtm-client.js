@@ -415,8 +415,8 @@ function checkConflicts(meeting, rtm){
     var counterGoal = meeting.invitees.length;
     var invitee, user,sevenBusinessDays, meetingDate;
     return new Promise((resolve, reject) => {
-    meeting.invitees.forEach( function(invitee) {
-        invitee = invitee;
+    meeting.invitees.forEach( function(meetinginvitee) {
+        invitee = meetinginvitee;
         var inviteeuser = rtm.dataStore.getUserByName(invitee); //given the invitee slack name, find their slack user object
         if(!inviteeuser) {
             console.log(' user not found with that name');

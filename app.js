@@ -107,12 +107,12 @@ app.post('/slack/interactive', function(req,res){
   //if the user selects a new meeting time from list of meetings
   if(payload.actions[0].type === "select"){
       console.log('the intervative message was a select');
-
-      var selectedMeeting = payload.actions[0].selected_options[0].value;
-      var meetStartTime = selectedMeeting.slice(0,10);
-      var meetDate = selectedMeeting.slice(11,19);
-      console.log('selected options attachemnts', payload.original_message.attachments[0].fields[1].value.split(', '));
-      var invitees = payload.original_message.attachments[0].fields[1].value.split(', ');
+    //
+    //   var selectedMeeting = payload.actions[0].selected_options[0].value;
+    //   var meetStartTime = selectedMeeting.slice(0,10);
+    //   var meetDate = selectedMeeting.slice(11,19);
+    // //   console.log('selected options attachemnts', payload.original_message.attachments[0].fields[1].value.split(', '));
+    //   var invitees = payload.original_message.attachments[0].fields[1].value.split(', ');
 
     //   var newMeeting = new Meeting({
     //       userID: user._id,
@@ -125,7 +125,7 @@ app.post('/slack/interactive', function(req,res){
 
   }
   //if the user selects confirm button
-  else if(payload.actions[0].value !== 'false') {
+  if(payload.actions[0].value !== 'false') {
   // else if(payload.actions[0].type === "button" && payload.actions[0].value !== 'false') {
     //   console.log('PAYLOAD ACTIONS', payload.actions.selected_options);
     slackID = payload.user.id;
@@ -136,11 +136,12 @@ app.post('/slack/interactive', function(req,res){
       } else if (user){
           if(payload.actions[0].type === "select"){
               //meeting with conflicts with select list
-              console.log('the intervative message was a select');
+            //   console.log('the intervative message was a select');
               console.log('selected options', payload.actions[0].selected_options[0].value);
               var selectedMeeting = payload.actions[0].selected_options[0].value;
-              var meetStartTime = selectedMeeting.slice(0,10);
+              var meetingTime = selectedMeeting.slice(0,10);
               var meetingDate = selectedMeeting.slice(11,19);
+              console.log('conflcit meeting time and date', meetingTime, meetingDate);
               var meetingSubject = payload.original_message.attachments[0].fields[0].value;
               var meetingInvitees = payload.original_message.attachments[0].fields[1].value.split(", ");
           }
@@ -199,7 +200,8 @@ app.post('/slack/interactive', function(req,res){
                         })
                         newMeeting.save(function(err, meeting){
                             if (err){
-                                res.status(400).json({error:err});
+                                // res.status(400).json({error:err});
+                                res.send('Error saving meeting');
                             }else{
                                 findAndReturnEmails(meeting.invitees, meeting.date,  meeting.subject, user.token, meeting.time);
                                 res.send('Meeting confirmed');
