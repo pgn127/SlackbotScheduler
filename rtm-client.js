@@ -130,8 +130,8 @@ function processMessage(message, rtm, sender) {
                 inviteArr.push(userObj.name)
 
             } else {
-                throw new Error(`Unable to find that user with id`)
                 console.log('no user found with id ', newUser);
+                throw new Error(`Unable to find that user with id`)
             }
 
 
@@ -250,6 +250,7 @@ function processMessage(message, rtm, sender) {
   })
   .catch(function(err){
     console.log('error in procesmessage', err);
+    rtm.sendMessage(`Sorry there was an error with that request. ${err}`, message.channel);
   })
 }
 
