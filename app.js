@@ -127,8 +127,10 @@ app.post('/slack/interactive', function(req,res){
             console.log("this is meetingEvent", meetingEvent);
 
             findAndReturnEmails(meetingEvent.invitees, meetingEvent.date, meetingEvent.subject, user.token, meetingEvent.time);
+            res.send("Meeting Confirmed");
           } else {
             //do nothing and wait for other invitees to respond
+            res.send(name + " has accepted invitation. Still waiting on others to respond.")
             console.log("Invitee removed from array bc confirmation, still waiting on others")
           }
         }
@@ -138,7 +140,7 @@ app.post('/slack/interactive', function(req,res){
         let tempArr = user.pendingInvites
         let name = payload.callback_id.substring(2, payload.callback_id.length);
         console.log("this is name", name);
-        let index = tempArr.indexOf(name);
+        let ind = tempArr.indexOf(name);
         if(ind > -1){
           user.pendingInvites.splice(ind, 1);
           if(user.pendingInvites.length === 0){
@@ -147,8 +149,10 @@ app.post('/slack/interactive', function(req,res){
             //findAndReturnEmails(meeting.invitees, meeting.date, meeting.subject, user.token, meeting.time);
             var meetingEvent = user.pendingEvent;
             findAndReturnEmails(meetingEvent.invitees, meetingEvent.date, meetingEvent.subject, user.token, meetingEvent.time);
+            res.send("Meeting Confirmed");
           } else {
             //do nothing and wait for other invitees to respond
+            res.send(name + " has declined invitation. Still waiting on others to respond.")
             console.log("Invitee removed from array bc declined invitation, still waiting on others")
           }
         }
@@ -158,35 +162,9 @@ app.post('/slack/interactive', function(req,res){
       console.log("Error could not find user in mongodb with slackId", err)
     })
   }
-    // if(payload.actions.name === 'yes'){
-    //   //person accepted the invitation
-    //   User.findOne({slackId: payload.user.id})
-    //   .then((usr) => {
-
-    // .catch((err) => {
-    //   console.log('error in newuser save of connectcallback');
-    //   res.status(400).json({error:err});
-    // })
-
-    //     let index = usr.pendingInvites.indexOf(payload.actions.value)
-    //     if (index > -1) {
-    //       usr.pendingInvites.splice(index, 1);
-    //       if(usr.pendingInvites.length === 0){
-    //         //call the findAndReturnEmails function
-    //       }
-    //     } else {
-    //       console.log("ERROR: invited user was not in pending invites array")
-    //     }
-    //   })
-    //   .catch((err) => {
-    //     console.log("Error could not find user in mongodb with slackId", err);
-    //   })
-    // } else {
-    //   //person declined the invitation
-    // }
 
 
-  if(payload.actions[0].value === 'true') {
+  else if(payload.actions[0].value === 'true') {
     slackID = payload.user.id;
     User.findOne({slackID: slackID}).exec(function(err, user){
       if(err || !user){
@@ -272,7 +250,8 @@ app.post('/slack/interactive', function(req,res){
                                         sendInvitations(meeting, user);
                                         //commment findandreturn out to call sendInvitations instead first
                                         // findAndReturnEmails(meeting.invitees, meeting.date,  meeting.subject, user.token, meeting.time);
-                                        res.send('No conflicts with that time. Meeting confirmed');
+                                        //deleting the meeting confirmed from this res.send
+                                        res.send('No conflicts with that time.');
                                     } else {
                                         console.log('THERE WERE CONFLICTS, SHOULD NOT CONFIRM MEETING');
                                         //TODO: NEED TO SEND MESSAGE WITH FREE TIMES TO HAVE HTEM SELECT FROM BUT PROBABLY SHOULDNT DO THAT IN HERE??
@@ -289,7 +268,12 @@ app.post('/slack/interactive', function(req,res){
 
       }
     })
-  } else {
+  } else if(payload.actions[0].value === 'false') {
+    res.send('Cancelled');
+  }
+  else {
+    //do nothing bc there are more cases of payloads now
+    // res.send('Cancelled');
     res.send('Cancelled');
   }
 })
@@ -343,7 +327,8 @@ function createCalendarReminder(date, subject, tokens, invitees, time){
       console.log("There was an error adding the calendar", err);
       return
     }else {
-      console.log('event created')
+      console.log('event created');
+      // res.send("Meeting Confirmed");
     }
   })
 }
@@ -585,7 +570,7 @@ function sendInvitations(meeting, user){
     console.log('error in saving pendinginvites array to mlabs');
   })
 
-// 2.  get UserId and DM ID from the slack usernames in meeting.invitees =>
+ // 2.  get UserId and DM ID from the slack usernames in meeting.invitees =>
   let slackDmArray = [];
   let slackUserArray = [];
 
