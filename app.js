@@ -103,7 +103,7 @@ app.post('/command', function(req, res) {
 
 app.post('/slack/interactive', function(req,res){
   var payload = JSON.parse(req.body.payload);
-  console.log('PAYLOAD ACTIONS', payload.actions);
+  console.log('PAYLOAD ACTIONS', payload);
   //if the user selects a new meeting time from list of meetings
   if(payload.actions[0].type === "select"){
       console.log('the intervative message was a select');
@@ -111,7 +111,7 @@ app.post('/slack/interactive', function(req,res){
       var selectedMeeting = payload.actions[0].selected_options[0].value;
       var meetStartTime = selectedMeeting.slice(0,10);
       var meetDate = selectedMeeting.slice(11,19);
-      var invitees = payload.original_message.attachments[0].fields[3].value.split(", ");
+    //   var invitees = payload.original_message.attachments[0].fields[3].value.split(", ");
 
     //   var newMeeting = new Meeting({
     //       userID: user._id,
