@@ -337,7 +337,7 @@ function processMessage(message, rtm, sender) {
                 var options = []
                 freeTimeList.forEach((time) => {
                     options.push({
-                        "text": `${time.start.slice(11,19)} ${time.start.slice(0,10)} ${time.end.slice(0,10)}`,
+                        "text": `${time.start.slice(0,10)} ${time.start.slice(11,19)} ${time.end.slice(11,19)}`,
                         "value": `${time.start}-${time.end}`
                     })
                 })
