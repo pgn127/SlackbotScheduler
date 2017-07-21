@@ -196,7 +196,6 @@ function processMessage(message, rtm, sender) {
                 if(duration) { fields.push(duration)}
                 var options = []
 
-
                 freeTimeList.forEach((time)=> {
                     var startTime = new Date(time.start)
                     var endTime = new Date(time.end)
@@ -446,12 +445,21 @@ function reduceTimeIntervals(busyArray){
 function findFreeTimes(busyArray, meetingStartDate, sevenBusinessDays, meetingDuration){
     //meetingStartDate and sevenBusinessDays must be in format '2017-07-22T23:59:59Z'
     var intervals = reduceTimeIntervals(busyArray);
-    var freeStart = meetingStartDate.slice(0,11)+'00:00:00Z'
+    var freeStart = meetingStartDate.slice(0,11)+'00:00:00Z' //TODO: CHANGE TO BE 9AM ON THE DAY YOU REQUESTED THE MEETING OR DATE.NOW
     var freeEnd = sevenBusinessDays.slice(0,11)+'23:59:59Z'
     var freeStack = []
+    var duration = meetingDuration * 60 * 1000; //meeting duration in milliseconds
     intervals.forEach((interval) => {
-        if(Date.parse(freeStart) !== Date.parse(interval.start)){
-            freeStack.push({start: freeStart, end: interval.start})
+        var currentFreeTime = Date.parse(freeStart);
+        var nextBusyTime = Date.parse(interval.start);
+        if(currentFreeTime !== nextBusyTime){
+            while(currentFreeTime + duration <= nextBusyTime) {
+                currentFreeTime = currentFreeTime + duration;
+                freeStack.push({start: freeStart, end: new Date(currentFreeTime).toISOString})
+                freeStart = new Date(currentFreeTime).toISOString;
+
+            }
+
         }
         freeStart = interval.end;
     })
@@ -461,6 +469,7 @@ function findFreeTimes(busyArray, meetingStartDate, sevenBusinessDays, meetingDu
 
     //make sure you only provide 30 minute/duration selected_options
     //max 3 meetings offered per day
+
     var duration = 30;
 
 
