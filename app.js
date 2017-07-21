@@ -124,6 +124,7 @@ app.post('/slack/interactive', function(req,res){
     //   })
 
   }
+  console.log('PAYLOAD.ACTIONS[0].VALUE ! == FALSE', payload.actions[0].value !== 'false');
   //if the user selects confirm button
   if(payload.actions[0].value !== 'false') {
   // else if(payload.actions[0].type === "button" && payload.actions[0].value !== 'false') {
@@ -137,7 +138,7 @@ app.post('/slack/interactive', function(req,res){
           if(payload.actions[0].type === "select"){
               //meeting with conflicts with select list
             //   console.log('the intervative message was a select');
-              console.log('selected options', payload.actions[0].selected_options[0].value);
+            //   console.log('selected options', payload.actions[0].selected_options[0].value);
               var selectedMeeting = payload.actions[0].selected_options[0].value;
               var meetingTime = selectedMeeting.slice(0,10);
               var meetingDate = selectedMeeting.slice(11,19);
@@ -203,7 +204,7 @@ app.post('/slack/interactive', function(req,res){
                                 // res.status(400).json({error:err});
                                 res.send('Error saving meeting');
                             }else{
-                                findAndReturnEmails(meeting.invitees, meeting.date,  meeting.subject, user.token, meeting.time);
+                                findAndReturnEmails(newMeeting.invitees, newMeeting.date,  newMeeting.subject, user.token, newMeeting.time);
                                 res.send('Meeting confirmed');
                             }
                         })
