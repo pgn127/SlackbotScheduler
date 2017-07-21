@@ -6,7 +6,8 @@ var userSchema = new Schema({
   auth_id: String,
   token: Object,
   email: String,
-  pendingInvites: []
+  pendingInvites: [],
+  pendingEvent: {}
 })
 var reminderSchema = new Schema({
   userID: {

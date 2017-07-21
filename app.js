@@ -79,7 +79,8 @@ app.get('/connect/callback', function(req, res) {
             slackID: slackID,
             auth_id: auth_id.auth_id,
             email: tempEmail,
-            pendingInvites: []
+            pendingInvites: [],
+            pendingEvent: {}
           });
           newUser.save()
           .then( () => res.status(200).send("Your account was successfuly authenticated"))
@@ -106,58 +107,83 @@ app.post('/command', function(req, res) {
 app.post('/slack/interactive', function(req,res){
 
   var payload = JSON.parse(req.body.payload);
-  console.log("This is payload", payload);
-  if(payload.callback_id === 'inviteResponse'){
-    User.findOne({slackId: payload.user.id})
+  // console.log("this is payload", payload);
+  if(payload.callback_id.charAt(0) === 'X'){
+    console.log("this is payload", payload);
+    User.findOne({slackID: payload.actions[0].value})
     .then((user) => {
-      if(payload.actions.name === 'yes'){
-        let index = usr.pendingInvites.indexOf(payload.actions.value);
+      console.log("user found")
+      if(payload.actions[0].name === 'yes'){
+        console.log("inside 'yes'");
+        let tempArr = user.pendingInvites
+        let name = payload.callback_id.substring(2, payload.callback_id.length);
+        console.log("this is name", name);
+        let index = tempArr.indexOf(name);
         if(index > -1){
-          usr.pendingInvites.splice(index, 1);
-          if(usr.pendingInvites.length === 0){
+          user.pendingInvites.splice(index, 1);
+          if(user.pendingInvites.length === 0){
             //TODO: need to pass in a bunch of arguments to this thing
-            findAndReturnEmails();
+            var meetingEvent = user.pendingEvent;
+            console.log("this is meetingEvent", meetingEvent);
+
+            findAndReturnEmails(meetingEvent.invitees, meetingEvent.date, meetingEvent.subject, user.token, meetingEvent.time);
+          } else {
+            //do nothing and wait for other invitees to respond
+            console.log("Invitee removed from array bc confirmation, still waiting on others")
           }
         }
       } else {
+        console.log("inside no");
         //person declined the invitiation
-        let ind = usr.pendingInvites.indexOf(payload.actions.value);
+        let tempArr = user.pendingInvites
+        let name = payload.callback_id.substring(2, payload.callback_id.length);
+        console.log("this is name", name);
+        let index = tempArr.indexOf(name);
         if(ind > -1){
-          usr.pendingInvites.splice(ind, 1);
-          if(usr.pendingInvites.length === 0){
+          user.pendingInvites.splice(ind, 1);
+          if(user.pendingInvites.length === 0){
             //TODO: need to pass in a bunch of arguments to this thing
-            findAndReturnEmails();
+            //TODO: REMOVE CANCELLED PEOPLE FROM INVITEES ARRAY TO SO IT DOESNT STILL GO TO THEIR CALENDAR
+            //findAndReturnEmails(meeting.invitees, meeting.date, meeting.subject, user.token, meeting.time);
+            var meetingEvent = user.pendingEvent;
+            findAndReturnEmails(meetingEvent.invitees, meetingEvent.date, meetingEvent.subject, user.token, meetingEvent.time);
+          } else {
+            //do nothing and wait for other invitees to respond
+            console.log("Invitee removed from array bc declined invitation, still waiting on others")
           }
         }
       }
     })
-
-
-    if(payload.actions.name === 'yes'){
-      //person accepted the invitation
-      User.findOne({slackId: payload.user.id})
-      .then((usr) => {
-        let index = usr.pendingInvites.indexOf(payload.actions.value)
-        if (index > -1) {
-          usr.pendingInvites.splice(index, 1);
-          if(usr.pendingInvites.length === 0){
-            //call the findAndReturnEmails function
-          }
-        } else {
-          console.log("ERROR: invited user was not in pending invites array")
-        }
-      })
-      .catch((err) => {
-          console.log("Error could not find user in mongodb with slackId", err);
-      })
-    } else {
-      //person declined the invitation
-    }
-
     .catch((err) => {
-        console.log("Error could not find user in mongodb with slackId", err);
+      console.log("Error could not find user in mongodb with slackId", err)
     })
   }
+    // if(payload.actions.name === 'yes'){
+    //   //person accepted the invitation
+    //   User.findOne({slackId: payload.user.id})
+    //   .then((usr) => {
+
+    // .catch((err) => {
+    //   console.log('error in newuser save of connectcallback');
+    //   res.status(400).json({error:err});
+    // })
+
+    //     let index = usr.pendingInvites.indexOf(payload.actions.value)
+    //     if (index > -1) {
+    //       usr.pendingInvites.splice(index, 1);
+    //       if(usr.pendingInvites.length === 0){
+    //         //call the findAndReturnEmails function
+    //       }
+    //     } else {
+    //       console.log("ERROR: invited user was not in pending invites array")
+    //     }
+    //   })
+    //   .catch((err) => {
+    //     console.log("Error could not find user in mongodb with slackId", err);
+    //   })
+    // } else {
+    //   //person declined the invitation
+    // }
 
 
   if(payload.actions[0].value === 'true') {
@@ -287,7 +313,7 @@ function createCalendarReminder(date, subject, tokens, invitees, time){
         'email' : invited
       })
     })
-    console.log(attendeesArr);
+    // console.log(attendeesArr);
     let dateTime = date + "T" + time + "-07:00"
     var event = {
       'summary': subject,
@@ -324,7 +350,7 @@ function createCalendarReminder(date, subject, tokens, invitees, time){
 
 
 function findAndReturnEmails (users, date, subject, tokens, time) {
-
+  console.log("entering findAndReturnEmails");
   var slackIdArray = [];
 
   users.forEach((username) => {
@@ -553,6 +579,7 @@ function sendInvitations(meeting, user){
   // 1. add invitees to invitor's pending invites array
   //user that created event and is sending invitations's object gets passed into this function
   user.pendingInvites = meeting.invitees;
+  user.pendingEvent = meeting;
   user.save()
   .catch((err) => {
     console.log('error in saving pendinginvites array to mlabs');
@@ -578,7 +605,13 @@ function sendInvitations(meeting, user){
 
   // 3. for each invitee send web.chat.postmessage invitation message
   for(var i = 0; i < slackDmArray.length; i++){
-    var tempName = slackUserArray[i].name;
+    // var theFootball = {
+    //   tempName: slackUserArray[i].name,
+    //   meeting: meeting,
+    //   user: user
+    // }
+    var tempName = slackUserArray[i].name
+    // slackUserArray[i].name;
     // console.log("this is tempName", tempName)
     web.chat.postMessage(slackDmArray[i], "Will you attend the following meeting?", {
       "attachments": [
@@ -606,7 +639,7 @@ function sendInvitations(meeting, user){
             }
           ],
           // "fallback": "You are unable to choose a game",
-          "callback_id": "inviteResponse",
+          "callback_id": "X " + `${tempName}`,
           "color": "#3AA3E3",
           "attachment_type": "default",
           "actions": [
@@ -614,13 +647,13 @@ function sendInvitations(meeting, user){
               "name": "yes",
               "text": "Confirm",
               "type": "button",
-              "value": `${tempName}`
+              "value": `${user.slackID}` //tempName
             },
             {
               "name": "no",
               "text": "Cancel",
               "type": "button",
-              "value": `${tempName}`
+              "value": `${user.slackID}` //tempName
             }
           ]
         }
@@ -630,9 +663,12 @@ function sendInvitations(meeting, user){
 
  // 4. call findandreturn emails i guess
  //this is only temporary ===> calling this function will be moved to /slack/interactive logic
-  console.log("calling findAndReturnEmails");
-  findAndReturnEmails(meeting.invitees, meeting.date,  meeting.subject, user.token, meeting.time);
+  console.log("postMessage invitations sent");
+  // findAndReturnEmails(meeting.invitees, meeting.date, meeting.subject, user.token, meeting.time);
 }
+
+// punt the football
+// ALL I NEED TO DO IS PASS MEETING AND USER OBJECTS INTO THE PAYLOAD THAT GOES TO /INTERACTIVE
 
 //4,5,6 for other function...
 //when slack user confirms, write new route in /slack/interactive to receive that payload with the information in it
