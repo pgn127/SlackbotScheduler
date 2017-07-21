@@ -111,8 +111,8 @@ app.post('/slack/interactive', function(req,res){
       var selectedMeeting = payload.actions[0].selected_options[0].value;
       var meetStartTime = selectedMeeting.slice(0,10);
       var meetDate = selectedMeeting.slice(11,19);
-      console.log('selected options attachemnts', payload.original_message.attachments[0].fields);
-    //   var invitees = payload.original_message.attachments[0].fields[3].value.split(", ");
+      console.log('selected options attachemnts', payload.original_message.attachments[0].fields[1].value.split(', '));
+      var invitees = payload.original_message.attachments[0].fields[1].value.split(', ');
 
     //   var newMeeting = new Meeting({
     //       userID: user._id,
@@ -140,8 +140,9 @@ app.post('/slack/interactive', function(req,res){
               console.log('selected options', payload.actions[0].selected_options[0].value);
               var selectedMeeting = payload.actions[0].selected_options[0].value;
               var meetStartTime = selectedMeeting.slice(0,10);
-              var meetDate = selectedMeeting.slice(11,19);
-            //   var meetingInvitees = payload.original_message.attachments[0].fields[3].value.split(", ");
+              var meetingDate = selectedMeeting.slice(11,19);
+              var meetingSubject = payload.original_message.attachments[0].fields[0].value;
+              var meetingInvitees = payload.original_message.attachments[0].fields[1].value.split(", ");
           }
 
           else if(payload.original_message.text === "Would you like me to create a reminder for "){
@@ -153,9 +154,9 @@ app.post('/slack/interactive', function(req,res){
           else {
               //it was a meeting that had no conflicts
               var meetingSubject = payload.original_message.attachments[0].fields[0].value;
-              var meetingDate = payload.original_message.attachments[0].fields[1].value; //NOTE: removed Date.parse because conflicts with how we deal with dates in the check conflcits and the date type should be String
-              var meetingTime = payload.original_message.attachments[0].fields[2].value;
-              var meetingInvitees = payload.original_message.attachments[0].fields[3].value.split(", ");
+              var meetingDate = payload.original_message.attachments[0].fields[2].value; //NOTE: removed Date.parse because conflicts with how we deal with dates in the check conflcits and the date type should be String
+              var meetingTime = payload.original_message.attachments[0].fields[3].value;
+              var meetingInvitees = payload.original_message.attachments[0].fields[1].value.split(", ");
           }
             oauth2Client = new OAuth2(
                 process.env.GOOGLE_CLIENT_ID,
@@ -196,28 +197,36 @@ app.post('/slack/interactive', function(req,res){
                             time: meetingTime,
                             invitees: meetingInvitees,
                         })
-                        checkConflicts(newMeeting, rtm)
-                        .then((freeTimeList)=>{
-                            console.log(freeTimeList);
-                            if(freeTimeList && freeTimeList.length === 0){
-                                //only save new meeting if there are no conflicts
-                                newMeeting.save(function(err, meeting){
-                                    if (err){
-                                        res.status(400).json({error:err});
-                                    }else{
-                                        findAndReturnEmails(meeting.invitees, meeting.date,  meeting.subject, user.token, meeting.time);
-                                        res.send('No conflicts with that time. Meeting confirmed');
-                                    }
-                                })
-
-                            } else {
-                                console.log('THERE WERE CONFLICTS, SHOULD NOT CONFIRM MEETING');
-                                //TODO: NEED TO SEND MESSAGE WITH FREE TIMES TO HAVE HTEM SELECT FROM BUT PROBABLY SHOULDNT DO THAT IN HERE??
-                                res.send('There were conflicts with that meeting time and your invitees. Please choose another meeting time. FIGURE OUT HOW TO SEND THE MESSAGE');
+                        newMeeting.save(function(err, meeting){
+                            if (err){
+                                res.status(400).json({error:err});
+                            }else{
+                                findAndReturnEmails(meeting.invitees, meeting.date,  meeting.subject, user.token, meeting.time);
+                                res.send('Meeting confirmed');
                             }
-                        }).catch((err) => {
-                            console.log('error with checkconflicts', err);
                         })
+                        // checkConflicts(newMeeting, rtm)
+                        // .then((freeTimeList)=>{
+                        //     console.log(freeTimeList);
+                        //     if(freeTimeList && freeTimeList.length === 0){
+                        //         //only save new meeting if there are no conflicts
+                        //         newMeeting.save(function(err, meeting){
+                        //             if (err){
+                        //                 res.status(400).json({error:err});
+                        //             }else{
+                        //                 findAndReturnEmails(meeting.invitees, meeting.date,  meeting.subject, user.token, meeting.time);
+                        //                 res.send('No conflicts with that time. Meeting confirmed');
+                        //             }
+                        //         })
+                        //
+                        //     } else {
+                        //         console.log('THERE WERE CONFLICTS, SHOULD NOT CONFIRM MEETING');
+                        //         //TODO: NEED TO SEND MESSAGE WITH FREE TIMES TO HAVE HTEM SELECT FROM BUT PROBABLY SHOULDNT DO THAT IN HERE??
+                        //         res.send('There were conflicts with that meeting time and your invitees. Please choose another meeting time. FIGURE OUT HOW TO SEND THE MESSAGE');
+                        //     }
+                        // }).catch((err) => {
+                        //     console.log('error with checkconflicts', err);
+                        // })
 
 
                     }
