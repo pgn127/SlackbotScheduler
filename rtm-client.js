@@ -302,6 +302,7 @@ function checkConflicts(meeting, rtm){
                             n++;
                         }
                         sevenBusinessDays = new Date(Date.parse(meetingEnd) + n*24*60*60*1000)
+                        console.log("BEFORE PROMISE", meetingDate);
                         return new Promise((resolve, reject) => {
                             calendar.freebusy.query({
                                 auth: oauth2Client,
@@ -330,6 +331,7 @@ function checkConflicts(meeting, rtm){
             })
             .then((schedule) => {
                 // console.log('scheudle was retunred', schedule);
+                console.log("AFTER PROMISE", meetingDate);
                 if(false && !schedule){
                     console.log(`rejectig: I was not able to locate ${invitee}'s schedule to create the meeting.`);
                     reject(`I was not able to locate ${invitee}'s schedule to create the meeting.`)
@@ -338,6 +340,7 @@ function checkConflicts(meeting, rtm){
                     // console.log('schedule is ', schedule);
                     var busyList = schedule.calendars.primary.busy;
                     busySlots = busySlots.concat(busyList);
+                    console.log("BUSYLIST", busyList)
                     // console.log(invitee);
                     busyList.forEach((time) => {
                         var meetingStartTime = new Date(meeting.date + ' ' + meeting.time + "-07:00");;
