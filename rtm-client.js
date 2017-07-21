@@ -242,8 +242,8 @@ function processMessage(message, rtm, sender) {
 
             }
         }).catch((err) => {
-            console.log('CHECKCONFLCITS PROMISE ERROR: error with checkconflicts', err);
             rtm.sendMessage(`Sorry there was an error with that request. ${err}`, meeting.channelID);
+            console.log('CHECKCONFLCITS PROMISE ERROR: error with checkconflicts', err);
             // rtm.sendMessage
         })
       }
