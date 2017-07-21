@@ -312,6 +312,7 @@ function checkConflicts(meeting, rtm){
                                 if(schedule){
                                     resolve(schedule)
                                 } else {
+                                    console.log('REJECTING PROMISE');
                                     reject(err);
                                 }
                             }
@@ -372,6 +373,7 @@ function checkConflicts(meeting, rtm){
             })
             .catch((err) => {
                 counterGoal -= 1; //if you cant get a user, subtract from counter goal so your not waiting on a users info that will never come
+                console.log('rejecting  promises in catch, decrementing counterGoal', err);
                 reject(err);
             })
         }
