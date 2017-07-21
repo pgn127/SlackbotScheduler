@@ -236,8 +236,8 @@ function processMessage(message, rtm, sender) {
                     var startTime = new Date(time.start)
                     var endTime = new Date(time.end)
                     var newStartTime = new Date(startTime.toDateString() + ' ' + startTime.toTimeString() + "+07:00").toLocaleString()
-                    var newEndTime = new Date(endTime.toDateString() + ' ' + endTime.toTimeString() + "+07:00").toLocaleString()
-                    options.push({"text": `${newStartTime}-${newEndTime}`, "value": time.start})
+                    var newEndTime = new Date(endTime.toDateString() + ' ' + endTime.toTimeString() + "+07:00").toLocaleString().split(',')
+                    options.push({"text": `${newStartTime}-${newEndTime[1]}`, "value": time.start})
                 })
                 console.log('FREELIST IS', freeTimeList);
                 console.log('OPTIONS IS', options);
@@ -482,16 +482,13 @@ function findFreeTimes(busyArray, meetingStartDate, sevenBusinessDays){
     var freeEnd = sevenBusinessDays.slice(0,11)+'23:59:59Z'
     var freeStack = []
     intervals.forEach((interval) => {
-
-
-
         if(Date.parse(freeStart) !== Date.parse(interval.start)){
             freeStack.push({start: freeStart, end: interval.start})
         }
         freeStart = interval.end;
     })
 
-    
+
     freeStack.push({start: freeStart, end: freeEnd})
 
     //make sure you only provide 30 minute selected_options
