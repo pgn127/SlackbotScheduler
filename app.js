@@ -134,27 +134,38 @@ app.post('/slack/interactive', function(req,res){
               console.log('rEMINDER DATE IS ', reminderDate, payload.original_message.attachments[0].fields[1].value);
           }
           else{
-              var meetingDuration = 60; //default meeting duration is 1 hour
-              console.log('meeting duration field was ', payloadArr[0].fields[4]);
-              if(payloadArr[0].fields[4]) {
-                //the duration field was provided
-                let durArr = payloadArr[0].fields[4].value.split(" ");
-                if(durArr[1] === "h") {
-                  meetingDuration = durArr[0] * 60;
-                } else {
-                  meetingDuration = durArr[0]
-                }
-              }
+              var meetingDuration = 30; //default meeting duration is 1 hour
               console.log('meeting duration after some stuff idk what its doing ', meetingDuration);
               var meetingSubject = payload.original_message.attachments[0].fields[0].value;
               var meetingInvitees = payload.original_message.attachments[0].fields[1].value.split(",");
               if(payload.actions[0].type === "select"){ //meeting with conflicts with select list
                  var meetingTime = payload.actions[0].selected_options[0].value.slice(11,19);
                  var meetingDate = payload.actions[0].selected_options[0].value.slice(0,10);
+
+                 if(payloadArr[0].fields[2]) {
+                     console.log('meeting duration field was ', payloadArr[0].fields[2]);
+                   //the duration field was provided
+                   let durArr = payloadArr[0].fields[2].value.split(" ");
+                   if(durArr[1] === "h") {
+                     meetingDuration = durArr[0] * 60;
+                   } else {
+                     meetingDuration = durArr[0]
+                   }
+                 }
              }
              else { //it was a meeting that had no conflicts
                  var meetingDate = payload.original_message.attachments[0].fields[2].value;
                  var meetingTime = payload.original_message.attachments[0].fields[3].value;
+                 if(payloadArr[0].fields[4]) {
+                     console.log('meeting duration field was ', payloadArr[0].fields[4]);
+                   //the duration field was provided
+                   let durArr = payloadArr[0].fields[4].value.split(" ");
+                   if(durArr[1] === "h") {
+                     meetingDuration = durArr[0] * 60;
+                   } else {
+                     meetingDuration = durArr[0]
+                   }
+                 }
              }
           }
 
