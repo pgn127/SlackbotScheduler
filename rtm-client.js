@@ -265,7 +265,7 @@ function checkConflicts(meeting, rtm){
             var inviteeuser = rtm.dataStore.getUserByName(invitee); //given the invitee slack name, find their slack user object
             if(!inviteeuser) {
                 console.log('CHECKCONFLICTS: user not found with that name', invitee);
-                rtm.sendMessage(`user not found with name ${invitee}`, meeting.channelID)
+                rtm.sendMessage(`user not found with name ${invitee}`, meeting.channelID);
             } else {
                 var inviteeSlackID = inviteeuser.id;
                 User.findOne({slackID: inviteeSlackID}).exec()
@@ -302,18 +302,15 @@ function checkConflicts(meeting, rtm){
                             }, function(err, schedule) {
                                 // console.log(typeof schedule);
                                 if(schedule){
-                                    console.log('returning schedule to next then');
                                     resolve(schedule)
                                 } else {
-                                    console.log('INSIDE ELSE');
                                     reject(err);
-                                    // console.log("There was an error getting invitee calendar", err);
-                                    // throw new Error('couldnt find scheduke for user');
                                 }
                             }
                         )
                     })
                 } else {
+                    rtm.sendMessage(`I do not have the correct permissions invite ${invitee} to this meeting.`, meeting.channelID);
                     throw new Error('couldnt find user');
                 }
             })
