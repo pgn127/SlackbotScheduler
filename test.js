@@ -19,6 +19,12 @@ var busy = [ { start: '2017-07-20T00:00:00Z', end: '2017-07-20T00:00:00Z' },
    { start: '2017-07-21T19:00:00Z', end: '2017-07-21T19:25:00Z' },
    { start: '2017-07-21T21:00:00Z', end: '2017-07-21T22:00:00Z' } ]
 
+
+var freelist = [ { start: '2017-07-22T00:30:00Z', end: '2017-07-22T03:00:00Z' },
+{ start: '2017-07-22T04:00:00Z', end: '2017-07-22T20:30:00Z' },
+{ start: '2017-07-22T21:30:00Z', end: '2017-07-25T00:30:00Z' },
+{ start: '2017-07-25T02:00:00Z', end: '2017-08-01T23:59:59Z' } ]
+
 // calculateFreeTimes(busy);
 findFreeTimes(busy, '2017-07-19T21:30:00Z', '2017-07-21T22:00:00Z');
 
@@ -55,10 +61,15 @@ function findFreeTimes(busyArray, meetingStartDate, sevenBusinessDays){
     var freeEnd = sevenBusinessDays.slice(0,11)+'23:59:59Z'
     var freeStack = []
     intervals.forEach((interval) => {
-        freeStack.push({start: freeStart, end: interval.start})
+        if(Date.parse(freeStart) !== Date.parse(interval.start)){
+            freeStack.push({start: freeStart, end: interval.start})
+        }
         freeStart = interval.end;
     })
     freeStack.push({start: freeStart, end: freeEnd})
+
+
+    
     return freeStack;
 }
 
