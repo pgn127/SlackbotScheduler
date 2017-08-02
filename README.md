@@ -21,7 +21,7 @@ Sam the Scheduler bot is built on the technologies:
 ### Usage
 
 Authenicating throught Google:  
-![](https://media.giphy.com/media/xT39Dp5YCjRxhAdUvC/giphy.gif  =500x )
+![](https://cl.ly/1u3x1y2Y1W1u)
 
 ## Running the tests
 
