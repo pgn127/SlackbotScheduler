@@ -48,9 +48,11 @@ Explain how to run the automated tests for this system
 
 ## Built With
 
-* [Dropwizard](http://www.dropwizard.io/1.0.2/docs/) - The web framework used
-* [Maven](https://maven.apache.org/) - Dependency Management
-* [ROME](https://rometools.github.io/rome/) - Used to generate RSS Feeds
+* [API.AI](https://api.ai/) - The ai/machine learning tool used to process natural language  
+* [Slack](https://api.slack.com/) - Chat application  
+* [Google Calendar API](https://developers.google.com/google-apps/calendar/) - Used by bot to schedule meetings and reminders  
+* [Express](https://expressjs.com/) - Backend Server  
+
 
 
 
