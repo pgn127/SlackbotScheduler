@@ -20,8 +20,8 @@ Sam the Scheduler bot is built on the technologies:
 
 ### Usage
 
-Authenicating throught Google: 
-![alt text](https://media.giphy.com/media/xT39Dp5YCjRxhAdUvC/giphy.gif "Slackbot OAuth")
+Authenicating throught Google:  
+![alt text](https://media.giphy.com/media/xT39Dp5YCjRxhAdUvC/giphy.gif "Slackbot OAuth" | height=500 )
 
 ## Running the tests
 
