@@ -61,9 +61,20 @@ Bot: "Reminder Set"
 
 ## Running the tests
 
+Since the free version of Heroku has been used, the server will automatically sleep after 12 hours. To test this application, simply deploy this project to heroku, set the Heroku address with the */slack/interactive* endpoint to the request URL for interactive messages in the Slack API application dashboard. For example, here is my interactive message endpoint:  
+*https://dry-sierra-94244.herokuapp.com/slack/interactive*  
+  
+You will also need to set up a mongodb. Instructions on how to do this can be found [here.](http://fredrik.anderzon.se/2017/01/17/setting-up-a-free-mongodb-database-on-mlab-and-connecting-to-it-with-node-js/)  
 
-
-Explain how to run the automated tests for this system
+Finally, set all of your environmental variables in heroku. You will need the following names for your environment variables:  
+API_AI_TOKEN: *Your API.AI token*  
+CLIENT_ID: *Your Slack credentials*  
+CLIENT_SECRET: *Your Slack credentials*  
+DOMAIN: *Heroku domain name*  
+GOOGLE_CLIENT_ID: *Google API Credentials*  
+GOOGLE_CLIENT_SECRET: *Google API Credentials*  
+MONGODB_URI: *Mongo DB credentials*  
+SLACK_API_TOKEN: *Bot User OAuth Access Token*  
 
 
 ## Built With
@@ -72,9 +83,4 @@ Explain how to run the automated tests for this system
 * [Slack](https://api.slack.com/) - Chat application used for RTM and interactive messages
 * [Google Calendar API](https://developers.google.com/google-apps/calendar/) - Used by bot to schedule meetings and reminders  
 * [Express](https://expressjs.com/) - Backend Server  
-
-
-
-
-
 
